@@ -30,6 +30,7 @@ import {
 import { TYPE_CHROMA, TYPE_LIGHTNESS } from './identity';
 import { handAngles, pointAt, tickAngles } from './clock';
 import { HAND_DRAWINGS } from './hands';
+import { BASE_Y, BEAD, beadPath, PEG_X, TOWER_BOX } from './tower-geometry';
 import type { CellGrid, ClockFace, Figure, Hand, Item, Shape } from './types';
 
 export const OG_WIDTH = 1200;
@@ -696,6 +697,141 @@ function stage(item: Item): string {
               : figureTile(row.right, rightX, y, box),
           ].join('');
         })
+        .join('');
+    }
+
+    /*
+     * Two boards side by side with an arrow between them — the same picture as the card thumbnail,
+     * scaled up. Bead identity is shape alone, as everywhere else.
+     */
+    case 'tower': {
+      const scale = 2.1;
+      const boardW = TOWER_BOX.w * scale;
+      const boardH = TOWER_BOX.h * scale;
+      const gap = 60;
+      const startX = STAGE.x + (STAGE.w - (boardW * 2 + gap)) / 2;
+      const y = STAGE.y + (STAGE.h - boardH) / 2;
+      const board = (pegs: number[][], x: number) => {
+        const pegX = PEG_X;
+        const bead = BEAD;
+        const baseY = BASE_Y;
+        const parts = [
+          `<line x1="${round(x + 4 * scale)}" y1="${round(y + baseY * scale)}" x2="${round(x + 96 * scale)}" y2="${round(y + baseY * scale)}" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>`,
+        ];
+        s.capacities.forEach((capacity, peg) => {
+          parts.push(
+            `<line x1="${round(x + pegX[peg]! * scale)}" y1="${round(y + baseY * scale)}" x2="${round(x + pegX[peg]! * scale)}" y2="${round(y + (baseY - capacity * bead - 4) * scale)}" stroke="${MUTED}" stroke-width="4" stroke-linecap="round"/>`,
+          );
+        });
+        pegs.forEach((stack, peg) => {
+          stack.forEach((b, level) => {
+            const d = beadPath(b, x / scale + pegX[peg]!, y / scale + baseY - bead / 2 - level * bead);
+            parts.push(
+              `<g transform="scale(${scale})"><path d="${d}" fill="${b === 1 ? 'none' : INK}" stroke="${INK}" stroke-width="${b === 1 ? 2.2 : 0}"/></g>`,
+            );
+          });
+        });
+        return parts.join('');
+      };
+      const arrowX = startX + boardW + gap / 2;
+      const arrowY = y + boardH / 2;
+      return (
+        board(s.start, startX) +
+        `<text x="${round(arrowX)}" y="${round(arrowY)}" text-anchor="middle" dominant-baseline="central" font-size="48" fill="${SUBTLE}">→</text>` +
+        board(s.goal, startX + boardW + gap)
+      );
+    }
+
+    /*
+     * The table, rows and columns as drawn, with the corner blank. Text rather than tiles, because
+     * the format is about reading figures off a grid and that is what the card should show.
+     */
+    case 'table': {
+      /*
+       * Labels in English, because the stage has no locale: the card is drawn once per format and
+       * the figures are the point. The live view is the one that translates.
+       */
+      const columns = Math.min(4, s.columns);
+      const rows = s.cells.slice(0, 4);
+      const cellW = 92;
+      const labelW = 120;
+      const rowH = 64;
+      const totalW = labelW + columns * cellW;
+      const totalH = (rows.length + 1) * rowH;
+      const x0 = STAGE.x + (STAGE.w - totalW) / 2;
+      const y0 = STAGE.y + (STAGE.h - totalH) / 2;
+      const parts: string[] = [];
+      parts.push(
+        `<rect x="${round(x0)}" y="${round(y0)}" width="${totalW}" height="${totalH}" rx="14" fill="${RAISED}" stroke="${LINE}" stroke-width="2"/>`,
+      );
+      parts.push(
+        `<line x1="${round(x0)}" y1="${round(y0 + rowH)}" x2="${round(x0 + totalW)}" y2="${round(y0 + rowH)}" stroke="${LINE}" stroke-width="3"/>`,
+      );
+      for (let c = 0; c < columns; c++) {
+        parts.push(
+          `<text x="${round(x0 + labelW + c * cellW + cellW / 2)}" y="${round(y0 + rowH / 2)}" text-anchor="middle" dominant-baseline="central" font-size="26" font-weight="600" fill="${MUTED}">Q${c + 1}</text>`,
+        );
+      }
+      rows.forEach((values, r) => {
+        const cy = y0 + rowH * (r + 1) + rowH / 2;
+        parts.push(
+          `<text x="${round(x0 + 18)}" y="${round(cy)}" dominant-baseline="central" font-size="26" font-weight="600" fill="${MUTED}">Team ${'ABCD'[r]}</text>`,
+        );
+        values.slice(0, columns).forEach((value, c) => {
+          parts.push(
+            `<text x="${round(x0 + labelW + c * cellW + cellW / 2)}" y="${round(cy)}" text-anchor="middle" dominant-baseline="central" font-family="ui-monospace, monospace" font-size="28" fill="${INK}">${value}</text>`,
+          );
+        });
+      });
+      return parts.join('');
+    }
+
+    /* The targets in a row, one filled. */
+    case 'reaction': {
+      const gap = 28;
+      const box = Math.min(96, (STAGE.w - (s.targets - 1) * gap) / s.targets);
+      const at = row(s.targets, box, gap);
+      return at
+        .map((p, i) =>
+          i === s.lit
+            ? `<circle cx="${round(p.x + box / 2)}" cy="${round(p.y + box / 2)}" r="${box / 2}" fill="${ACCENT}"/>` +
+              `<circle cx="${round(p.x + box / 2)}" cy="${round(p.y + box / 2)}" r="${box / 2 + 10}" fill="none" stroke="${ACCENT}" stroke-width="4" stroke-opacity="0.4"/>`
+            : `<circle cx="${round(p.x + box / 2)}" cy="${round(p.y + box / 2)}" r="${box / 2}" fill="${SUNKEN}" stroke="${LINE}" stroke-width="3"/>`,
+        )
+        .join('');
+    }
+
+    /* The grid, lit cells filled. */
+    case 'pattern': {
+      const cell = 76;
+      const gap = 10;
+      const total = s.size * cell + (s.size - 1) * gap;
+      const x0 = STAGE.x + (STAGE.w - total) / 2;
+      const y0 = STAGE.y + (STAGE.h - total) / 2;
+      const lit = new Set(s.cells);
+      const parts: string[] = [];
+      for (let i = 0; i < s.size * s.size; i++) {
+        const x = x0 + (i % s.size) * (cell + gap);
+        const y = y0 + Math.floor(i / s.size) * (cell + gap);
+        parts.push(
+          `<rect x="${round(x)}" y="${round(y)}" width="${cell}" height="${cell}" rx="12" fill="${lit.has(i) ? ACCENT : RAISED}" stroke="${lit.has(i) ? ACCENT : LINE}" stroke-width="3"/>`,
+        );
+      }
+      return parts.join('');
+    }
+
+    /* Open boxes with their symbols; the probed box is ringed. */
+    case 'pairs': {
+      const box = 96;
+      const gap = 24;
+      const shown = s.symbols.slice(0, 4);
+      const at = row(shown.length, box, gap);
+      return at
+        .map(
+          (p, i) =>
+            `<rect x="${round(p.x - 8)}" y="${round(p.y - 8)}" width="${box + 16}" height="${box + 16}" rx="16" fill="${RAISED}" stroke="${i === s.probe ? ACCENT : LINE}" stroke-width="${i === s.probe ? 5 : 3}"/>` +
+            figureTile(shown[i]!, p.x, p.y, box),
+        )
         .join('');
     }
 

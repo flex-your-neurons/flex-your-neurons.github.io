@@ -4165,3 +4165,378 @@ table.data th.num {
   color: var(--text-subtle);
   font-variant-numeric: tabular-nums;
 }
+
+/* --- Tower: two boards, nothing to touch ----------------------------------- */
+
+.tower {
+  /* Side by side, not stacked: the stage has a fixed height and two boards one above the other
+     clipped the second — the one that says what is wanted. */
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  align-items: start;
+  width: 100%;
+  max-width: 34rem;
+  margin-inline: auto;
+}
+
+.tower-figure {
+  display: grid;
+  gap: 0.25rem;
+  justify-items: center;
+  margin: 0;
+  width: 100%;
+}
+
+.tower-board {
+  width: 100%;
+  height: auto;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+  color: var(--text);
+}
+
+.thumb-tower {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  height: 100%;
+}
+
+.thumb-tower-board {
+  width: 42%;
+  height: auto;
+  color: var(--text);
+}
+
+/* --- Table reasoning: figures in a grid ------------------------------------ */
+
+.table-stimulus {
+  width: 100%;
+}
+
+.table-figures {
+  margin-inline: auto;
+  min-width: 0;
+}
+
+.table-figures th[scope='row'] {
+  text-align: start;
+  white-space: nowrap;
+}
+
+.table-figures td.mono {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.thumb-table {
+  display: grid;
+  grid-template-columns: repeat(var(--thumb-cols, 4), auto);
+  gap: 0.1rem 0.6rem;
+  align-content: center;
+  justify-content: center;
+  height: 100%;
+  font: 600 0.7rem / 1.3 var(--font-code);
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.thumb-table-cell {
+  text-align: end;
+}
+
+.thumb-table-cell--head {
+  color: var(--text-subtle);
+  font-weight: 600;
+}
+
+/* --- Reaction time: a wait, a signal, a press ------------------------------ */
+
+.reaction {
+  display: grid;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.reaction-status {
+  display: flex;
+  justify-content: center;
+  min-height: 1.75rem;
+}
+
+.reaction-headline {
+  font: 700 var(--step-1) / 1.2 var(--font-sans);
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.reaction-targets {
+  display: flex;
+  justify-content: center;
+  gap: clamp(0.5rem, 3vw, 1.25rem);
+  padding: 1.5rem 0.5rem;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-sunken);
+}
+
+/*
+ * A target is a disc, and nothing about it moves until it lights. No hover, no transition: any
+ * change on screen during the wait is a cue to the moment of the signal.
+ */
+.reaction-target {
+  inline-size: clamp(3rem, 14vw, 5.5rem);
+  block-size: clamp(3rem, 14vw, 5.5rem);
+  padding: 0;
+  border: 3px solid var(--border-strong, var(--border));
+  border-radius: 50%;
+  background: var(--bg-raised);
+  cursor: pointer;
+  transition: none;
+}
+
+.reaction-target:disabled {
+  cursor: default;
+}
+
+.reaction-target[data-reaction-lit] {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 8px color-mix(in oklch, var(--accent) 26%, transparent);
+}
+
+.reaction-target[data-reaction-pressed]:not([data-reaction-lit]) {
+  border-style: dashed;
+  border-color: var(--accent);
+}
+
+.reaction-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.thumb-reaction {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  height: 100%;
+}
+
+.thumb-reaction-target {
+  inline-size: 1.4rem;
+  block-size: 1.4rem;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  opacity: 0.45;
+}
+
+.thumb-reaction-target[data-lit] {
+  background: currentColor;
+  opacity: 1;
+}
+
+/* --- Pattern recall: a grid, flashed whole ---------------------------------- */
+
+.pattern {
+  display: grid;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.pattern-status {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  min-height: 1.75rem;
+}
+
+.pattern-headline {
+  font: 700 var(--step-0) / 1.2 var(--font-sans);
+  color: var(--accent);
+}
+
+.pattern-count {
+  font-variant-numeric: tabular-nums;
+}
+
+.pattern-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--pattern-size, 4), 1fr);
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 22rem;
+  margin-inline: auto;
+  padding: 0.6rem;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-sunken);
+}
+
+.pattern-cell {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 2px solid var(--border-strong, var(--border));
+  border-radius: var(--radius-md, 0.5rem);
+  background: var(--bg-raised);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.pattern-cell:disabled {
+  cursor: default;
+}
+
+/* The flash: a state, not a transition — see the block-span note. */
+.pattern-cell[data-pattern-lit] {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* A selection during recall: visibly chosen, and nothing about whether it is right. */
+.pattern-cell[data-pattern-selected] {
+  background: color-mix(in oklch, var(--text) 18%, var(--bg-raised));
+  border-color: var(--text);
+}
+
+/* The reveal, in three marks and no hue. */
+.pattern-cell[data-pattern-mark='hit'] {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.pattern-cell[data-pattern-mark='missed'] {
+  border: 3px solid var(--accent);
+  box-shadow: inset 0 0 0 3px var(--bg-raised), inset 0 0 0 5px var(--accent);
+}
+
+.pattern-cell[data-pattern-mark='extra']::before {
+  content: '✕';
+  font: 700 var(--step-1) / 1 var(--font-code);
+  color: var(--text);
+}
+
+.pattern-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.pattern-legend {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.thumb-pattern {
+  display: grid;
+  grid-template-columns: repeat(var(--pattern-size, 4), 1fr);
+  gap: 0.15rem;
+  height: 100%;
+  aspect-ratio: 1;
+  margin-inline: auto;
+}
+
+.thumb-pattern-cell {
+  border: 1.5px solid currentColor;
+  border-radius: 0.2rem;
+  opacity: 0.35;
+}
+
+.thumb-pattern-cell[data-lit] {
+  background: currentColor;
+  opacity: 1;
+}
+
+/* --- Paired associates: boxes, symbols, a probe ----------------------------- */
+
+.pairs {
+  display: grid;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.pairs-status {
+  display: flex;
+  justify-content: center;
+  min-height: 1.75rem;
+}
+
+.pairs-headline {
+  font: 700 var(--step-0) / 1.2 var(--font-sans);
+  color: var(--accent);
+}
+
+.pairs-probe {
+  display: grid;
+  place-items: center;
+  inline-size: 4.5rem;
+  block-size: 4.5rem;
+  margin-inline: auto;
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+}
+
+.pairs-row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-sunken);
+}
+
+.pairs-box {
+  display: grid;
+  place-items: center;
+  inline-size: clamp(3rem, 11vw, 4.5rem);
+  block-size: clamp(3rem, 11vw, 4.5rem);
+  padding: 0.3rem;
+  border: 2px solid var(--border-strong, var(--border));
+  border-radius: var(--radius-md, 0.5rem);
+  background: var(--bg-raised);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.pairs-box:disabled {
+  cursor: default;
+}
+
+/* A closed box is a lid: filled and featureless. */
+.pairs-box:not([data-pairs-open]) {
+  background: color-mix(in oklch, var(--text) 12%, var(--bg-raised));
+}
+
+.pairs-box[data-pairs-answer] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in oklch, var(--accent) 26%, transparent);
+}
+
+.pairs-box[data-pairs-tapped]:not([data-pairs-answer]) {
+  border-style: dashed;
+}
+
+.pairs-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.thumb-pairs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  height: 100%;
+}

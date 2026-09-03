@@ -103,6 +103,17 @@ export const PREVIEW_PINS: Record<ItemTypeId, Pin> = {
   // Level 1: a three-wide base of single digits. The pyramid's *shape* is what the card has to
   // show, and a four-wide base of two-digit numbers is the same shape with less room for it.
   'triangle-math': { seed: 'PRVTRIAN', difficulty: 1 },
+  // Level 2: a three- or four-move plan. Two moves reads as "swap them"; six is a card of two
+  // boards that look unrelated.
+  tower: { seed: 'PRVTOWER', difficulty: 2 },
+  // Level 1: three columns, so the whole table fits the card with its figures still legible.
+  'table-reasoning': { seed: 'PRVTABLE', difficulty: 1 },
+  // Level 3: three targets, one lit. One target is a button; three with one lit is a choice.
+  'reaction-time': { seed: 'PRVREACT', difficulty: 3 },
+  // Level 2: four cells on sixteen. Enough to read as a pattern, sparse enough to read as a grid.
+  'pattern-recall': { seed: 'PRVPATRN', difficulty: 2 },
+  // Level 2: four boxes. The card fits four open boxes and a probe; six would not.
+  'paired-associates': { seed: 'PRVPAIRS', difficulty: 2 },
 };
 
 /** The pinned item for a format. Pure: same format and locale always give the same item. */

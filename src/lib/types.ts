@@ -39,7 +39,12 @@ export type ItemTypeId =
   | 'hand-game'
   | 'calendar-count'
   | 'change-maker'
-  | 'triangle-math';
+  | 'triangle-math'
+  | 'tower'
+  | 'table-reasoning'
+  | 'reaction-time'
+  | 'pattern-recall'
+  | 'paired-associates';
 
 /**
  * CHC broad ability. See docs/IQ-TESTS.md §2.
@@ -49,7 +54,14 @@ export type ItemTypeId =
  * inference of a rule with the arithmetic incidental. `Gq` is for formats where the calculation
  * *is* the task.
  */
-export type ChcDomain = 'Gf' | 'Gv' | 'Gwm' | 'Gs' | 'Gq';
+/*
+ * `Gt` and `Glr` arrived together. Reaction and decision speed is *not* processing speed — Gs is
+ * how many easy items get done in a fixed time, Gt is how long one response takes when nothing has
+ * to be worked out — and the two load on different factors. Glr is long-term storage and retrieval;
+ * the one format under it is associative learning with arbitrary content, which is what lets it
+ * exist where the verbal formats could not (docs/GENERATABILITY.md §2).
+ */
+export type ChcDomain = 'Gf' | 'Gv' | 'Gwm' | 'Gs' | 'Gq' | 'Gt' | 'Glr';
 
 // ---------------------------------------------------------------------------
 // Figures — the visual vocabulary shared by all figural item types.
@@ -220,7 +232,35 @@ export type Stimulus =
    * question would be a second place for the two to disagree. The renderer derives the shape — one
    * fewer cell per row — from the base's own length.
    */
-  | { kind: 'pyramid'; base: number[] };
+  | { kind: 'pyramid'; base: number[] }
+  /**
+   * A Tower of London board, twice: the arrangement as it is and the arrangement wanted. Each peg is
+   * listed bottom-up by bead id, and `capacities` says how many beads each peg holds — carried on the
+   * item so the renderer draws pegs of the right height rather than importing the apparatus.
+   */
+  | { kind: 'tower'; capacities: number[]; start: number[][]; goal: number[][] }
+  /**
+   * A small table of figures, `cells[row][column]`. The question about it is the prompt. Row and
+   * column labels are not carried: they are words, and the view reads them from the dictionary, so
+   * a seed gives the same table in both languages and the stimulus stays language-neutral.
+   */
+  | { kind: 'table'; columns: number; cells: number[][] }
+  /**
+   * A reaction-time trial: how many targets are drawn, which one lights, and how long the wait before
+   * it does. The wait is part of the item — it is drawn from the seed, so a trial replays exactly —
+   * and it is also the item's `presentation`, which is what gates the response behind it.
+   */
+  | { kind: 'reaction'; targets: number; lit: number; foreperiodMs: number }
+  /**
+   * A pattern on a square grid, flashed whole and then tapped back. `cells` is row-major indices,
+   * sorted: the reader reproduces a set, not a sequence, so there is no order to carry.
+   */
+  | { kind: 'pattern'; size: number; cells: number[] }
+  /**
+   * Boxes in a row, each holding one symbol. `symbols[i]` is what box `i` holds; `order` is the
+   * order the boxes open in during learning; `probe` is the box whose symbol is then asked for.
+   */
+  | { kind: 'pairs'; symbols: Figure[]; order: number[]; probe: number };
 
 /** One analogue clock face. `hour` is 1–12 and `minute` is 0–59; `rotation` is degrees clockwise. */
 export interface ClockFace {
@@ -299,6 +339,12 @@ export type ErrorType =
    * where the response is a sequence and can therefore be compared as one.
    */
   | 'transposition'
+  /*
+   * A response before there was anything to respond to — the false start. Only a reaction trial can
+   * produce it, and it is named because it is the opposite of a slow response: a reader who false
+   * starts is not reacting badly, they are anticipating, which calls for the opposite remedy.
+   */
+  | 'premature'
   | 'plausible'; // a generic near-miss with no single diagnosis
 
 export interface Explanation {

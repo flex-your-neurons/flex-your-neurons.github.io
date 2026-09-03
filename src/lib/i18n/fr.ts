@@ -58,6 +58,8 @@ const fr: Dict = {
     Gwm: 'Mémoire de travail',
     Gs: 'Vitesse de traitement',
     Gq: 'Raisonnement quantitatif',
+    Gt: 'Vitesse de réaction et de décision',
+    Glr: 'Stockage et récupération à long terme',
   },
 
   /**
@@ -157,6 +159,16 @@ const fr: Dict = {
       arriving: (n: number) => `${n} qui ${n === 1 ? 'entre' : 'entrent'}`,
       leaving: (n: number) => `${n} qui ${n === 1 ? 'sort' : 'sortent'}`,
       roomLabel: 'La salle',
+    },
+    tower: {
+      startLabel: 'Maintenant',
+      goalLabel: 'Voulu',
+      pegLabel: (peg: number, holds: number) => `Tige ${peg}, ${holds} place${holds > 1 ? 's' : ''}`,
+      emptyPeg: 'vide',
+      beadLabel: (shape: string) => `perle ${shape}`,
+    },
+    table: {
+      cornerLabel: 'Équipe',
     },
     weights: {
       premisesLabel: 'Ces balances s’équilibrent',
@@ -300,6 +312,7 @@ const fr: Dict = {
       'wrong-direction': 'sens inversé',
       carry: 'report oublié',
       transposition: 'ordre perdu',
+      premature: 'faux départ',
       plausible: 'presque juste',
     },
     bodies: {
@@ -319,6 +332,8 @@ const fr: Dict = {
         'Le chiffre des unités est juste, un rang supérieur est faux. C’est la signature d’un report oublié ou compté deux fois — la part du calcul qui relève de la tenue de comptes plutôt que de l’arithmétique. C’est aussi pourquoi l’une des réponses fausses se termine toujours par le même chiffre que la bonne : sans cela, l’item pourrait se résoudre en ne calculant qu’un seul chiffre.',
       'wrong-direction':
         'La bonne quantité, mais dans le sens inverse. Vous teniez la taille du pas, mais vous l’avez appliqué à l’envers : ajouté ce qu’il fallait retrancher, ou l’inverse. Sur un flux qui ne se rejoue pas, un pas inversé coûte deux fois plus qu’un pas manqué.',
+      premature:
+        'Vous avez répondu avant le signal. C’est de l’anticipation, pas de la réaction : l’attente est aléatoire précisément pour qu’on ne puisse pas la chronométrer, et une réponse qui devance le signal était un pari sur le moment où il viendrait. Laissez le signal arriver ; une vraie réaction un peu plus lente est une mesure, un faux départ rapide n’en est pas une.',
       transposition:
         'Tous les éléments, mais dans le désordre. Vous avez retenu ce qu’il y avait à retenir et vous en avez perdu l’agencement : c’est un autre échec que d’oublier un élément, et un échec plus encourageant, car dans une tâche d’empan le plus dur est d’ordinaire de retenir. L’ordre revient souvent avec un rythme délibéré : restituez la séquence à l’allure où elle vous a été donnée, plutôt qu’aussi vite que possible.',
       plausible:
@@ -397,7 +412,7 @@ const fr: Dict = {
     byDomain: 'Par domaine cognitif',
     domainChartLabel: 'Précision par domaine cognitif',
     domainLede:
-      'Votre précision sur les cinq aptitudes larges du modèle Cattell–Horn–Carroll que ces formats sollicitent. Un profil, pas un score : aucun étalonnage ne sous-tend ces barres, elles vous comparent à vous-même et à personne d’autre.',
+      'Votre précision sur les sept aptitudes larges du modèle Cattell–Horn–Carroll que ces formats sollicitent. Un profil, pas un score : aucun étalonnage ne sous-tend ces barres, elles vous comparent à vous-même et à personne d’autre.',
     provisional: (attempts: number) =>
       `${attempts} item${attempts === 1 ? '' : 's'} — bien trop peu pour en tirer quoi que ce soit`,
     provisionalKey: 'Les barres estompées reposent sur moins de dix items.',
@@ -437,7 +452,7 @@ const fr: Dict = {
 
     wall: {
       heading: 'Chaque format, dans le temps',
-      lede: 'Une courbe par format, les tentatives les plus anciennes à gauche. De petits graphiques côte à côte plutôt que vingt-sept courbes sur un même axe : vingt-sept couleurs sur un seul tracé seraient illisibles, et ceux-ci se parcourent du regard, ils ne se lisent pas au chiffre près.',
+      lede: 'Une courbe par format, les tentatives les plus anciennes à gauche. De petits graphiques côte à côte plutôt que trente-deux courbes sur un même axe : trente-deux couleurs sur un seul tracé seraient illisibles, et ceux-ci se parcourent du regard, ils ne se lisent pas au chiffre près.',
       never: 'pas encore tenté',
     },
     byItemType: 'Par type d’item',
@@ -686,6 +701,41 @@ const fr: Dict = {
       description:
         'Une rangée de nombres est donnée et la pyramide au-dessus est vide ; chaque case est la somme des deux qui la portent, et vous les remplissez toutes. Les additions sont faciles et elles ne sont pas indépendantes : la deuxième rangée doit être finie avant que la troisième puisse commencer, et une case fausse remonte dans tout ce qui la surmonte. Cette dépendance est le format : le calcul mental mesure une étape, le décompte mesure une chaîne d’étapes identiques sur une seule valeur, et ceci mesure une chaîne qui se ramifie, avec deux résultats intermédiaires à tenir en même temps. Comme toutes les cases sont demandées, un item raté montre quelle addition a lâché, et pas seulement que le total est faux.',
       seenIn: 'Triangle Math de Brain Age, exercices de fluence arithmétique, batteries de calcul mental',
+    },
+    tower: {
+      name: 'La tour',
+      blurb: 'En combien de coups, au minimum, passe-t-on de cette disposition à celle-là ?',
+      description:
+        'Trois perles sur trois tiges de hauteurs différentes, montrées deux fois : telles qu’elles sont, et telles qu’elles devraient être. Une perle se déplace à la fois, seulement depuis le sommet d’une tige, seulement vers une tige où il reste de la place. Vous ne touchez à rien : vous trouvez de tête la plus courte suite de coups et vous dites sa longueur. C’est la Tour de Londres, le test classique de planification : les dispositions intéressantes sont celles où une perle doit être écartée de l’endroit où on la veut pour faire place à une autre, ce qu’un lecteur qui ne regarde qu’un coup à l’avance ne verra pas. La réponse est prouvée minimale par une recherche sur toutes les dispositions que le plateau permet, et chaque niveau demande des solutions de deux longueurs voisines, si bien que le niveau ne donne jamais la réponse.',
+      seenIn: 'La Tour de Londres (Shallice, 1982), D-KEFS Tower, Stockings of Cambridge du CANTAB, Spatial Planning de Cambridge Brain Sciences',
+    },
+    'table-reasoning': {
+      name: 'Lecture de tableau',
+      blurb: 'Quatre lignes de chiffres, une question. La réponse est dans le tableau, pas dessus.',
+      description:
+        'Un petit tableau — quatre équipes, quelques trimestres — et une question à son sujet : un total en ligne ou en colonne, l’écart entre deux cases, l’équipe au plus gros total, une moyenne ou une variation en pourcentage. L’arithmétique est volontairement facile. Ce que le format mesure, c’est trouver les bonnes cases, savoir quelle opération la question demande, et retenir deux ou trois quantités assez longtemps pour les combiner. Tous les autres formats quantitatifs du site vous tendent les nombres déjà choisis ; ici, le choix est la tâche. Les mauvaises réponses sont les erreurs classiques, nommées — la ligne voisine lue par mégarde, les deux nombres additionnés au lieu d’être soustraits, un pourcentage pris sur la mauvaise base — et la ligne qui contient le plus grand nombre n’est jamais celle au plus grand total.',
+      seenIn: 'Tests de raisonnement numérique SHL et Kenexa, tests numériques de la fonction publique, sous-test Numerical Ability du DAT',
+    },
+    'reaction-time': {
+      name: 'Temps de réaction',
+      blurb: 'Attendez le signal. Touchez la cible qui s’allume.',
+      description:
+        'Une ou plusieurs cibles, une attente imprévisible, puis l’une d’elles s’allume : touchez-la. Avec une seule cible c’est le temps de réaction simple, la plus ancienne mesure de la psychologie ; avec plusieurs, c’est le temps de réaction de choix, et les millisecondes en plus sont le coût de la décision. C’est la seule chose que les niveaux changent — la loi de Hick dit que ce coût croît avec le nombre d’alternatives — si bien que l’échelle parcourt un seul construit, du simple réflexe au choix à six branches. L’attente avant le signal est tirée de la graine entre une et trois secondes, donc impossible à chronométrer, et une réponse avant le signal est un faux départ compté comme une erreur. Le plateau affiche votre temps en millisecondes après chaque essai : ici la latence est la mesure elle-même et non un sous-produit, et c’est le seul nombre de ce site qui ait un sens dans la vie courante.',
+      seenIn: 'Donders (1868), Hick (1952), le test de réaction de Human Benchmark, CANTAB Reaction Time, tâche de Deary–Liewald',
+    },
+    'pattern-recall': {
+      name: 'Rappel de motif',
+      blurb: 'Une grille s’allume d’un coup. Retrouvez les cases allumées.',
+      description:
+        'Seize cases en carré ; plusieurs s’allument ensemble un instant puis s’éteignent ; vous touchez celles qui étaient allumées. L’empan de blocs montre des positions l’une après l’autre et demande leur ordre — ici, tout est montré d’un coup et c’est l’ensemble qui est demandé, et les deux se dissocient : l’un est une suite à répéter, l’autre une image à retenir. La grille ne change jamais de taille et le motif reste affiché le même instant à tous les niveaux, si bien que seul le nombre de cases à retenir augmente. Les motifs qui se nomment en un mot — une ligne entière, un bloc plein — ne sont jamais montrés, parce qu’un nom est une seule chose à retenir alors que l’item est censé en compter plusieurs.',
+      seenIn: 'Le Visual Patterns Test (Della Sala et al., 1997), Visual Memory de Human Benchmark, Flash Memory de Big Brain Academy',
+    },
+    'paired-associates': {
+      name: 'Paires associées',
+      blurb: 'Des boîtes s’ouvrent une à une sur un symbole. Laquelle contenait celui-ci ?',
+      description:
+        'Une rangée de boîtes fermées. Elles s’ouvrent une à la fois, chacune sur un symbole, puis se referment ; ensuite un symbole est montré seul et vous touchez la boîte qui le contenait. C’est l’apprentissage associatif — lier deux choses qui n’avaient aucune raison d’aller ensemble, ce à quoi revient retenir un nom sur un visage ou un mot et sa traduction — et c’est le premier format du site classé sous le stockage et la récupération à long terme. Il peut être généré là où le vocabulaire ne le peut pas parce que les paires sont arbitraires par construction : les symboles sont abstraits, les boîtes sont des boîtes, et rien d’autre que l’apprentissage n’aide. La question est un symbole et la réponse un emplacement : on retrouve un lieu à partir d’une chose, ce qui est le sens associatif. Limite honnête : l’intervalle entre l’apprentissage et la question est de quelques secondes, et la question posée des minutes plus tard — la mesure la plus complète — n’est pas construite.',
+      seenIn: 'CANTAB Paired Associates Learning, Paired Associates de Cambridge Brain Sciences, Paires de mots de la WMS (en forme verbale), Woodcock–Johnson Visual–Auditory Learning',
     },
     'calendar-count': {
       name: 'Compte des jours',
@@ -1054,6 +1104,115 @@ const fr: Dict = {
       rulePropagates:
         'Les rangées ne sont pas indépendantes : une case fausse est additionnée dans les deux cases au-dessus d’elle, si bien qu’une seule erreur en bas déplace tout ce qui suit. C’est pourquoi toutes les cases sont demandées et non le seul sommet — la pyramide montre où la chaîne a lâché.',
     },
+    tower: {
+      prompt: 'Combien de coups, au minimum, pour transformer le plateau de gauche en celui de droite ?',
+      summary: (moves: number) => `La solution la plus courte prend ${moves} coups.`,
+      ruleOneAtATime: 'Une perle se déplace à la fois, et seule la perle du sommet d’une tige peut bouger.',
+      ruleCapacity:
+        'Les tiges tiennent trois, deux et une perle. Une tige pleine ne peut en recevoir une autre, et c’est ce qui rend certains chemins plus longs qu’ils n’en ont l’air.',
+      ruleMinimum: (moves: number) =>
+        `${moves} est le minimum : toutes les dispositions que le plateau permet ont été parcourues, et aucune suite plus courte n’atteint le but.`,
+      ruleAway:
+        'L’erreur caractéristique est de compter un coup de moins, en sautant celui qui libère une tige — il faut parfois poser une perle là où on ne la veut pas avant qu’une autre puisse aller là où on la veut.',
+    },
+    tableReasoning: {
+      rowLabel: (i: number) => `Équipe ${'ABCD'[i]}`,
+      columnLabel: (i: number) => `T${i + 1}`,
+      percent: (value: number) => `${value} %`,
+      promptRowTotal: (row: string) => `Quel est le total de l’${row} sur tous les trimestres ?`,
+      promptColumnTotal: (column: string) => `Quel est le total du ${column}, toutes équipes réunies ?`,
+      promptDifference: (larger: string, smaller: string, column: string) =>
+        `Au ${column}, de combien l’${larger} dépasse-t-elle l’${smaller} ?`,
+      promptMaxRow: 'Quelle équipe a le plus gros total sur l’ensemble des trimestres ?',
+      promptAverage: (row: string) => `Quelle est la moyenne par trimestre de l’${row} ?`,
+      promptPercent: (row: string, from: string, to: string, direction: 'rise' | 'fall') =>
+        `De quel pourcentage l’${row} a-t-elle ${direction === 'rise' ? 'progressé' : 'reculé'} du ${from} au ${to} ?`,
+      summaryTotal: (label: string, total: number) => `${label} totalise ${total}.`,
+      summaryDifference: (larger: string, smaller: string, column: string, diff: number) =>
+        `Au ${column}, l’${larger} devance l’${smaller} de ${diff}.`,
+      summaryMaxRow: (row: string, total: number) => `L’${row}, avec ${total}.`,
+      summaryAverage: (row: string, average: number) => `L’${row} fait ${average} par trimestre en moyenne.`,
+      summaryPercent: (row: string, from: string, to: string, percent: string, direction: 'rise' | 'fall') =>
+        `L’${row} a ${direction === 'rise' ? 'progressé' : 'reculé'} de ${percent} du ${from} au ${to}.`,
+      ruleAdd: (terms: string, total: number) => `${terms} = ${total}.`,
+      ruleAxisRow: 'Lire le long de la ligne, pas le long de la colonne : le total voisin est proposé pour ceux qui ont fait l’inverse.',
+      ruleAxisColumn: 'Lire le long de la colonne, pas le long de la ligne : le total voisin est proposé pour ceux qui ont fait l’inverse.',
+      ruleSubtract: (a: number, b: number, diff: number) => `${a} − ${b} = ${diff}.`,
+      ruleNotSum: (sum: number) => `${sum} est ce qu’on obtient en additionnant les deux cases — la question demandait de combien l’une dépasse l’autre, c’est une différence.`,
+      ruleTotals: (totals: string) => `Les quatre totaux : ${totals}.`,
+      ruleLure: (row: string, biggest: number) =>
+        `L’${row} contient le plus grand chiffre du tableau, ${biggest}, et n’a pas le plus grand total. La case qui attire l’œil n’est pas la réponse à une question sur des sommes.`,
+      ruleDivide: (total: number, count: number, average: number) => `${total} ÷ ${count} = ${average}.`,
+      rulePercentBase: (from: number, to: number, diff: number, percent: string) =>
+        `De ${from} à ${to}, la variation est de ${diff} ; ${diff} sur ${from}, cela fait ${percent}.`,
+      rulePercentDirection:
+        'La base est toujours le chiffre le plus ancien. Rapporter la variation au chiffre le plus récent donne un autre pourcentage, et c’est le leurre construit pour cela.',
+    },
+    reactionTime: {
+      promptSimple: 'Quand la cible s’allume, touchez-la.',
+      promptChoice: (targets: number) => `L’une des ${targets} cibles va s’allumer. Touchez celle-là.`,
+      summarySimple: 'La cible s’est allumée, et le temps entre cet instant et votre réponse est ce qui a été mesuré.',
+      summaryChoice: (position: number) => `La cible ${position} s’est allumée.`,
+      ruleWait:
+        'L’attente avant le signal est aléatoire, entre une et trois secondes, donc impossible à chronométrer. Restez attentif et laissez-le venir.',
+      ruleFalseStart:
+        'Une réponse avant le signal est un faux départ et compte comme une erreur. Ce n’était la réaction à rien.',
+      ruleSimple:
+        'Une seule cible, c’est le temps de réaction simple : détecter et répondre, sans rien décider. Les valeurs adultes typiques dépassent un peu deux cents millisecondes ; le nombre affiché ici inclut l’écran et le pointeur, donc comparez-le à vos propres essais plutôt qu’à un manuel.',
+      ruleHick: (targets: number) =>
+        `${targets} cibles, c’est le temps de réaction de choix : détecter, identifier laquelle, puis répondre. La loi de Hick dit que le surcoût croît avec le logarithme du nombre d’alternatives, ce qui explique que ce niveau soit plus lent que le précédent d’un pas à peu près constant.`,
+      ready: (targets: number) =>
+        targets === 1 ? 'La cible s’allumera après une courte attente aléatoire.' : `L’une des ${targets} cibles s’allumera après une courte attente aléatoire.`,
+      start: 'Prêt',
+      waiting: 'Attendez…',
+      go: 'Maintenant !',
+      targetLabel: (position: number) => `Cible ${position}`,
+      falseStart: 'Trop tôt : c’était avant le signal.',
+      result: (ms: number) => `${ms} ms`,
+      wrongTarget: 'Ce n’était pas la cible qui s’est allumée.',
+    },
+    patternRecall: {
+      prompt: (count: number) => `Touchez les ${count} cases qui se sont allumées.`,
+      summary: (count: number) => `${count} cases se sont allumées ; la grille ci-dessous les montre.`,
+      ruleSet:
+        'Les cases, dans n’importe quel ordre. Ce qu’il faut retenir est l’image, pas une suite — touchez-les comme vous voulez.',
+      ruleExact:
+        'Il faut les avoir toutes. Quatre cases sur cinq est un essai raté plutôt que l’essentiel d’une réussite : ce qui est mesuré est si le motif a survécu, et un motif à moitié retenu n’a pas survécu.',
+      ruleSnapshot:
+        'Le motif est affiché un instant puis disparaît, et il a été montré d’un coup. C’est la différence avec l’empan de blocs, qui montre les positions l’une après l’autre : ici, c’est la mémoire qui retient une image qui travaille, pas celle qui répète une liste.',
+      ruleGrid:
+        'La grille fait toujours quatre sur quatre et l’exposition est toujours la même. Seul le nombre de cases augmente avec le niveau, si bien qu’un niveau veut dire une seule chose.',
+      ready: (count: number) => `${count} cases vont s’allumer ensemble, brièvement. Regardez lesquelles.`,
+      start: 'Montrer le motif',
+      watching: 'Regardez…',
+      nowTapThemBack: 'Touchez maintenant les cases qui étaient allumées.',
+      progress: (done: number, total: number) => `${done} sur ${total} choisies`,
+      cellLabel: (row: number, column: number) => `Ligne ${row}, colonne ${column}`,
+      revealRight: 'C’était le motif.',
+      revealWrong: 'Le motif est marqué ci-dessous.',
+      legendLit: 'Pleine : était allumée',
+      legendMissed: 'Anneau : allumée, non touchée',
+      legendExtra: 'Croix : touchée, pas allumée',
+    },
+    pairedAssociates: {
+      prompt: (boxes: number) => `${boxes} boîtes vont chacune montrer un symbole. Retrouvez ensuite la boîte qui contenait celui demandé.`,
+      summary: (position: number) => `C’était dans la boîte ${position}.`,
+      ruleEachOnce:
+        'Chaque boîte s’ouvre exactement une fois, dans un ordre mélangé, et montre son symbole environ une seconde. Il n’y a pas de seconde chance.',
+      ruleProbe:
+        'La question est un symbole, la réponse un emplacement. Retrouver un lieu à partir d’une chose est le sens associatif — le même geste que mettre un nom sur un visage.',
+      ruleArbitrary:
+        'Les paires sont arbitraires à dessein. Rien dans un symbole ne dit à quelle boîte il appartient, donc rien d’autre que l’apprentissage ne peut aider — c’est ce qui en fait un test honnête de l’apprentissage.',
+      ruleInterval:
+        'La question vient quelques secondes après la fermeture de la dernière boîte. La mesure plus complète — la même question des minutes plus tard — n’est pas construite ici, et le format le dit plutôt que de la revendiquer.',
+      ready: (boxes: number) => `${boxes} boîtes vont s’ouvrir une à la fois. Retenez ce que chacune contient.`,
+      start: 'Ouvrir les boîtes',
+      watching: 'Regardez…',
+      probe: 'Quelle boîte contenait ceci ?',
+      boxLabel: (position: number) => `Boîte ${position}`,
+      revealRight: 'C’était cette boîte.',
+      revealWrong: 'Les boîtes sont ouvertes ci-dessous ; la bonne est marquée.',
+    },
     changeMaker: {
       prompt: 'Quelles pièces font la monnaie ?',
       priceLine: (price: string) => `L’addition est de ${price}.`,
@@ -1100,7 +1259,7 @@ const fr: Dict = {
       title: 'Entraînez-vous aux formats des tests de raisonnement',
       description:
         'Entraînez-vous aux formats d’items utilisés dans les tests de QI et d’aptitude — raisonnement matriciel, suites numériques, syllogismes, rotation mentale, et plus encore. Chaque item est généré à la volée, vérifié comme n’admettant qu’une seule réponse, puis expliqué. Tout fonctionne dans votre navigateur.',
-      lede: 'Vingt-sept formats d’items issus de la littérature sur les tests d’intelligence, générés à neuf à chaque fois et expliqués après chaque réponse. Sans compte, sans serveur, et sans score à mettre sur un CV.',
+      lede: 'Trente-deux formats d’items issus de la littérature sur les tests d’intelligence, générés à neuf à chaque fois et expliqués après chaque réponse. Sans compte, sans serveur, et sans score à mettre sur un CV.',
       ctaTest: 'Passer un test complet',
       ctaPractice: 'S’entraîner sur un format',
       whatHeading: 'Ce que vous pouvez travailler',
@@ -1213,7 +1372,7 @@ const fr: Dict = {
 
       chcHeading: 'La carte : le modèle CHC',
       chcP1:
-        'Presque toutes les batteries modernes s’organisent autour du modèle de Cattell–Horn–Carroll : l’aptitude générale g au sommet, une dizaine d’aptitudes larges en dessous, et quelque soixante-dix aptitudes étroites encore en dessous. Les cinq aptitudes larges travaillées ici :',
+        'Presque toutes les batteries modernes s’organisent autour du modèle de Cattell–Horn–Carroll : l’aptitude générale g au sommet, une dizaine d’aptitudes larges en dessous, et quelque soixante-dix aptitudes étroites encore en dessous. Les sept aptitudes larges travaillées ici :',
       chcColCode: 'Code',
       chcColAbility: 'Aptitude',
       chcColFormats: 'Formats disponibles',
@@ -1329,7 +1488,7 @@ const fr: Dict = {
         },
       ],
       notMeasuredClose:
-        'Cela s’applique récursivement à ce site. Une précision élevée sur ces vingt-sept formats est une information sur ces vingt-sept formats, et sur rien d’autre.',
+        'Cela s’applique récursivement à ce site. Une précision élevée sur ces trente-deux formats est une information sur ces trente-deux formats, et sur rien d’autre.',
 
       difficultyP3:
         'Ce qui ne revient pas à un étalonnage. Les paliers sont conçus à partir d’opérateurs cognitifs publiés — un ordonnancement défendable — mais aucun item ne porte ici de paramètre de difficulté estimé sur des données de réponse réelles, ce qu’entend la théorie de réponse à l’item par « difficulté ». L’échelle adaptative est donc un escalier qui vous maintient près de votre propre taux de réussite, pas une estimation de votre aptitude.',

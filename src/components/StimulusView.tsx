@@ -8,6 +8,8 @@ import FigureView, { describeFigure } from './FigureView';
 import GridView from './GridView';
 import ClockFaceView from './ClockFaceView';
 import HandView from './HandView';
+import TowerView from './TowerView';
+import { BEAD_SHAPES } from '../lib/generators/tower';
 import { dict, type Locale } from '../lib/i18n';
 import type { Figure, Fold, Presentation, Stimulus } from '../lib/types';
 
@@ -56,6 +58,16 @@ export default function StimulusView({
      * is a different task. `PyramidBoard` owns the whole thing.
      */
     case 'pyramid':
+      return null;
+
+    /*
+     * Three more boards that are their own response surface: the signal has to land on the target
+     * that is pressed, the pattern on the cells that are tapped, the symbols in the boxes that are
+     * chosen. Each is drawn once, in the answer tray.
+     */
+    case 'reaction':
+    case 'pattern':
+    case 'pairs':
       return null;
 
     case 'matrix':
@@ -375,7 +387,81 @@ export default function StimulusView({
           renderElement={(delta) => <Movement delta={delta} locale={locale} />}
         />
       );
+
+    /*
+     * Two boards, the current one above the wanted one, and nothing to click. The board is not a
+     * response surface here on purpose: a tower the reader could manipulate would let the plan be
+     * found by trial and error, and the plan found in the head is the measurement.
+     */
+    case 'tower':
+      return (
+        <div data-stimulus="tower" class="tower">
+          {(['start', 'goal'] as const).map((which) => (
+            <figure class="tower-figure" key={which} data-tower={which}>
+              <figcaption class="subtle symbol-row-title">
+                {which === 'start' ? t.tower.startLabel : t.tower.goalLabel}
+              </figcaption>
+              <TowerView
+                capacities={stimulus.capacities}
+                pegs={stimulus[which]}
+                label={describeTower(stimulus.capacities, stimulus[which], locale)}
+              />
+            </figure>
+          ))}
+        </div>
+      );
+
+    /*
+     * A real table, with real headers, so a screen reader gets the same structure a sighted reader
+     * does — the association between a figure and its row and column *is* the stimulus.
+     */
+    case 'table': {
+      const labels = dict(locale).gen.tableReasoning;
+      const columns = Array.from({ length: stimulus.columns }, (_, i) => labels.columnLabel(i));
+      return (
+        <div data-stimulus="table" class="table-stimulus scroll-x">
+          <table class="data table-figures">
+            <thead>
+              <tr>
+                <th scope="col">
+                  <span class="sr-only">{t.table.cornerLabel}</span>
+                </th>
+                {columns.map((column) => (
+                  <th scope="col" key={column}>
+                    {column}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {stimulus.cells.map((values, r) => (
+                <tr key={r}>
+                  <th scope="row">{labels.rowLabel(r)}</th>
+                  {values.map((value, c) => (
+                    <td key={c} class="mono" data-cell={`${r}:${c}`}>
+                      {value}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
   }
+}
+
+/** The board in words: each peg and the beads on it, bottom-up. */
+function describeTower(capacities: number[], pegs: number[][], locale: Locale): string {
+  const t = dict(locale).quiz;
+  const shapeName = (bead: number) => t.shapeNames[BEAD_SHAPES[bead]!];
+  return pegs
+    .map((stack, peg) => {
+      const beads = stack.length === 0 ? t.tower.emptyPeg : stack.map((b) => t.tower.beadLabel(shapeName(b))).join(', ');
+      return `${t.tower.pegLabel(peg + 1, capacities[peg]!)}: ${beads}`;
+    })
+    .join('. ');
 }
 
 /**

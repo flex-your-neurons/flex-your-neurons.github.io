@@ -22,7 +22,8 @@ import FigureView from './FigureView';
 import GridView from './GridView';
 import ClockFaceView from './ClockFaceView';
 import HandView from './HandView';
-import { DEFAULT_LOCALE, type Locale } from '../lib/i18n';
+import TowerView from './TowerView';
+import { DEFAULT_LOCALE, dict, type Locale } from '../lib/i18n';
 import type { CellGrid, Figure, Item } from '../lib/types';
 
 interface Props {
@@ -432,6 +433,97 @@ function ThumbBody({ item, locale }: { item: Item; locale: Locale }) {
      * card size — a triangle of cells narrowing to one — so the miniature draws every row rather
      * than a sample of them, which it can afford: three rows is the whole item.
      */
+    /*
+     * Both boards side by side, with an arrow between. The pair is what identifies the format: one
+     * board alone is an abacus, two boards is "get from here to there".
+     */
+    case 'tower':
+      return (
+        <div class="thumb-tower">
+          <TowerView capacities={s.capacities} pegs={s.start} label="" className="thumb-tower-board" />
+          <span class="thumb-op" aria-hidden="true">
+            →
+          </span>
+          <TowerView capacities={s.capacities} pegs={s.goal} label="" className="thumb-tower-board" />
+        </div>
+      );
+
+    /*
+     * The table's first three rows and columns, and a question mark for the cell the format never
+     * shows. A grid of figures with headers reads as a table at any size; the full four-by-five would
+     * not fit and would not say more.
+     */
+    case 'table': {
+      const labels = dict(locale).gen.tableReasoning;
+      const rows = s.cells.slice(0, 3);
+      const columns = Math.min(3, s.columns);
+      return (
+        <div class="thumb-table" style={{ '--thumb-cols': columns + 1 } as never}>
+          <span class="thumb-table-cell thumb-table-cell--head" />
+          {Array.from({ length: columns }, (_, c) => (
+            <span class="thumb-table-cell thumb-table-cell--head" key={c}>
+              {labels.columnLabel(c)}
+            </span>
+          ))}
+          {rows.map((values, r) => (
+            <>
+              <span class="thumb-table-cell thumb-table-cell--head" key={`h${r}`}>
+                {labels.rowLabel(r).split(' ').at(-1)}
+              </span>
+              {values.slice(0, columns).map((value, c) => (
+                <span class="thumb-table-cell" key={`${r}-${c}`}>
+                  {value}
+                </span>
+              ))}
+            </>
+          ))}
+        </div>
+      );
+    }
+
+    /*
+     * The targets in a row with one lit. A row of blank buttons says nothing; one filled says
+     * "this one, now".
+     */
+    case 'reaction':
+      return (
+        <div class="thumb-reaction">
+          {Array.from({ length: s.targets }, (_, i) => (
+            <span class="thumb-reaction-target" data-lit={i === s.lit ? 'true' : undefined} key={i} />
+          ))}
+        </div>
+      );
+
+    /*
+     * The grid with its lit cells filled — the answer is the illustration, as for block span, because
+     * an empty grid does not say what the format asks.
+     */
+    case 'pattern': {
+      const lit = new Set(s.cells);
+      return (
+        <div class="thumb-pattern" style={{ '--pattern-size': String(s.size) } as never}>
+          {Array.from({ length: s.size * s.size }, (_, i) => (
+            <span class="thumb-pattern-cell" data-lit={lit.has(i) ? 'true' : undefined} key={i} />
+          ))}
+        </div>
+      );
+    }
+
+    /*
+     * Open boxes with their symbols, and the probe above one of them marked. Shows the pairing, which
+     * is the thing being learned.
+     */
+    case 'pairs':
+      return (
+        <div class="thumb-pairs">
+          {s.symbols.slice(0, SET_LIMIT).map((symbol, i) => (
+            <div class="thumb-slot" data-blank={i === s.probe ? 'true' : undefined} key={i}>
+              <Mini figure={symbol} />
+            </div>
+          ))}
+        </div>
+      );
+
     case 'pyramid': {
       const depth = s.base.length;
       return (

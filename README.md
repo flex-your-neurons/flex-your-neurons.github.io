@@ -42,7 +42,7 @@ Node 22.12+ is required (Astro 7).
 | `tests/` | Property-style unit tests, swept over hundreds of seeds |
 | `e2e/` | Playwright tests against the built static site |
 
-## The twenty-seven formats
+## The thirty-two formats
 
 | Format | CHC | Verification |
 |--------|-----|--------------|
@@ -52,30 +52,39 @@ Node 22.12+ is required (Astro 7).
 | Odd one out | Gf | Every figure checked; exactly one may be defensibly odd |
 | Figural analogy | Gf | Every transformation must be visible in *both* pairs |
 | Syllogisms | Gf | Exhaustive model checking over all 256 models — provable |
+| Tower (of London) | Gf | Minimum move count proved by breadth-first search over all 36 board states |
 | Mental rotation | Gv | Chirality proved; exactly one option is a rotation |
 | Paper folding | Gv | The unfolding is simulated, not asserted |
 | Turned clock | Gv | The time is recovered by undoing the rotation on the drawn hand angles |
+| Pattern recall | Gv | Tapped set compared as a fixed-width bitmask; nameable patterns (full row, filled block) rejected |
 | Figure weights | Gf | Every candidate group weighed; exactly one may balance — decidable |
 | Digit span | Gwm | Exact string match, whitespace-insensitive |
 | Block span | Gwm | The tapped sequence must match the one shown, exactly and in order |
 | N-back | Gwm | Match count re-derived from the finished stream |
 | Head count | Gwm | Total re-accumulated from the script; the room may never empty |
 | Add what you saw | Gwm | The sum is re-added from the stream; no term repeats and some pair must carry |
+| Paired associates | Glr | Every box's symbol distinct by rendered signature; the probe is one of them, the box is the key |
 | Symbol search | Gs | Membership re-checked after shuffling |
 | Digit–symbol coding | Gs | Every option is a key entry; the pairing is re-looked-up |
 | Trail making | Gs | Targets proved non-overlapping and inside the board; the order is printed on them |
 | Count, don’t read (Stroop) | Gs | The keyed answer is the array length the renderer draws; both congruency conditions occur |
 | Which is worth more | Gs | The keyed side holds the larger value; both congruency conditions occur at every level |
 | Rock, paper, scissors | Gs | The keyed hand is re-derived from the cycle; all six items occur |
+| Reaction time | Gt | The lit target is the key; a press before the signal is scored as a false start |
 | Mental arithmetic | Gq | The displayed expression is re-evaluated; two options share the answer's units digit |
 | Counting down | Gq | The printed chain is re-walked; two options share the answer's units digit |
 | Time passed | Gq | The interval is re-derived from the two faces, in minutes past midday |
 | Counting the days | Gq | The day is re-derived by parsing the printed lines; the item names no real date |
 | Making change | Gq | The coins are re-totalled from the printed amounts, and minimality proved by exhaustive search |
 | Number pyramid | Gq | Every cell re-derived from the base; the blanks are compared one by one, not as one string |
+| Table reasoning | Gq | The keyed value re-derived by parsing the printed question against the printed cells |
 
-Five CHC domains: **Gf 7, Gv 3, Gwm 5, Gs 6, Gq 6** — and no Gc at all, which is a limit of
-generation rather than an oversight and is the reason no Full Scale figure is even approximable.
+Seven CHC domains: **Gf 8, Gv 4, Gwm 5, Glr 1, Gs 6, Gt 1, Gq 7** — and no Gc at all, which is a
+limit of generation rather than an oversight and is the reason no Full Scale figure is even
+approximable. Glr and Gt arrived in 2026-09 with the gap analysis against *Brain Age*, Human
+Benchmark and Cambridge Brain Sciences: associative memory can be generated where vocabulary cannot,
+because its pairings are arbitrary by construction, and reaction time is the one Gt measurement that
+needs nothing but a clock.
 Nine of these formats come from *Brain Age* / *Dr Kawashima's Brain Training*, several of which are
 lab tasks in game clothing; what made them worth taking is that they were built for a small screen,
 a few seconds an item, and no examiner. `docs/GENERATABILITY.md` §3 records which of the game's

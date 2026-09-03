@@ -14,6 +14,9 @@ import ShortcutSheet from './ShortcutSheet';
 import StimulusView from './StimulusView';
 import TrailBoard from './TrailBoard';
 import BlockSpanBoard from './BlockSpanBoard';
+import ReactionBoard from './ReactionBoard';
+import PatternBoard from './PatternBoard';
+import PairsBoard from './PairsBoard';
 import PyramidBoard from './PyramidBoard';
 import FigureView, { describeFigure } from './FigureView';
 import GridView, { describeGrid } from './GridView';
@@ -23,7 +26,7 @@ import { dict, type Locale } from '../lib/i18n';
 import { localeHref } from '../lib/links';
 import {
   advanceLadder,
-  diagnoseTaps,
+  diagnoseTap,
   diagnoseFills,
   formatDuration,
   formatPercent,
@@ -404,7 +407,7 @@ export default function Quiz({
        */
       const errorType =
         item.responseMode === 'tap'
-          ? diagnoseTaps(item.answerText ?? '', text ?? '')
+          ? diagnoseTap(item, text ?? '')
           : /*
              * A filled pyramid is the second computed diagnosis, and the more informative one: the
              * blanks are related to each other, so what can be named is *which relation* the reader
@@ -868,6 +871,47 @@ export default function Quiz({
             key={`${item.type}:${item.seed}:${item.difficulty}`}
             blocks={item.stimulus.blocks}
             sequence={item.stimulus.sequence}
+            presentation={item.presentation}
+            reducedMotion={settings.reducedMotion}
+            locale={locale}
+            frozen={revealed}
+            onRecallStart={beginResponse}
+            onComplete={(tapped) => submit(null, tapped)}
+          />
+        ) : item.responseMode === 'tap' && item.stimulus.kind === 'reaction' ? (
+          /*
+           * The signal has to appear on the target that will be pressed, so the board owns the wait
+           * and the press. `onRecallStart` fires with the signal, which makes the recorded latency the
+           * reaction time itself.
+           */
+          <ReactionBoard
+            key={`${item.type}:${item.seed}:${item.difficulty}`}
+            targets={item.stimulus.targets}
+            lit={item.stimulus.lit}
+            presentation={item.presentation}
+            locale={locale}
+            frozen={revealed}
+            onRecallStart={beginResponse}
+            onComplete={(pressed) => submit(null, pressed)}
+          />
+        ) : item.responseMode === 'tap' && item.stimulus.kind === 'pattern' ? (
+          <PatternBoard
+            key={`${item.type}:${item.seed}:${item.difficulty}`}
+            size={item.stimulus.size}
+            cells={item.stimulus.cells}
+            presentation={item.presentation}
+            reducedMotion={settings.reducedMotion}
+            locale={locale}
+            frozen={revealed}
+            onRecallStart={beginResponse}
+            onComplete={(tapped) => submit(null, tapped)}
+          />
+        ) : item.responseMode === 'tap' && item.stimulus.kind === 'pairs' ? (
+          <PairsBoard
+            key={`${item.type}:${item.seed}:${item.difficulty}`}
+            symbols={item.stimulus.symbols}
+            order={item.stimulus.order}
+            probe={item.stimulus.probe}
             presentation={item.presentation}
             reducedMotion={settings.reducedMotion}
             locale={locale}

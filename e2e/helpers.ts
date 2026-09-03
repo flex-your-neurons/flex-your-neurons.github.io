@@ -125,6 +125,62 @@ async function tapBlocks(page: Page, sequence: number[], reversed: boolean): Pro
 }
 
 /**
+ * Presses a reaction-time board.
+ *
+ * Right: wait for the signal, press the lit target. Wrong: with several targets, press one that did
+ * not light; with a single target, press during the wait — a false start, which is the only wrong
+ * answer a simple-reaction trial has, and the one the diagnosis names.
+ */
+async function pressReaction(page: Page, targets: number, lit: number, wrong: boolean): Promise<void> {
+  const board = page.getByTestId('reaction-board');
+  if (wrong && targets === 1) {
+    await expect(board).toHaveAttribute('data-reaction-phase', 'wait', { timeout: 30_000 });
+    await page.getByTestId('reaction-target-1').click();
+    return;
+  }
+  await expect(board).toHaveAttribute('data-reaction-phase', 'go', { timeout: 30_000 });
+  const index = wrong ? (lit === 0 ? 1 : 0) : lit;
+  await page.getByTestId(`reaction-target-${index + 1}`).click();
+}
+
+/** Taps a pattern back. `wrong` swaps the last lit cell for an unlit neighbour of the grid. */
+async function tapPattern(page: Page, size: number, cells: number[], wrong: boolean): Promise<void> {
+  const board = page.getByTestId('pattern-board');
+  await expect(board).toHaveAttribute('data-pattern-phase', 'recall', { timeout: 30_000 });
+  const chosen = [...cells];
+  if (wrong) {
+    const unlit = Array.from({ length: size * size }, (_, i) => i).find((i) => !cells.includes(i))!;
+    chosen[chosen.length - 1] = unlit;
+  }
+  for (const cell of chosen) await page.getByTestId(`pattern-cell-${cell}`).click();
+}
+
+/** Answers a paired-associates probe. `wrong` taps the box beside the right one. */
+async function tapPairs(page: Page, boxes: number, probe: number, wrong: boolean): Promise<void> {
+  const board = page.getByTestId('pairs-board');
+  await expect(board).toHaveAttribute('data-pairs-phase', 'probe', { timeout: 60_000 });
+  const index = wrong ? (probe === 0 ? 1 : probe - 1) : probe;
+  void boxes;
+  await page.getByTestId(`pairs-box-${index + 1}`).click();
+}
+
+/** Routes a `tap` item to the board that collects it. */
+async function tapBoard(page: Page, item: ReturnType<typeof expectedItem>, wrong: boolean): Promise<void> {
+  switch (item.stimulus.kind) {
+    case 'block-span':
+      return tapBlocks(page, item.stimulus.sequence, wrong);
+    case 'reaction':
+      return pressReaction(page, item.stimulus.targets, item.stimulus.lit, wrong);
+    case 'pattern':
+      return tapPattern(page, item.stimulus.size, item.stimulus.cells, wrong);
+    case 'pairs':
+      return tapPairs(page, item.stimulus.symbols.length, item.stimulus.probe, wrong);
+    default:
+      throw new Error(`no board for a tap item with stimulus ${item.stimulus.kind}`);
+  }
+}
+
+/**
  * Fills a pyramid and submits it.
  *
  * `wrong` writes the right numbers with the last blank one out, which is a genuine wrong answer for
@@ -161,8 +217,7 @@ export async function answerCorrectly(
     return;
   }
   if (item.responseMode === 'tap') {
-    if (item.stimulus.kind !== 'block-span') throw new Error('expected a block-span stimulus');
-    await tapBlocks(page, item.stimulus.sequence, false);
+    await tapBoard(page, item, false);
     return;
   }
   if (item.responseMode === 'fill') {
@@ -195,8 +250,7 @@ export async function answerIncorrectly(
     return;
   }
   if (item.responseMode === 'tap') {
-    if (item.stimulus.kind !== 'block-span') throw new Error('expected a block-span stimulus');
-    await tapBlocks(page, item.stimulus.sequence, true);
+    await tapBoard(page, item, true);
     return;
   }
   if (item.responseMode === 'fill') {

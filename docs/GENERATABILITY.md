@@ -73,6 +73,11 @@ Legend: ✅ pass · ⚠️ passes with engineering · ❌ fails
 | 35 | **Weekday arithmetic** (counting the days) | Gq | ✅ | ✅ | ⚠️ | **SHIP** |
 | 36 | **Minimal change-making** | Gq | ✅ | ✅ | ⚠️ | **SHIP** — minimality decidable by search |
 | 37 | **Number pyramid** (fill the sums) | Gq | ✅ | ✅ | ✅ | **SHIP** — open response, no options |
+| 38 | **Tower of London** (minimum-move count) | Gf | ✅ | ✅ | ✅ | **SHIP** — BFS over 36 states proves the minimum |
+| 39 | **Table reasoning** (totals, differences, averages, % change) | Gq | ✅ | ✅ | ⚠️ | **SHIP** |
+| 40 | **Simple / choice reaction time** | Gt | ✅ | ✅ | ✅ | **SHIP** — the latency is the construct |
+| 41 | **Visual pattern recall** (simultaneous grid) | Gv | ✅ | ✅ | ✅ | **SHIP** — set compared exactly |
+| 42 | **Paired associates** (object–location) | Glr | ✅ | ✅ | ✅ | **SHIP** — arbitrary pairings, no lookup |
 
 Rows 29–37 are the batch drawn from *Brain Age* / *Dr Kawashima's Brain Training* (see the note in
 §3). Their ⚠️s are all the same ⚠️ and all in **U**, never in G or V: a numeric answer with a small
@@ -98,8 +103,12 @@ Worse, it fails **U** unpredictably: for `up : ?` the intended answer is *down*,
 has no principled way to know. Distractor selection has the same problem — a randomly drawn
 word may be an *equally valid* answer.
 
-The honest consequence: **this site trains Gf, Gv, Gwm, Gs and Gq, and does not train Gc.** That is
-stated on the site itself rather than papered over. It also means the site cannot approximate a
+The honest consequence: **this site trains Gf, Gv, Gwm, Glr, Gs, Gt and Gq, and does not train Gc.**
+That is stated on the site itself rather than papered over. Glr is worth a sentence, because it is the
+domain that *looks* like Gc and is not: associative memory is the ability to bind two things that had
+no reason to go together, so a format that pairs abstract symbols with boxes measures the binding
+without needing a single fact about any language — the pairing is the generator's own choice, and
+therefore its own ground truth. It also means the site cannot approximate a
 Full Scale IQ even in principle, since VCI has no analogue here — which is fine, because §8 of
 the knowledge doc already rules out reporting an IQ score at all.
 
@@ -110,7 +119,7 @@ nonverbal, and why free online tests are almost universally matrix-based.
 
 ## 3. What ships in v1
 
-Twenty-seven generators across five CHC domains:
+Thirty-two generators across seven CHC domains:
 
 | Module | Format | Difficulty dial |
 |--------|--------|-----------------|
@@ -141,6 +150,11 @@ Twenty-seven generators across five CHC domains:
 | `calendar-count` | given one day, name the day another date falls on | direction of the count; crossing into the next month |
 | `change-maker` | pick the fewest coins that make the change | coins in the answer; whether the amount reaches the 1s and 2s |
 | `triangle-math` | fill a pyramid where each cell sums the two below | width of the given row (three or six blanks); magnitude |
+| `tower` | two Tower of London boards, how few moves between them, 4 options | length of the shortest solution (3–8), proved by search |
+| `table-reasoning` | a 4-row table and one question about it, 4 options | columns (3–5); which questions are on the menu |
+| `reaction-time` | wait, then press the target that lit | number of targets (1–6), Hick's law |
+| `pattern-recall` | a 4×4 grid flashes a set of cells; tap the set back | cells to hold (3–7), and nothing else |
+| `paired-associates` | boxes open on symbols one by one; which box held this one? | pairings to learn (3–7) |
 
 > **On the batch drawn from *Brain Age*.** Nine formats — rows 29–37 — come from Nintendo's *Brain
 > Age* / *Dr Kawashima's Brain Training*, and the reason to mine a game rather than a battery is that
@@ -215,6 +229,34 @@ Twenty-seven generators across five CHC domains:
 > `head-count` was never in that list. Its source task is already one short episode answered once,
 > so nothing about it is a compression of a longer block — which is why it could ship ahead of the
 > block mode rather than waiting on it.
+
+> **On the 2026-09 batch, drawn from a gap analysis.** Five formats — rows 38–42 — came from comparing
+> the registry against *Brain Age*, Human Benchmark, Cambridge Brain Sciences and the graduate
+> aptitude batteries, and asking not "what is famous" but "what construct is absent". Two whole
+> CHC domains were: **Gt** (reaction and decision speed, which is not Gs — output per minute on easy
+> items and the latency of one response load on different factors) and **Glr** (long-term storage and
+> retrieval). Both turned out to be generatable, and the Glr case is the one worth recording, since
+> §2 rejects everything that looks like memory-for-content: paired associates works because the
+> content is *arbitrary*, so the pairing is the generator's and the answer is a lookup into the
+> generator's own choice rather than into a language. The other three close construct gaps inside
+> existing domains — planning (`tower`, the first format that asks for a sequence of actions to be
+> found and its length known before any of it happens), simultaneous visual memory
+> (`pattern-recall`, which dissociates from the sequential `block-span`), and selection from a table
+> (`table-reasoning`, the only format resembling the tests people actually sit for jobs).
+>
+> Three of the five are `tap` boards that own their own presentation, like `block-span`, and each has a
+> **computed** diagnosis of its own: a press before the signal is `premature` (a new error type, the
+> only one that names anticipation rather than a wrong answer); a tapped cell adjacent to a missed one
+> is `off-by-one` in two dimensions; the box next door to the right one is `off-by-one` too, the
+> associative slip. Two things in the batch were changed by the blind solver rather than by design:
+> `tower` does not ask for two-move items, because an answer of two in a run of four with a floor of
+> one can only be the smallest or second-smallest option and "pick the smallest" scored 42%; and
+> `table-reasoning` does not offer the neighbouring row's total as a distractor, however diagnostic,
+> because with a fixed ±10 carry pair beside it the solver found the answer six times in ten by looking
+> for the unique pair ten apart. The neighbouring total is named in the explanation instead.
+>
+> One honest limit, stated on the format: `paired-associates` probes seconds after learning. The fuller
+> Glr measurement is the same probe minutes later, and nothing here builds it yet.
 
 > **On the fifth response mode.** `fill` ships with `triangle-math`, and it is the first format
 > whose item genuinely has more than one answer. Two alternatives were available and both were

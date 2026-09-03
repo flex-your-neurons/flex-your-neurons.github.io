@@ -72,6 +72,8 @@ const en = {
     Gwm: 'Working memory',
     Gs: 'Processing speed',
     Gq: 'Quantitative reasoning',
+    Gt: 'Reaction and decision speed',
+    Glr: 'Long-term storage and retrieval',
   } as Record<ChcDomain | 'Gc', string>,
 
   /**
@@ -206,6 +208,16 @@ const en = {
       roomLabel: 'The room',
     },
     /** Labels for the balance scales. View strings, so they live here, not in `gen`. */
+    tower: {
+      startLabel: 'Now',
+      goalLabel: 'Wanted',
+      pegLabel: (peg: number, holds: number) => `Peg ${peg}, holds ${holds}`,
+      emptyPeg: 'empty',
+      beadLabel: (shape: string) => `${shape} bead`,
+    },
+    table: {
+      cornerLabel: 'Team',
+    },
     weights: {
       premisesLabel: 'These scales balance',
       targetLabel: 'Balance this one',
@@ -407,6 +419,7 @@ const en = {
       'wrong-direction': 'wrong direction',
       carry: 'carry slip',
       transposition: 'order lost',
+      premature: 'false start',
       plausible: 'near miss',
     } as Record<ErrorType, string>,
     bodies: {
@@ -426,6 +439,8 @@ const en = {
         'The units digit is right and a higher place is wrong. That is the signature of a dropped or doubled carry — the part of the calculation that is bookkeeping rather than arithmetic. It is also why one wrong option always ends in the same digit as the answer: otherwise the item could be answered by working out a single digit.',
       'wrong-direction':
         'Right amount, opposite direction. You had the size of the step but applied it the wrong way — adding what should have come off, or the reverse. On a stream that does not repeat, a reversed step costs twice what a missed one does.',
+      premature:
+        'You responded before the signal. That is anticipation, not reaction — the wait is random precisely so it cannot be timed, and a response that beats the signal was a guess about when it would come. Let the signal arrive; a slightly slower true reaction is a measurement, a fast false start is not.',
       transposition:
         'Every item, in the wrong order. You held what there was to hold and lost the arrangement of it, which is a different failure from forgetting an item — and a more encouraging one, since the hard part of a span task is usually the holding. Order tends to come back with a deliberate rhythm: reproduce the sequence at the pace it was given rather than as fast as you can.',
       plausible:
@@ -508,7 +523,7 @@ const en = {
     byDomain: 'By cognitive domain',
     domainChartLabel: 'Accuracy by cognitive domain',
     domainLede:
-      'Your accuracy on the five Cattell–Horn–Carroll broad abilities these formats load on. A profile, not a score: there is no norm behind any of these bars, so they compare you with yourself and with nobody else.',
+      'Your accuracy on the seven Cattell–Horn–Carroll broad abilities these formats load on. A profile, not a score: there is no norm behind any of these bars, so they compare you with yourself and with nobody else.',
     /** Marks a bar with too few attempts to mean anything yet. */
     provisional: (attempts: number) =>
       `${attempts} item${attempts === 1 ? '' : 's'} — too few to read anything into`,
@@ -555,7 +570,7 @@ const en = {
     /** Small multiples: one trend per format. */
     wall: {
       heading: 'Every format, over time',
-      lede: 'One trace per format, oldest attempts on the left. Small charts side by side rather than twenty-seven lines on one axis — twenty-seven colours on one plot would be unreadable, and these are meant to be scanned for shape, not read for values.',
+      lede: 'One trace per format, oldest attempts on the left. Small charts side by side rather than thirty-two lines on one axis — thirty-two colours on one plot would be unreadable, and these are meant to be scanned for shape, not read for values.',
       never: 'not attempted yet',
     },
     byItemType: 'By item type',
@@ -803,6 +818,41 @@ const en = {
       description:
         'A row of numbers is given and the pyramid above it is blank; each cell is the sum of the two beneath it, and you fill in every one. The additions are easy and they are not independent — the second row has to be finished before the third can start, and a cell you get wrong travels upward into everything above it. That dependency is the format: mental arithmetic measures one step, counting down measures a chain of identical steps on one running value, and this measures a chain that branches, with two intermediate results to hold at once. Because every cell is answered, a wrong item shows exactly which addition failed rather than only that the total was out.',
       seenIn: 'Brain Age Triangle Math, arithmetic-fluency drills, mental-calculation batteries',
+    },
+    tower: {
+      name: 'Tower',
+      blurb: 'How few moves turn this arrangement into that one?',
+      description:
+        'Three beads on three pegs of different heights, shown twice: as they are, and as they should be. One bead moves at a time, only from the top of a peg, only onto a peg with room. You do not touch anything — you work out the shortest sequence of moves in your head and say how long it is. This is the Tower of London, the classic test of planning: the interesting arrangements are the ones where a bead has to be moved away from where it is wanted to make room for another, which a reader who only looks one move ahead will not see. The answer is proved minimal by searching every arrangement the board allows, and each level asks for solutions of two adjacent lengths, so the level never names the answer.',
+      seenIn: 'The Tower of London (Shallice, 1982), D-KEFS Tower, CANTAB Stockings of Cambridge, Cambridge Brain Sciences Spatial Planning',
+    },
+    'table-reasoning': {
+      name: 'Table reasoning',
+      blurb: 'Four rows of figures, one question. The answer is in the table, not on it.',
+      description:
+        'A small table — four teams, a few quarters — and one question about it: a total across a row or down a column, the difference between two cells, which team had the highest total, an average, or a percentage change. The arithmetic is deliberately easy. What the format measures is finding the right cells, knowing which operation the question is asking for, and holding two or three quantities long enough to combine them. Every other quantitative format on the site hands you the numbers already selected; here the selection is the task. The wrong answers are the classic slips by name — the neighbouring row read by mistake, the two numbers added when they should have been subtracted, a percentage taken against the wrong base — and the row with the single largest number is never the row with the largest total.',
+      seenIn: 'SHL and Kenexa numerical reasoning, civil-service numerical tests, the DAT Numerical Ability subtest',
+    },
+    'reaction-time': {
+      name: 'Reaction time',
+      blurb: 'Wait for the signal. Hit the target that lit.',
+      description:
+        'One or more targets, a wait you cannot predict, and then one of them lights: hit it. With a single target this is simple reaction time, the oldest measurement in psychology; with several it becomes choice reaction time, and the extra milliseconds are the cost of deciding which. That is the only thing the levels change — Hick’s law says the decision cost grows with the number of alternatives — so the ladder runs through one construct from a plain reflex to a six-way choice. The wait before the signal is drawn from the seed between one and three seconds, so it cannot be timed, and a response before the signal is a false start and counts as wrong. The board shows your time in milliseconds after every trial: here the latency is the measurement rather than a side-effect of it, and it is the one number on this site with an everyday meaning.',
+      seenIn: 'Donders (1868), Hick (1952), the Human Benchmark reaction test, CANTAB Reaction Time, Deary–Liewald task',
+    },
+    'pattern-recall': {
+      name: 'Pattern recall',
+      blurb: 'A grid lights up all at once. Tap back what was lit.',
+      description:
+        'Sixteen cells in a square; several of them light together for a moment and go dark; you tap the cells that were lit. Block span shows places one after another and asks for their order — this shows them all at once and asks for the set, and the two dissociate: one is a sequence to rehearse, the other a picture to hold. The grid never changes size and the pattern is on screen for the same moment at every level, so the only thing that grows is the number of cells to hold. Patterns that can be named in a word — a full row, a filled block — are never shown, because a name is one thing to remember and the item is meant to be several.',
+      seenIn: 'The Visual Patterns Test (Della Sala et al., 1997), Human Benchmark Visual Memory, Big Brain Academy Flash Memory',
+    },
+    'paired-associates': {
+      name: 'Paired associates',
+      blurb: 'Boxes open one by one to show a symbol. Which box held this one?',
+      description:
+        'A row of closed boxes. They open one at a time, each showing a symbol, and close again; then one symbol is shown on its own and you tap the box it was in. This is associative learning — the ability to bind two things that had no reason to go together, which is what learning a name to a face or a word to its translation comes down to — and it is the first format here filed under long-term storage and retrieval. It can be generated where vocabulary cannot because the pairings are arbitrary by construction: the symbols are abstract, the boxes are boxes, and nothing but the learning helps. The probe is a symbol rather than a position, so you retrieve a place from a thing, which is the associative direction. Honest limit: the interval between learning and probe is seconds, and a delayed probe minutes later — the fuller measurement — is not built.',
+      seenIn: 'CANTAB Paired Associates Learning, Cambridge Brain Sciences Paired Associates, WMS Verbal Paired Associates (in verbal form), Woodcock–Johnson Visual–Auditory Learning',
     },
     'calendar-count': {
       name: 'Counting the days',
@@ -1168,6 +1218,118 @@ const en = {
       rulePropagates:
         'The rows are not independent: a cell you get wrong is added into both cells above it, so a single slip near the bottom moves everything after it. That is why every blank is answered rather than only the top one — the pyramid shows where the chain broke.',
     },
+    tower: {
+      prompt: 'What is the fewest moves that turn the left board into the right one?',
+      summary: (moves: number) => `The shortest solution takes ${moves} moves.`,
+      ruleOneAtATime: 'One bead moves at a time, and only the top bead of a peg can move.',
+      ruleCapacity:
+        'The pegs hold three, two and one bead. A full peg cannot take another, which is what makes some routes longer than they look.',
+      ruleMinimum: (moves: number) =>
+        `${moves} is the minimum: every arrangement the board allows was searched, and no shorter sequence reaches the goal.`,
+      ruleAway:
+        'The characteristic mistake is counting one move too few, by skipping the move that clears a peg — a bead sometimes has to be put somewhere it is not wanted before another can go where it is.',
+    },
+    tableReasoning: {
+      rowLabel: (i: number) => `Team ${'ABCD'[i]}`,
+      columnLabel: (i: number) => `Q${i + 1}`,
+      percent: (value: number) => `${value}%`,
+      promptRowTotal: (row: string) => `What is ${row}'s total across all quarters?`,
+      promptColumnTotal: (column: string) => `What is the total for ${column}, all teams together?`,
+      promptDifference: (larger: string, smaller: string, column: string) =>
+        `In ${column}, how much more did ${larger} record than ${smaller}?`,
+      promptMaxRow: 'Which team had the highest total across all quarters?',
+      promptAverage: (row: string) => `What was ${row}'s average per quarter?`,
+      promptPercent: (row: string, from: string, to: string, direction: 'rise' | 'fall') =>
+        `By what percentage did ${row} ${direction === 'rise' ? 'rise' : 'fall'} from ${from} to ${to}?`,
+      summaryTotal: (label: string, total: number) => `${label} totals ${total}.`,
+      summaryDifference: (larger: string, smaller: string, column: string, diff: number) =>
+        `In ${column}, ${larger} is ${diff} ahead of ${smaller}.`,
+      summaryMaxRow: (row: string, total: number) => `${row}, with ${total}.`,
+      summaryAverage: (row: string, average: number) => `${row} averages ${average} a quarter.`,
+      summaryPercent: (row: string, from: string, to: string, percent: string, direction: 'rise' | 'fall') =>
+        `${row} ${direction === 'rise' ? 'rose' : 'fell'} by ${percent} from ${from} to ${to}.`,
+      ruleAdd: (terms: string, total: number) => `${terms} = ${total}.`,
+      ruleAxisRow: 'Read along the row, not down the column: the neighbouring total is offered for readers who did the reverse.',
+      ruleAxisColumn: 'Read down the column, not along the row: the neighbouring total is offered for readers who did the reverse.',
+      ruleSubtract: (a: number, b: number, diff: number) => `${a} − ${b} = ${diff}.`,
+      ruleNotSum: (sum: number) => `${sum} is what you get by adding the two cells instead — the question asked how much more, which is a difference.`,
+      ruleTotals: (totals: string) => `The four totals: ${totals}.`,
+      ruleLure: (row: string, biggest: number) =>
+        `${row} holds the single largest figure in the table, ${biggest}, and does not have the largest total. The eye-catching cell is not the answer to a question about sums.`,
+      ruleDivide: (total: number, count: number, average: number) => `${total} ÷ ${count} = ${average}.`,
+      rulePercentBase: (from: number, to: number, diff: number, percent: string) =>
+        `From ${from} to ${to} is a change of ${diff}; ${diff} out of ${from} is ${percent}.`,
+      rulePercentDirection:
+        'The base is always the earlier figure. Taking the change against the later one gives a different percentage, and that is the distractor built for it.',
+    },
+    reactionTime: {
+      promptSimple: 'When the target lights, hit it.',
+      promptChoice: (targets: number) => `One of the ${targets} targets will light. Hit that one.`,
+      summarySimple: 'The target lit, and the time from that moment to your response is what was measured.',
+      summaryChoice: (position: number) => `Target ${position} lit.`,
+      ruleWait:
+        'The wait before the signal is random, between one and three seconds, so it cannot be timed. Attend, and let it come.',
+      ruleFalseStart:
+        'A response before the signal is a false start and is scored wrong. It was not a reaction to anything.',
+      ruleSimple:
+        'One target is simple reaction time: detect and respond, with nothing to decide. Typical adult values are a little over two hundred milliseconds; the number here includes the display and the pointer, so compare it with your own earlier trials rather than with a textbook.',
+      ruleHick: (targets: number) =>
+        `${targets} targets is choice reaction time: detect, identify which, then respond. Hick’s law says the extra cost grows with the logarithm of the number of alternatives, which is why this level is slower than the last by a roughly constant step.`,
+      /** Live board copy. */
+      ready: (targets: number) =>
+        targets === 1 ? 'The target will light after a short, random wait.' : `One of ${targets} targets will light after a short, random wait.`,
+      start: 'Ready',
+      waiting: 'Wait…',
+      go: 'Now!',
+      targetLabel: (position: number) => `Target ${position}`,
+      falseStart: 'Too early — that was before the signal.',
+      result: (ms: number) => `${ms} ms`,
+      wrongTarget: 'That was not the target that lit.',
+    },
+    patternRecall: {
+      prompt: (count: number) => `Tap the ${count} cells that lit.`,
+      summary: (count: number) => `${count} cells lit; the grid below shows them.`,
+      ruleSet:
+        'The cells, in any order. What is being remembered is the picture, not a sequence — tap them back however you like.',
+      ruleExact:
+        'All of them have to be right. Four of five cells is a failed trial rather than most of a success: what is being measured is whether the pattern survived, and a partly-remembered one did not.',
+      ruleSnapshot:
+        'The pattern is on screen for a moment and then gone, and it was shown all at once. That is the difference from block span, which shows places one after another — this loads the store that holds a picture, not the one that rehearses a list.',
+      ruleGrid:
+        'The grid is always four by four and the exposure is always the same. Only the number of cells grows with the level, so a level means one thing.',
+      /** Live board copy. */
+      ready: (count: number) => `${count} cells will light together, briefly. Watch which.`,
+      start: 'Show the pattern',
+      watching: 'Watch…',
+      nowTapThemBack: 'Now tap the cells that were lit.',
+      progress: (done: number, total: number) => `${done} of ${total} selected`,
+      cellLabel: (row: number, column: number) => `Row ${row}, column ${column}`,
+      revealRight: 'That was the pattern.',
+      revealWrong: 'The pattern is marked below.',
+      legendLit: 'Filled: was lit',
+      legendMissed: 'Ring: was lit, not tapped',
+      legendExtra: 'Cross: tapped, was not lit',
+    },
+    pairedAssociates: {
+      prompt: (boxes: number) => `${boxes} boxes will each show a symbol. Then find the box that held the one asked for.`,
+      summary: (position: number) => `It was in box ${position}.`,
+      ruleEachOnce:
+        'Every box opens exactly once, in a shuffled order, and shows its symbol for about a second. There is no replay.',
+      ruleProbe:
+        'The question is a symbol, and the answer is a place. Retrieving a location from a thing is the associative direction — the same act as putting a name to a face.',
+      ruleArbitrary:
+        'The pairings are arbitrary on purpose. Nothing about a symbol says which box it belongs in, so nothing but the learning can help — which is what makes it a fair test of learning.',
+      ruleInterval:
+        'The probe comes seconds after the last box closes. The fuller measurement — the same question minutes later — is not built here, and the format says so rather than claiming it.',
+      /** Live board copy. */
+      ready: (boxes: number) => `${boxes} boxes will open one at a time. Remember what each one holds.`,
+      start: 'Open the boxes',
+      watching: 'Watch…',
+      probe: 'Which box held this?',
+      boxLabel: (position: number) => `Box ${position}`,
+      revealRight: 'That was the box.',
+      revealWrong: 'The boxes are open below; the right one is marked.',
+    },
     changeMaker: {
       prompt: 'Which coins make the change?',
       priceLine: (price: string) => `The bill comes to ${price}.`,
@@ -1213,7 +1375,7 @@ const en = {
       title: 'Train on reasoning-test formats',
       description:
         'Practise the item formats used in IQ and aptitude tests — matrix reasoning, number series, syllogisms, mental rotation and more. Every item is generated fresh, verified to have one answer, and explained afterwards. Runs entirely in your browser.',
-      lede: 'Twenty-seven item formats from the intelligence-testing literature, generated fresh every time and explained after every answer. No account, no server, no score you should put on a CV.',
+      lede: 'Thirty-two item formats from the intelligence-testing literature, generated fresh every time and explained after every answer. No account, no server, no score you should put on a CV.',
       ctaTest: 'Take a full test',
       ctaPractice: 'Practise one format',
       whatHeading: 'What you can train',
@@ -1333,7 +1495,7 @@ const en = {
 
       chcHeading: 'The map: CHC theory',
       chcP1:
-        'Nearly every modern battery is organised around the Cattell–Horn–Carroll model: general ability g at the top, about ten broad abilities beneath it, and seventy-odd narrow abilities below those. The five broad abilities this site trains:',
+        'Nearly every modern battery is organised around the Cattell–Horn–Carroll model: general ability g at the top, about ten broad abilities beneath it, and seventy-odd narrow abilities below those. The seven broad abilities this site trains:',
       chcColCode: 'Code',
       chcColAbility: 'Ability',
       chcColFormats: 'Formats here',
@@ -1455,7 +1617,7 @@ const en = {
         },
       ],
       notMeasuredClose:
-        'That applies recursively to this site. High accuracy on these twenty-seven formats is evidence about these twenty-seven formats, and about nothing else.',
+        'That applies recursively to this site. High accuracy on these thirty-two formats is evidence about these thirty-two formats, and about nothing else.',
 
       difficultyP3:
         'What that does not amount to is calibration. The bands are *designed* from published cognitive operators — a defensible ordering — but no item here carries a difficulty parameter fitted to real response data, which is what item-response theory means by difficulty. So the adaptive ladder is a staircase that keeps you near your own success rate, not an estimate of your ability.',

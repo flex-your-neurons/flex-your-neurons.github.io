@@ -14,10 +14,13 @@ import type {
   Response,
   ResponseMode,
   Session,
+  Stimulus,
 } from './types';
 import { generateItem, getMeta, ITEM_VERSION } from './generators';
 import { isCongruent } from './generators/interference';
 import { isFormB } from './generators/trail-making';
+import { FALSE_START } from './generators/reaction-time';
+import { decodeCells } from './generators/pattern-recall';
 import { dict, DEFAULT_LOCALE, type Locale } from './i18n';
 
 /**
@@ -89,6 +92,61 @@ export function diagnoseTaps(expected: string, tapped: string): ErrorType {
   const sorted = (value: string) => [...value].sort().join('');
   if (want.length === got.length && sorted(want) === sorted(got)) return 'transposition';
   return 'plausible';
+}
+
+/**
+ * Names the mistake on a reaction trial. A press before the signal is the one diagnosis this format
+ * owns; a press on the wrong target after it is an ordinary miss.
+ */
+export function diagnoseReaction(expected: string, pressed: string): ErrorType {
+  if (pressed === expected) return 'correct';
+  return pressed === FALSE_START ? 'premature' : 'plausible';
+}
+
+/**
+ * Names the mistake in a tapped-back pattern. Every wrong cell a neighbour of a lit cell that was
+ * missed is a pattern held with its shape right and its place slightly off — `off-by-one`, in two
+ * dimensions. Anything else is a cell that was not encoded.
+ */
+export function diagnosePattern(expected: string, tapped: string, size: number): ErrorType {
+  if (expected === tapped) return 'correct';
+  const want = decodeCells(expected);
+  const got = decodeCells(tapped);
+  const missed = want.filter((c) => !got.includes(c));
+  const extra = got.filter((c) => !want.includes(c));
+  if (extra.length === 0 || missed.length === 0) return 'plausible';
+  const adjacent = (a: number, b: number) =>
+    Math.abs(Math.floor(a / size) - Math.floor(b / size)) + Math.abs((a % size) - (b % size)) === 1;
+  return extra.every((e) => missed.some((m) => adjacent(e, m))) ? 'off-by-one' : 'plausible';
+}
+
+/**
+ * Names the mistake on a paired-associates probe. The box next door is the classic associative slip
+ * — the pairing was learned to a place, and the place drifted by one — and is worth separating from
+ * a box across the row, which means the pairing was not learned at all.
+ */
+export function diagnosePairs(expected: string, tapped: string): ErrorType {
+  if (tapped === expected) return 'correct';
+  return Math.abs(Number(tapped) - Number(expected)) === 1 ? 'off-by-one' : 'plausible';
+}
+
+/**
+ * The computed diagnosis for any `tap` item, dispatched on what kind of board collected it. Every
+ * other mode looks its diagnosis up in `errorTypes`; a tap is produced rather than chosen, so it is
+ * derived from the response — see `diagnoseTaps`.
+ */
+export function diagnoseTap(item: { answerText?: string; stimulus: Stimulus }, tapped: string): ErrorType {
+  const expected = item.answerText ?? '';
+  switch (item.stimulus.kind) {
+    case 'reaction':
+      return diagnoseReaction(expected, tapped);
+    case 'pattern':
+      return diagnosePattern(expected, tapped, item.stimulus.size);
+    case 'pairs':
+      return diagnosePairs(expected, tapped);
+    default:
+      return diagnoseTaps(expected, tapped);
+  }
 }
 
 /** Spaces, dashes and case are noise in a recall answer, not errors. */

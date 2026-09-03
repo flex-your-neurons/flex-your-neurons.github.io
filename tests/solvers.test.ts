@@ -2,11 +2,17 @@ import { describe, expect, it } from 'vitest';
 import { generateItem } from '@/lib/generators';
 import { NODE_RADIUS } from '@/lib/generators/trail-making';
 import { BLOCKS, BLOCK_RADIUS, encodeTaps, hasStraightRun } from '@/lib/generators/block-span';
-import { diagnoseFills, diagnoseTaps, isCorrect } from '@/lib/scoring';
+import { diagnoseFills, diagnosePairs, diagnosePattern, diagnoseReaction, diagnoseTaps, isCorrect } from '@/lib/scoring';
 import { isSizeCongruent } from '@/lib/generators/high-number';
 import { elapsedMinutes } from '@/lib/generators/time-lapse';
 import { weekdayAfter } from '@/lib/generators/calendar-count';
 import { DENOMINATIONS, totalOf } from '@/lib/generators/change-maker';
+import { minimumMoves } from '@/lib/generators/tower';
+import { ROWS } from '@/lib/generators/table-reasoning';
+import { FALSE_START, FOREPERIOD, targetsFor } from '@/lib/generators/reaction-time';
+import { countFor, encodeCells, EXPOSURE_MS, GRID, isNameable } from '@/lib/generators/pattern-recall';
+import { boxesFor } from '@/lib/generators/paired-associates';
+import { figureSignature } from '@/lib/geometry';
 import { handAngles, twelveHour } from '@/lib/clock';
 import { dict } from '@/lib/i18n';
 import { DIFFICULTIES, HANDS, type Difficulty, type Figure, type Hand } from '@/lib/types';
@@ -1766,3 +1772,255 @@ function splitRows(flat: number[], baseWidth: number): number[][] {
   }
   return rows;
 }
+
+/**
+ * Tower: the keyed count is the true shortest path, re-derived here by a breadth-first search written
+ * independently of the generator's, over the moves the rules allow.
+ */
+describe('the tower keys a minimum that is really minimal', () => {
+  const SEEDS = Array.from({ length: 100 }, (_, i) => `TW${i}`);
+  const CAPS = [3, 2, 1];
+
+  function shortest(start: number[][], goal: number[][]): number {
+    const key = (s: number[][]) => s.map((p) => p.join('')).join('|');
+    const seen = new Map<string, number>([[key(start), 0]]);
+    const queue = [start];
+    while (queue.length) {
+      const s = queue.shift()!;
+      const d = seen.get(key(s))!;
+      if (key(s) === key(goal)) return d;
+      for (let from = 0; from < 3; from++) {
+        if (!s[from]!.length) continue;
+        for (let to = 0; to < 3; to++) {
+          if (to === from || s[to]!.length >= CAPS[to]!) continue;
+          const n = s.map((p) => [...p]);
+          n[to]!.push(n[from]!.pop()!);
+          if (!seen.has(key(n))) {
+            seen.set(key(n), d + 1);
+            queue.push(n);
+          }
+        }
+      }
+    }
+    throw new Error('unreachable goal');
+  }
+
+  it('keys the shortest solution, over a legal board, and offers it among consecutive counts', () => {
+    for (const difficulty of DIFFICULTIES) {
+      for (const seed of SEEDS) {
+        const item = generateItem('tower', seed, difficulty);
+        if (item.stimulus.kind !== 'tower') throw new Error('unexpected stimulus');
+        const where = `tower ${seed} d${difficulty}`;
+        const { start, goal } = item.stimulus;
+        for (const board of [start, goal]) {
+          board.forEach((peg, i) => expect(peg.length, `${where}: overfull peg`).toBeLessThanOrEqual(CAPS[i]!));
+          expect([...board.flat()].sort(), `${where}: beads`).toEqual([0, 1, 2]);
+        }
+        const keyed = Number((item.options[item.answerIndex] as { text: string }).text);
+        expect(keyed, where).toBe(shortest(start, goal));
+        expect(keyed, where).toBe(minimumMoves(start, goal));
+        const values = item.options.map((o) => Number((o as { text: string }).text)).sort((a, b) => a - b);
+        expect(values, `${where}: not a run`).toEqual([values[0]!, values[0]! + 1, values[0]! + 2, values[0]! + 3]);
+        expect(values[0]!, where).toBeGreaterThanOrEqual(1);
+      }
+    }
+  });
+
+  it('asks for longer plans as difficulty rises, and never names the answer by level', () => {
+    const answers = (d: Difficulty) =>
+      SEEDS.map((seed) => {
+        const item = generateItem('tower', seed, d);
+        return Number((item.options[item.answerIndex] as { text: string }).text);
+      });
+    const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
+    expect(mean(answers(5))).toBeGreaterThan(mean(answers(1)) + 2);
+    for (const d of DIFFICULTIES) expect(new Set(answers(d)).size, `d${d}`).toBe(2);
+  });
+});
+
+/**
+ * Table reasoning: the keyed value is re-derived from the printed cells by parsing the *English
+ * prompt*, so an item is proved self-contained — if the words on screen and the cells on screen
+ * determine the keyed answer, nothing else does.
+ */
+describe('table reasoning is decidable from the table and the question on screen', () => {
+  const SEEDS = Array.from({ length: 120 }, (_, i) => `TB${i}`);
+  const row = (label: string) => 'ABCD'.indexOf(label.replace('Team ', ''));
+  const col = (label: string) => Number(label.replace('Q', '')) - 1;
+  const total = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
+
+  function solve(prompt: string, cells: number[][]): number | string {
+    let m: RegExpExecArray | null;
+    if ((m = /^What is (Team [A-D])'s total/.exec(prompt))) return total(cells[row(m[1]!)]!);
+    if ((m = /^What is the total for (Q\d)/.exec(prompt))) return total(cells.map((r) => r[col(m![1]!)]!));
+    if ((m = /^In (Q\d), how much more did (Team [A-D]) record than (Team [A-D])/.exec(prompt))) {
+      return cells[row(m[2]!)]![col(m[1]!)]! - cells[row(m[3]!)]![col(m[1]!)]!;
+    }
+    if (/^Which team had the highest total/.test(prompt)) {
+      const totals = cells.map(total);
+      return `Team ${'ABCD'[totals.indexOf(Math.max(...totals))]}`;
+    }
+    if ((m = /^What was (Team [A-D])'s average/.exec(prompt))) {
+      const r = cells[row(m[1]!)]!;
+      return total(r) / r.length;
+    }
+    if ((m = /^By what percentage did (Team [A-D]) (rise|fall) from (Q\d) to (Q\d)/.exec(prompt))) {
+      const from = cells[row(m[1]!)]![col(m[3]!)]!;
+      const to = cells[row(m[1]!)]![col(m[4]!)]!;
+      expect(m[2] === 'rise' ? to > from : to < from, 'direction stated wrongly').toBe(true);
+      return `${Math.round((Math.abs(to - from) / from) * 100)}%`;
+    }
+    throw new Error(`unrecognised prompt: ${prompt}`);
+  }
+
+  it('keys the value the printed question asks of the printed cells', () => {
+    for (const difficulty of DIFFICULTIES) {
+      for (const seed of SEEDS) {
+        const item = generateItem('table-reasoning', seed, difficulty);
+        if (item.stimulus.kind !== 'table') throw new Error('unexpected stimulus');
+        const where = `table-reasoning ${seed} d${difficulty}`;
+        const solved = solve(item.prompt, item.stimulus.cells);
+        const keyed = (item.options[item.answerIndex] as { text: string }).text;
+        expect(keyed, where).toBe(String(solved));
+        // Exactly one option carries the solved value.
+        expect(item.options.filter((o) => (o as { text: string }).text === String(solved)), where).toHaveLength(1);
+        expect(item.stimulus.cells, where).toHaveLength(ROWS);
+        for (const r of item.stimulus.cells) expect(r, where).toHaveLength(item.stimulus.columns);
+      }
+    }
+  });
+
+  it('never lets the largest single figure sit in the winning row of a highest-total question', () => {
+    let asked = 0;
+    for (const difficulty of DIFFICULTIES) {
+      for (const seed of SEEDS) {
+        const item = generateItem('table-reasoning', seed, difficulty);
+        if (item.stimulus.kind !== 'table' || !/highest total/.test(item.prompt)) continue;
+        asked++;
+        const cells = item.stimulus.cells;
+        const biggest = Math.max(...cells.flat());
+        const lure = cells.findIndex((r) => r.includes(biggest));
+        expect(lure, `${seed} d${difficulty}`).not.toBe(item.answerIndex);
+        expect(item.errorTypes[lure], `${seed} d${difficulty}`).toBe('wrong-rule');
+      }
+    }
+    expect(asked).toBeGreaterThan(20);
+  });
+
+  it('widens the table with difficulty', () => {
+    const columns = (d: Difficulty) => {
+      const item = generateItem('table-reasoning', 'TB0', d);
+      return item.stimulus.kind === 'table' ? item.stimulus.columns : 0;
+    };
+    expect(columns(5)).toBeGreaterThan(columns(1));
+  });
+});
+
+describe('reaction time is a fair trial', () => {
+  const SEEDS = Array.from({ length: 150 }, (_, i) => `RT${i}`);
+
+  it('lights one of the targets the level promises, after an unpredictable wait', () => {
+    for (const difficulty of DIFFICULTIES) {
+      const waits = new Set<number>();
+      const lits = new Set<number>();
+      for (const seed of SEEDS) {
+        const item = generateItem('reaction-time', seed, difficulty);
+        if (item.stimulus.kind !== 'reaction') throw new Error('unexpected stimulus');
+        const where = `reaction-time ${seed} d${difficulty}`;
+        expect(item.stimulus.targets, where).toBe(targetsFor(difficulty));
+        expect(item.stimulus.lit, where).toBeGreaterThanOrEqual(0);
+        expect(item.stimulus.lit, where).toBeLessThan(item.stimulus.targets);
+        expect(item.answerText, where).toBe(String(item.stimulus.lit + 1));
+        expect(item.stimulus.foreperiodMs, where).toBeGreaterThanOrEqual(FOREPERIOD[0]);
+        expect(item.stimulus.foreperiodMs, where).toBeLessThanOrEqual(FOREPERIOD[1]);
+        expect(item.presentation?.stepMs, where).toBe(item.stimulus.foreperiodMs);
+        waits.add(item.stimulus.foreperiodMs);
+        lits.add(item.stimulus.lit);
+      }
+      // Unpredictable: many different waits. And every target lights somewhere.
+      expect(waits.size, `d${difficulty} waits`).toBeGreaterThan(20);
+      expect(lits.size, `d${difficulty} targets lit`).toBe(targetsFor(difficulty));
+    }
+  });
+
+  it('names a false start, and scores it wrong', () => {
+    const item = generateItem('reaction-time', 'RT1', 3);
+    expect(isCorrect(item, null, FALSE_START)).toBe(false);
+    expect(diagnoseReaction(item.answerText!, FALSE_START)).toBe('premature');
+    expect(diagnoseReaction(item.answerText!, item.answerText!)).toBe('correct');
+    const other = item.answerText === '1' ? '2' : '1';
+    expect(isCorrect(item, null, other)).toBe(false);
+    expect(diagnoseReaction(item.answerText!, other)).toBe('plausible');
+  });
+});
+
+describe('pattern recall shows a pattern that cannot be named', () => {
+  const SEEDS = Array.from({ length: 150 }, (_, i) => `PT${i}`);
+
+  it('lights the promised number of distinct cells on a fixed grid, never a nameable shape', () => {
+    for (const difficulty of DIFFICULTIES) {
+      for (const seed of SEEDS) {
+        const item = generateItem('pattern-recall', seed, difficulty);
+        if (item.stimulus.kind !== 'pattern') throw new Error('unexpected stimulus');
+        const where = `pattern-recall ${seed} d${difficulty}`;
+        expect(item.stimulus.size, where).toBe(GRID);
+        expect(item.stimulus.cells, where).toHaveLength(countFor(difficulty));
+        expect(new Set(item.stimulus.cells).size, where).toBe(countFor(difficulty));
+        for (const c of item.stimulus.cells) expect(c, where).toBeLessThan(GRID * GRID);
+        expect(isNameable(item.stimulus.cells), `${where}: nameable pattern`).toBe(false);
+        expect(item.answerText, where).toBe(encodeCells(item.stimulus.cells));
+        expect(item.presentation?.stepMs, where).toBe(EXPOSURE_MS);
+      }
+    }
+  });
+
+  it('recognises a full row, a full column and a filled block as nameable', () => {
+    expect(isNameable([0, 1, 2, 3])).toBe(true);
+    expect(isNameable([0, 4, 8, 12])).toBe(true);
+    expect(isNameable([5, 6, 9, 10])).toBe(true);
+    expect(isNameable([0, 1, 2, 3, 4])).toBe(false);
+    expect(isNameable([0, 5, 10])).toBe(false);
+  });
+
+  it('accepts the set in any order and diagnoses a neighbour slip', () => {
+    const cells = [1, 6, 11];
+    const expected = encodeCells(cells);
+    expect(isCorrect({ responseMode: 'tap', answerIndex: -1, answerText: expected }, null, encodeCells([11, 1, 6]))).toBe(true);
+    // 11 → 10 is a neighbour; a slip of place.
+    expect(diagnosePattern(expected, encodeCells([1, 6, 10]), GRID)).toBe('off-by-one');
+    // 11 → 0 is across the grid; not encoded.
+    expect(diagnosePattern(expected, encodeCells([1, 6, 0]), GRID)).toBe('plausible');
+    expect(diagnosePattern(expected, expected, GRID)).toBe('correct');
+  });
+});
+
+describe('paired associates asks for a pairing it showed', () => {
+  const SEEDS = Array.from({ length: 150 }, (_, i) => `PA${i}`);
+
+  it('gives every box a distinct symbol, opens each exactly once, and probes one of them', () => {
+    for (const difficulty of DIFFICULTIES) {
+      const probes = new Set<number>();
+      for (const seed of SEEDS) {
+        const item = generateItem('paired-associates', seed, difficulty);
+        if (item.stimulus.kind !== 'pairs') throw new Error('unexpected stimulus');
+        const where = `paired-associates ${seed} d${difficulty}`;
+        const { symbols, order, probe } = item.stimulus;
+        expect(symbols, where).toHaveLength(boxesFor(difficulty));
+        expect(new Set(symbols.map(figureSignature)).size, `${where}: two boxes look alike`).toBe(symbols.length);
+        expect([...order].sort((a, b) => a - b), where).toEqual(symbols.map((_, i) => i));
+        expect(probe, where).toBeGreaterThanOrEqual(0);
+        expect(probe, where).toBeLessThan(symbols.length);
+        expect(item.answerText, where).toBe(String(probe + 1));
+        probes.add(probe);
+      }
+      expect(probes.size, `d${difficulty}`).toBe(boxesFor(difficulty));
+    }
+  });
+
+  it('separates the box next door from a box across the row', () => {
+    expect(diagnosePairs('3', '3')).toBe('correct');
+    expect(diagnosePairs('3', '4')).toBe('off-by-one');
+    expect(diagnosePairs('3', '2')).toBe('off-by-one');
+    expect(diagnosePairs('3', '6')).toBe('plausible');
+  });
+});

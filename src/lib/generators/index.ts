@@ -32,10 +32,15 @@ import { handGameGenerator } from './hand-game';
 import { calendarCountGenerator } from './calendar-count';
 import { changeMakerGenerator } from './change-maker';
 import { triangleMathGenerator } from './triangle-math';
+import { towerGenerator } from './tower';
+import { tableReasoningGenerator } from './table-reasoning';
+import { reactionTimeGenerator } from './reaction-time';
+import { patternRecallGenerator } from './pattern-recall';
+import { pairedAssociatesGenerator } from './paired-associates';
 
 /**
- * Presentation order: reasoning first, then spatial, then memory, then speed, with the
- * quantitative format last. The order is cosmetic but not arbitrary — `typeHue` derives a
+ * Presentation order: reasoning first, then spatial, then memory (working, then long-term), then
+ * speed and reaction, with the quantitative formats last. The order is cosmetic but not arbitrary — `typeHue` derives a
  * format's colour from its index here, so reordering re-spaces the whole wheel.
  */
 export const GENERATORS: Generator[] = [
@@ -45,12 +50,15 @@ export const GENERATORS: Generator[] = [
   oddOneOutGenerator,
   figuralAnalogyGenerator,
   syllogismGenerator,
+  towerGenerator,
   rotationGenerator,
   paperFoldingGenerator,
   clockSpinGenerator,
+  patternRecallGenerator,
   spanGenerator,
   blockSpanGenerator,
   mathRecallGenerator,
+  pairedAssociatesGenerator,
   symbolSearchGenerator,
   figureWeightsGenerator,
   nBackGenerator,
@@ -59,6 +67,7 @@ export const GENERATORS: Generator[] = [
   interferenceGenerator,
   highNumberGenerator,
   handGameGenerator,
+  reactionTimeGenerator,
   trailMakingGenerator,
   arithmeticGenerator,
   serialSubtractionGenerator,
@@ -66,6 +75,7 @@ export const GENERATORS: Generator[] = [
   calendarCountGenerator,
   changeMakerGenerator,
   triangleMathGenerator,
+  tableReasoningGenerator,
 ];
 
 /**

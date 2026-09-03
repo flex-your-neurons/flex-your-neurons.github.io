@@ -15,7 +15,7 @@ import type { Difficulty, Item, Option } from '@/lib/types';
 const SEEDS = Array.from({ length: 80 }, (_, i) => `SEED${i}`);
 
 /** How many formats ship. See the registry test below before changing this. */
-const EXPECTED_TYPES = 27;
+const EXPECTED_TYPES = 32;
 
 function optionKey(o: Option): string {
   switch (o.kind) {
@@ -56,7 +56,7 @@ describe('generator registry', () => {
     expect(GENERATORS).toHaveLength(EXPECTED_TYPES);
     expect(new Set(ITEM_TYPE_IDS).size).toBe(EXPECTED_TYPES);
     for (const g of GENERATORS) {
-      expect(['Gf', 'Gv', 'Gwm', 'Gs', 'Gq']).toContain(g.meta.domain);
+      expect(['Gf', 'Gv', 'Gwm', 'Gs', 'Gq', 'Gt', 'Glr']).toContain(g.meta.domain);
       expect(g.meta.icon.length).toBeGreaterThan(0);
       // The human-readable text lives in the dictionaries, one entry per locale.
       for (const locale of LOCALES) {
@@ -100,9 +100,9 @@ describe('generator registry', () => {
     expect(GENERATORS.filter((g) => g.meta.sprintable).length).toBeGreaterThan(0);
   });
 
-  it('covers all five CHC domains the site claims to train', () => {
+  it('covers all seven CHC domains the site claims to train', () => {
     const domains = new Set(GENERATORS.map((g) => g.meta.domain));
-    expect([...domains].sort()).toEqual(['Gf', 'Gq', 'Gs', 'Gv', 'Gwm']);
+    expect([...domains].sort()).toEqual(['Gf', 'Glr', 'Gq', 'Gs', 'Gt', 'Gv', 'Gwm']);
   });
 
   it('rejects unknown ids rather than returning undefined', () => {
@@ -219,7 +219,14 @@ describe.each(ITEM_TYPE_IDS)('generator: %s', (id) => {
      * stimulus each time would remove the thing being measured. What matters there is that both
      * instructions occur and that all three hands are answered, which the solver suite checks.
      */
-    if (id === 'interference' || id === 'hand-game') return;
+    /*
+     * `reaction-time` is exempt for the same reason again, and it is the purest case: a reaction
+     * trial *is* a small stimulus set repeated — one target, or one of a few, after a wait — and the
+     * measurement is the latency over many such trials. The only thing that varies at level 1 is the
+     * wait, in steps of fifty milliseconds, which is exactly as much variety as the paradigm wants.
+     * What matters is that the wait is genuinely unpredictable, which the solver suite checks.
+     */
+    if (id === 'interference' || id === 'hand-game' || id === 'reaction-time') return;
 
     const items = DIFFICULTIES.flatMap((d) =>
       SEEDS.map((s) => {
@@ -294,6 +301,12 @@ describe('cross-generator properties', () => {
    */
   it('varies the answer itself, not only the stimulus around it', () => {
     for (const id of ITEM_TYPE_IDS) {
+      /*
+       * Simple reaction time has one target and therefore one answer, at level 1 by definition —
+       * the answer is not the thing being measured. The solver suite checks that the lit target
+       * varies wherever there is more than one.
+       */
+      if (id === 'reaction-time') continue;
       for (const d of DIFFICULTIES) {
         const answers = SEEDS.map((s) => {
           const item = generateItem(id, s, d);
