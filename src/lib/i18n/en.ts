@@ -1614,6 +1614,8 @@ const en = {
       start: 'Ready',
       running: (n: number, total: number) => `${n} of ${total}`,
       targetLabel: 'The target',
+      /** While the ring is up: the press registered. Says nothing about whether it was right. */
+      targetPressed: 'The target, pressed',
       recordLabel: 'What was pressed, signal by signal',
       markLabel: (n: number, go: boolean, pressed: boolean) =>
         `Signal ${n}: ${go ? 'plain' : 'crossed'}, ${pressed ? 'pressed' : 'not pressed'}`,

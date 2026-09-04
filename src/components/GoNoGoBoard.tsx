@@ -20,6 +20,15 @@
  * same signal is ignored. A press during the blank after a crossed signal is a commission, as it
  * should be: the decision to stop has to hold for the whole window, not only while the X is up.
  *
+ * ## What a press looks like
+ *
+ * A ring, briefly, around the target. It says the press was registered and nothing else: it appears
+ * for a press on a crossed signal exactly as for a plain one, so it is not a verdict — the reader is
+ * being told that the board heard them, which they would otherwise have no way to know, since the
+ * signal itself carries on unchanged and the record is not shown until the run is over. It is cleared
+ * when the next signal comes up, so a press never marks the signal after it; and only the first press
+ * within a window draws one, since a second press on the same signal changes nothing.
+ *
  * ## The clock
  *
  * `onRecallStart` fires with the first signal. The quiz's latency for the item is therefore the run
@@ -135,6 +144,8 @@ export default function GoNoGoBoard({ signals, windowMs, locale, frozen, onRecal
     return () => window.removeEventListener('keydown', onKey);
   }, [phase, frozen, key]);
 
+  /** True while a signal is being responded to — its window or the blank after it. */
+  const live = phase === 'run' && !frozen && index >= 0;
   const commissions = frozen ? signals.filter((go, i) => !go && pressed[i]).length : 0;
   const omissions = frozen ? signals.filter((go, i) => go && !pressed[i]).length : 0;
 
@@ -171,14 +182,18 @@ export default function GoNoGoBoard({ signals, windowMs, locale, frozen, onRecal
           class="gonogo-target"
           data-testid="gonogo-target"
           data-gonogo-showing={phase === 'run' && !frozen ? showing : undefined}
+          data-gonogo-pressed={live && pressed[index] ? 'true' : undefined}
           disabled={frozen || phase === 'gate'}
           onClick={press}
-          aria-label={t.targetLabel}
+          aria-label={live && pressed[index] ? t.targetPressed : t.targetLabel}
         >
           <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
             <circle class="gonogo-disc" cx="50" cy="50" r="46" />
             <path class="gonogo-cross" d="M30 30L70 70M70 30L30 70" />
           </svg>
+          {/* Keyed by the signal, so the ring replays on the next signal's press rather than
+              sitting there from the last one. */}
+          {live && pressed[index] ? <span class="gonogo-press" key={index} aria-hidden="true" /> : null}
         </button>
       </div>
 

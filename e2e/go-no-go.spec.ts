@@ -5,6 +5,11 @@
  * signal being ignored (which would make every run a pass), or a run that stopped at the first
  * mistake (which would make the record a single trial). Both are checked here from the seed, since
  * the run is a secret until it plays.
+ *
+ * The board's one piece of live feedback is a ring on a press. It has to be there — a press with no
+ * acknowledgement leaves the reader unable to tell a registered press from a missed one — and it has
+ * to say nothing more than "heard", so it is checked to appear on a crossed signal as readily as on a
+ * plain one, and to be gone by the next signal.
  */
 import { expect, test } from '@playwright/test';
 import { clearAppStorage, expectedItem, practiceUrl } from './helpers';
@@ -67,6 +72,39 @@ test.describe('go / no-go', () => {
     // The record shows every signal, so the run went to the end.
     await expect(page.locator('.gonogo-mark')).toHaveCount(signals.length);
     await expect(page.locator('.gonogo-mark[data-wrong]')).toHaveCount(1);
+  });
+
+  test('rings the target on a press, plain or crossed, and clears it at the next signal', async ({ page }) => {
+    await page.goto(url(1));
+    await expect(page.getByTestId('quiz')).toHaveAttribute('data-hydrated', 'true');
+    const signals = signalsFor(1);
+    const target = page.getByTestId('gonogo-target');
+    // Nothing to acknowledge before the run starts.
+    await expect(target).not.toHaveAttribute('data-gonogo-pressed', 'true');
+
+    await page.getByTestId('span-start').click();
+    const firstStop = signals.indexOf(false);
+    // Press on the first signal and on the first crossed one; leave the signal after each alone.
+    for (const [i] of signals.entries()) {
+      await page.locator(`[data-testid="gonogo-board"][data-gonogo-index="${i}"]`).waitFor({ timeout: 30_000 });
+      if (i === 0 || i === firstStop) {
+        await target.click();
+        // The receipt, whether or not pressing was the right thing to do here.
+        await expect(target).toHaveAttribute('data-gonogo-pressed', 'true');
+        await expect(page.locator('.gonogo-press')).toHaveCount(1);
+        // And it does not change the signal itself, which is the stimulus.
+        await expect(target).toHaveAttribute('data-gonogo-showing', signals[i] ? 'go' : 'stop');
+      } else {
+        // No ring carried over from the signal before.
+        await expect(target).not.toHaveAttribute('data-gonogo-pressed', 'true');
+        await expect(page.locator('.gonogo-press')).toHaveCount(0);
+      }
+    }
+    await expect(page.getByTestId('gonogo-board')).toHaveAttribute('data-gonogo-phase', 'revealed', {
+      timeout: 30_000,
+    });
+    // The run is over: the record below is the feedback now.
+    await expect(page.locator('.gonogo-press')).toHaveCount(0);
   });
 
   test('a plain signal left alone is an omission', async ({ page }) => {

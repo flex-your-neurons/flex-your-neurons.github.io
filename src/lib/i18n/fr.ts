@@ -1492,6 +1492,7 @@ const fr: Dict = {
       start: 'Prêt',
       running: (n: number, total: number) => `${n} sur ${total}`,
       targetLabel: 'La cible',
+      targetPressed: 'La cible, appuyée',
       recordLabel: 'Ce qui a été appuyé, signal par signal',
       markLabel: (n: number, go: boolean, pressed: boolean) =>
         `Signal ${n} : ${go ? 'plein' : 'barré'}, ${pressed ? 'appuyé' : 'non appuyé'}`,
