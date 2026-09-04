@@ -13,6 +13,7 @@ import { figuralAnalogyGenerator } from './analogy-figural';
 import { syllogismGenerator } from './syllogism';
 import { rotationGenerator } from './rotation';
 import { paperFoldingGenerator } from './paper-folding';
+import { cubeNetGenerator } from './cube-net';
 import { spanGenerator } from './span';
 import { symbolSearchGenerator } from './symbol-search';
 import { codingGenerator } from './coding';
@@ -58,6 +59,7 @@ export const GENERATORS: Generator[] = [
   towerGenerator,
   rotationGenerator,
   paperFoldingGenerator,
+  cubeNetGenerator,
   clockSpinGenerator,
   patternRecallGenerator,
   spanGenerator,

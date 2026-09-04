@@ -4936,3 +4936,26 @@ table.data th.num {
   inline-size: 0.8rem;
   block-size: 0.8rem;
 }
+
+/* --- Cube net ------------------------------------------------------------- */
+
+.cube-net {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem 0;
+}
+
+.net-svg {
+  width: 100%;
+  margin-inline: auto;
+}
+
+.option-figure--cube {
+  max-width: 7rem;
+  margin-inline: auto;
+}
+
+.thumb-slot .net-svg,
+.thumb-slot .cube-svg {
+  max-height: 100%;
+}

@@ -22,6 +22,7 @@ import { describe, expect, it } from 'vitest';
 import { generateItem } from '@/lib/generators';
 import { describeFigure } from '@/components/FigureView';
 import { describeGrid } from '@/components/GridView';
+import { describeCube } from '@/components/CubeView';
 import { canonicalRotation, figureSignature, ROTATION_PERIOD, shapeSignature } from '@/lib/geometry';
 import { DEFAULT_LOCALE } from '@/lib/i18n';
 import { DIFFICULTIES, SHAPE_TYPES } from '@/lib/types';
@@ -159,6 +160,20 @@ describe('no item shows the same drawing twice where it must not', () => {
             `${id}/${seed}/d${d}: two options describe identically`,
           ).toBe(described.length);
         }
+      }
+    }
+  });
+
+  it('every cube option list is distinguishable without seeing it', () => {
+    for (const d of DIFFICULTIES) {
+      for (const seed of SEEDS) {
+        const item = generateItem('cube-net', seed, d);
+        const described = item.options.map((o) =>
+          o.kind === 'cube' ? describeCube(o.faces, DEFAULT_LOCALE) : '',
+        );
+        expect(new Set(described).size, `cube-net/${seed}/d${d}: two options describe identically`).toBe(
+          described.length,
+        );
       }
     }
   });

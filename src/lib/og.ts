@@ -31,6 +31,7 @@ import { TYPE_CHROMA, TYPE_LIGHTNESS } from './identity';
 import { handAngles, pointAt, tickAngles } from './clock';
 import { HAND_DRAWINGS } from './hands';
 import { BASE_Y, BEAD, beadPath, PEG_X, TOWER_BOX } from './tower-geometry';
+import { affineString, cubeBox, cubeFaces, FACE_SHADE, markPath, type CubeMark } from './cube-geometry';
 import type { CellGrid, ClockFace, Figure, Hand, Item, Shape } from './types';
 
 export const OG_WIDTH = 1200;
@@ -125,6 +126,43 @@ function shapeSvg(shape: Shape, layout: Figure['layout']): string {
  * inner coordinate system stays the generator's 100x100 box whatever box it is placed in,
  * so nothing has to be rescaled by hand.
  */
+/** A cube seen corner-on, for the cube-net card. Same geometry as the on-page `CubeView`. */
+export function cubeTile(faces: readonly [CubeMark, CubeMark, CubeMark], x: number, y: number, size: number): string {
+  const edge = 40;
+  const { w, h } = cubeBox(edge);
+  const parts = cubeFaces(edge).map((face, i) => {
+    const mark = markPath(faces[i]!);
+    return (
+      `<polygon points="${face.points}" fill="${INK}" fill-opacity="${FACE_SHADE[i]}" stroke="${INK}" stroke-width="1.2" stroke-linejoin="round"/>` +
+      `<path d="${mark.d}" transform="${affineString(face.transform)}" fill="${INK}" fill-rule="${mark.evenOdd ? 'evenodd' : 'nonzero'}"/>`
+    );
+  });
+  return `<svg x="${x}" y="${y}" width="${size}" height="${size}" viewBox="-2 -2 ${w + 4} ${h + 4}" preserveAspectRatio="xMidYMid meet" data-cube="">${parts.join('')}</svg>`;
+}
+
+/** The net laid flat. */
+export function netTile(
+  net: { rows: number; cols: number; cells: { r: number; c: number; mark: CubeMark }[] },
+  x: number,
+  y: number,
+  size: number,
+): string {
+  const cell = 20;
+  const pad = 3;
+  const w = net.cols * cell + pad * 2;
+  const h = net.rows * cell + pad * 2;
+  const parts = net.cells.map((c) => {
+    const cx = pad + c.c * cell;
+    const cy = pad + c.r * cell;
+    const mark = markPath(c.mark);
+    return (
+      `<rect x="${cx}" y="${cy}" width="${cell}" height="${cell}" fill="${INK}" fill-opacity="0.05" stroke="${INK}" stroke-width="1"/>` +
+      `<path d="${mark.d}" transform="matrix(${cell} 0 0 ${cell} ${cx} ${cy})" fill="${INK}" fill-rule="${mark.evenOdd ? 'evenodd' : 'nonzero'}"/>`
+    );
+  });
+  return `<svg x="${x}" y="${y}" width="${size}" height="${size}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet" data-net="">${parts.join('')}</svg>`;
+}
+
 export function figureTile(figure: Figure, x: number, y: number, size: number): string {
   const shapes = figure.shapes.map((s) => shapeSvg(s, figure.layout)).join('');
   return `<svg x="${x}" y="${y}" width="${size}" height="${size}" viewBox="0 0 ${VIEWBOX} ${VIEWBOX}" data-figure="" data-layout="${figure.layout}">${shapes}</svg>`;
@@ -620,6 +658,19 @@ function stage(item: Item): string {
         gridTile(s.grid, at[0]!.x, at[0]!.y, box),
         `<text x="${(at[0]!.x + box + at[1]!.x) / 2}" y="${mid}" text-anchor="middle" dominant-baseline="central" font-size="34" fill="${ACCENT}">↻</text>`,
         answer?.kind === 'grid' ? gridTile(answer.grid, at[1]!.x, at[1]!.y, box, answer.variant ?? 'solid') : '',
+      ].join('');
+    }
+
+    /* The flat net, then the cube it closes into. */
+    case 'cube-net': {
+      const answer = item.options[item.answerIndex];
+      const box = 180;
+      const at = row(2, box, 56);
+      const mid = at[0]!.y + box / 2;
+      return [
+        netTile(s, at[0]!.x, at[0]!.y, box),
+        `<text x="${(at[0]!.x + box + at[1]!.x) / 2}" y="${mid}" text-anchor="middle" dominant-baseline="central" font-size="34" fill="${ACCENT}">→</text>`,
+        answer?.kind === 'cube' ? cubeTile(answer.faces, at[1]!.x, at[1]!.y, box) : '',
       ].join('');
     }
 

@@ -13,6 +13,7 @@ export type Difficulty = 1 | 2 | 3 | 4 | 5;
 export const DIFFICULTIES: readonly Difficulty[] = [1, 2, 3, 4, 5];
 
 import type { LogicClue } from './generators/logic-grid';
+import type { CubeMark } from './cube-geometry';
 
 export type ItemTypeId =
   | 'matrix'
@@ -50,7 +51,8 @@ export type ItemTypeId =
   | 'go-no-go'
   | 'chimp-test'
   | 'logic-grid'
-  | 'feature-match';
+  | 'feature-match'
+  | 'cube-net';
 
 /**
  * CHC broad ability. See docs/IQ-TESTS.md §2.
@@ -152,6 +154,8 @@ export type Stimulus =
   | { kind: 'symbol-search'; targets: Figure[]; search: Figure[] }
   /** Two panels in the same layout; `changed` is the index that differs, or -1 when the panels are identical. */
   | { kind: 'feature-match'; left: Figure[]; right: Figure[]; changed: number }
+  /** Six marked squares laid flat; the options are cubes. */
+  | { kind: 'cube-net'; rows: number; cols: number; cells: { r: number; c: number; mark: CubeMark }[] }
   /**
    * A digit↔symbol key, and the digit to look up in it. The key is shown in its own
    * order, which is what makes "read one column off" a mistake the format can diagnose.
@@ -327,7 +331,9 @@ export type Option =
   | { kind: 'figure'; figure: Figure }
   | { kind: 'text'; text: string }
   /** `variant` picks the drawing style: filled blocks, or a sheet with punched holes. */
-  | { kind: 'grid'; grid: CellGrid; variant?: 'solid' | 'holes' };
+  | { kind: 'grid'; grid: CellGrid; variant?: 'solid' | 'holes' }
+  /** A cube seen corner-on: the marks on its top, left and right faces. */
+  | { kind: 'cube'; faces: [top: CubeMark, left: CubeMark, right: CubeMark] };
 
 /**
  * Why a distractor is wrong, drawn from the Wang & Su error-type taxonomy
@@ -378,6 +384,12 @@ export type ErrorType =
    */
   | 'commission'
   | 'omission'
+  /*
+   * Two faces that are opposite on the folded cube shown side by side. The cube-net mistake of a
+   * reader who has not worked out which squares of the net meet, as against `mirror`, which is the
+   * mistake of one who has but has the corner the wrong way round.
+   */
+  | 'opposite-faces'
   | 'plausible'; // a generic near-miss with no single diagnosis
 
 export interface Explanation {

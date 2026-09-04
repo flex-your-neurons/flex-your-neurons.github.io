@@ -23,6 +23,7 @@
 import { describe, expect, it } from 'vitest';
 import { generateItem, getGenerator, ITEM_TYPE_IDS } from '@/lib/generators';
 import { canonicalRotation, shapeSignature } from '@/lib/geometry';
+import { CUBE_MARKS } from '@/lib/cube-geometry';
 import { DIFFICULTIES } from '@/lib/types';
 import type { Difficulty, Item, ItemTypeId, Option } from '@/lib/types';
 
@@ -115,6 +116,11 @@ function features(o: Option): number[] {
         n === 0 ? 0 : sum((s) => s.y) / n,
       ];
     }
+    case 'cube': {
+      // Marks are categorical; their index in the mark list is the only number they have.
+      const idx = o.faces.map((m) => CUBE_MARKS.indexOf(m));
+      return [idx[0]!, idx[1]!, idx[2]!, idx.reduce((a, b) => a + b, 0)];
+    }
   }
 }
 
@@ -127,6 +133,9 @@ function classKey(o: Option): string {
       return `g:${o.grid.cells.filter(Boolean).length}`;
     case 'figure':
       return `f:${o.figure.shapes.map(shapeSignature).sort().join(';')}`;
+    case 'cube':
+      // The face *set*, unordered: "which option shows a set of faces no other option shows?"
+      return `c:${[...o.faces].sort().join('/')}`;
   }
 }
 

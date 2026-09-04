@@ -424,6 +424,7 @@ const en = {
       premature: 'false start',
       commission: 'pressed on stop',
       omission: 'missed a go',
+      'opposite-faces': 'opposite faces',
       plausible: 'near miss',
     } as Record<ErrorType, string>,
     bodies: {
@@ -449,6 +450,8 @@ const en = {
         'You pressed on a crossed signal. That is the failure of inhibition the task is built to catch: after a run of presses the next one is half-launched before the signal is read, and the crossed one arrives too late to stop it. The remedy is not to look harder but to press later — a few tens of milliseconds of delay on every plain signal buys the time to withhold on the crossed one.',
       omission:
         'You left a plain signal unpressed. Not a failure of control but a lapse: the run went on and, for one signal, attention did not. On a go/no-go task this is the opposite error to the one it is looking for, and if it recurs it means the pace has been set too cautious — press sooner and let the crossed signals do the stopping.',
+      'opposite-faces':
+        'Two of the faces shown are opposite each other on the folded cube, so they can never be seen together. This is the first thing to settle on a net: squares separated by exactly one square in a straight line always end up opposite, and each such pair rules out every cube that shows both.',
       transposition:
         'Every item, in the wrong order. You held what there was to hold and lost the arrangement of it, which is a different failure from forgetting an item — and a more encouraging one, since the hard part of a span task is usually the holding. Order tends to come back with a deliberate rhythm: reproduce the sequence at the pace it was given rather than as fast as you can.',
       plausible:
@@ -592,7 +595,7 @@ const en = {
     /** Small multiples: one trend per format. */
     wall: {
       heading: 'Every format, over time',
-      lede: 'One trace per format, oldest attempts on the left. Small charts side by side rather than thirty-six lines on one axis — thirty-six colours on one plot would be unreadable, and these are meant to be scanned for shape, not read for values.',
+      lede: 'One trace per format, oldest attempts on the left. Small charts side by side rather than thirty-seven lines on one axis — thirty-seven colours on one plot would be unreadable, and these are meant to be scanned for shape, not read for values.',
       never: 'not attempted yet',
     },
     byItemType: 'By item type',
@@ -868,6 +871,13 @@ const en = {
       description:
         'Two panels, each holding the same number of abstract symbols in the same positions. Either every symbol matches the one opposite it, or exactly one differs — and when one differs it differs in a single feature: shape, or shading, or orientation, never more. Say whether the panels are the same. This is the clerical-checking task that the old aptitude batteries called number or name comparison and that Cambridge Brain Sciences calls Feature Match; it is filed under processing speed because nothing has to be worked out. The answer is visible, and the measurement is how quickly a visible answer can be found by checking pair after pair. The panels keep the same layout so that no searching is added to the comparing, and the level changes only how many pairs there are to check.',
       seenIn: 'Cambridge Brain Sciences Feature Match, Minnesota Clerical Test, DAT Clerical Speed and Accuracy, WAIS Cancellation (cousin)',
+    },
+    'cube-net': {
+      name: 'Cube net',
+      blurb: 'Six marked squares laid flat. Which cube do they fold into?',
+      description:
+        'A net of six squares, each carrying a mark, and several cubes seen corner-on. Only one of the cubes can be folded from the net. The others show either two faces that would be opposite on the finished cube, or the right three faces arranged the wrong way round — a mirror image no folding can make. This is the other half of paper folding: the sheet closing up rather than opening out, and the item that spatial aptitude batteries have carried since the Differential Aptitude Tests. The marks are all symmetric, so which way up a face lands does not matter; the corner’s handedness is the whole task.',
+      seenIn: 'DAT Space Relations, ASVAB Assembling Objects (cousin), many entrance and apprenticeship exams',
     },
     'logic-grid': {
       name: 'Logic grid',
@@ -1362,6 +1372,28 @@ const en = {
       ruleSpeed:
         'This type is scored on speed: your median response time matters more than your accuracy, which should stay near ceiling.',
     },
+    cubeNet: {
+      prompt: 'Which cube can be folded from this net?',
+      marks: {
+        disc: 'a dot',
+        ring: 'a ring',
+        square: 'a filled square',
+        frame: 'a hollow square',
+        plus: 'a plus',
+        cross: 'a cross',
+      } as Record<import('../cube-geometry').CubeMark, string>,
+      /** How a cube option reads to a screen reader. */
+      cube: (top: string, left: string, right: string) => `a cube with ${top} on top, ${left} on the left and ${right} on the right`,
+      netLabel: 'The net: six marked squares laid flat',
+      pair: (a: string, b: string) => `${a} and ${b}`,
+      summary: (option: number) => `Option ${option}: those three faces meet at one corner of the folded cube, and in that order.`,
+      ruleOpposite: (pairs: string[]) =>
+        `Squares separated by one square in a straight line of the net end up opposite each other, and opposite faces are never seen together. Here the opposite pairs are ${pairs.join('; ')}.`,
+      ruleCorner:
+        'Three faces meet at each corner, and round the corner they run in a fixed order. Turning the cube changes which face is on top but not the order the three go round in.',
+      ruleMirror:
+        'A cube showing the right three faces the other way round is the mirror image, which no folding of the net can produce. Pick a corner of the net where three squares meet and follow them round.',
+    },
     logicGrid: {
       prompt: (place: number) => `Which shape is in place ${place}?`,
       summary: (place: number, shape: string) => `Place ${place} holds the ${shape}.`,
@@ -1761,7 +1793,7 @@ const en = {
         },
       ],
       notMeasuredClose:
-        'That applies recursively to this site. High accuracy on these thirty-six formats is evidence about these thirty-six formats, and about nothing else.',
+        'That applies recursively to this site. High accuracy on these thirty-seven formats is evidence about these thirty-seven formats, and about nothing else.',
 
       difficultyP3:
         'What that does not amount to is calibration. The bands are *designed* from published cognitive operators — a defensible ordering — but no item here carries a difficulty parameter fitted to real response data, which is what item-response theory means by difficulty. So the adaptive ladder is a staircase that keeps you near your own success rate, not an estimate of your ability.',

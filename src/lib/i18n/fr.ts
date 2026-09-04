@@ -317,6 +317,7 @@ const fr: Dict = {
       premature: 'faux départ',
       commission: 'appui sur stop',
       omission: 'signal manqué',
+      'opposite-faces': 'faces opposées',
       plausible: 'presque juste',
     },
     bodies: {
@@ -342,6 +343,8 @@ const fr: Dict = {
         'Vous avez appuyé sur un signal barré. C’est exactement l’échec d’inhibition que la tâche cherche à saisir : après une suite d’appuis, le suivant est à moitié lancé avant que le signal soit lu, et le signal barré arrive trop tard pour l’arrêter. Le remède n’est pas de regarder plus fort mais d’appuyer plus tard : quelques dizaines de millisecondes de délai sur chaque signal plein achètent le temps de se retenir sur le barré.',
       omission:
         'Vous avez laissé passer un signal plein sans appuyer. Pas un défaut de contrôle mais un relâchement : la suite a continué et, pour un signal, l’attention non. Dans une tâche go/no-go c’est l’erreur opposée à celle qu’on cherche, et si elle se répète c’est que le rythme est trop prudent : appuyez plus tôt et laissez les signaux barrés faire l’arrêt.',
+      'opposite-faces':
+        'Deux des faces montrées sont opposées sur le cube plié, si bien qu’on ne peut jamais les voir ensemble. C’est la première chose à établir sur un patron : deux carrés séparés par exactement un carré sur une ligne droite finissent toujours opposés, et chaque paire de ce genre élimine tout cube qui montre les deux.',
       transposition:
         'Tous les éléments, mais dans le désordre. Vous avez retenu ce qu’il y avait à retenir et vous en avez perdu l’agencement : c’est un autre échec que d’oublier un élément, et un échec plus encourageant, car dans une tâche d’empan le plus dur est d’ordinaire de retenir. L’ordre revient souvent avec un rythme délibéré : restituez la séquence à l’allure où elle vous a été donnée, plutôt qu’aussi vite que possible.',
       plausible:
@@ -474,7 +477,7 @@ const fr: Dict = {
 
     wall: {
       heading: 'Chaque format, dans le temps',
-      lede: 'Une courbe par format, les tentatives les plus anciennes à gauche. De petits graphiques côte à côte plutôt que trente-six courbes sur un même axe : trente-six couleurs sur un seul tracé seraient illisibles, et ceux-ci se parcourent du regard, ils ne se lisent pas au chiffre près.',
+      lede: 'Une courbe par format, les tentatives les plus anciennes à gauche. De petits graphiques côte à côte plutôt que trente-sept courbes sur un même axe : trente-sept couleurs sur un seul tracé seraient illisibles, et ceux-ci se parcourent du regard, ils ne se lisent pas au chiffre près.',
       never: 'pas encore tenté',
     },
     byItemType: 'Par type d’item',
@@ -751,6 +754,13 @@ const fr: Dict = {
       description:
         'Deux panneaux, chacun avec le même nombre de symboles abstraits aux mêmes positions. Soit chaque symbole correspond à celui d’en face, soit exactement un diffère — et quand il diffère, c’est par un seul trait : la forme, ou le remplissage, ou l’orientation, jamais plus. Dites si les panneaux sont identiques. C’est la tâche de vérification que les anciennes batteries d’aptitude appelaient comparaison de nombres ou de noms et que Cambridge Brain Sciences appelle Feature Match ; elle est classée sous la vitesse de traitement parce qu’il n’y a rien à calculer. La réponse est visible, et la mesure est la vitesse à laquelle on trouve une réponse visible en vérifiant paire après paire. Les panneaux gardent la même disposition pour que la recherche ne s’ajoute pas à la comparaison, et le niveau ne change que le nombre de paires à vérifier.',
       seenIn: 'Feature Match de Cambridge Brain Sciences, Minnesota Clerical Test, DAT Clerical Speed and Accuracy, Barrage de la WAIS (cousin)',
+    },
+    'cube-net': {
+      name: 'Patron de cube',
+      blurb: 'Six carrés marqués à plat. Quel cube en résulte ?',
+      description:
+        'Un patron de six carrés, chacun portant une marque, et plusieurs cubes vus par un coin. Un seul de ces cubes peut être plié à partir du patron. Les autres montrent soit deux faces qui seraient opposées sur le cube fini, soit les trois bonnes faces disposées à l’envers — une image miroir qu’aucun pliage ne peut produire. C’est l’autre moitié du pliage de papier : la feuille qui se referme au lieu de s’ouvrir, et l’item que les batteries d’aptitude spatiale proposent depuis les Differential Aptitude Tests. Les marques sont toutes symétriques, si bien que l’orientation de chaque face n’a pas d’importance ; tout repose sur le sens du coin.',
+      seenIn: 'DAT Space Relations, ASVAB Assembling Objects (cousin), nombre de concours d’entrée et d’apprentissage',
     },
     'logic-grid': {
       name: 'Grille logique',
@@ -1247,6 +1257,27 @@ const fr: Dict = {
       ruleSpeed:
         'Ce type est noté sur la vitesse : votre temps de réponse médian compte plus que votre précision, qui doit rester proche du plafond.',
     },
+    cubeNet: {
+      prompt: 'Quel cube peut-on plier à partir de ce patron ?',
+      marks: {
+        disc: 'un point',
+        ring: 'un anneau',
+        square: 'un carré plein',
+        frame: 'un carré vide',
+        plus: 'un plus',
+        cross: 'une croix',
+      } as Record<import('../cube-geometry').CubeMark, string>,
+      cube: (top: string, left: string, right: string) => `un cube avec ${top} dessus, ${left} à gauche et ${right} à droite`,
+      netLabel: 'Le patron : six carrés marqués à plat',
+      pair: (a: string, b: string) => `${a} et ${b}`,
+      summary: (option: number) => `Option ${option} : ces trois faces se rejoignent à un coin du cube plié, et dans cet ordre.`,
+      ruleOpposite: (pairs: string[]) =>
+        `Deux carrés séparés par un seul carré sur une ligne droite du patron finissent opposés, et deux faces opposées ne se voient jamais ensemble. Ici les paires opposées sont ${pairs.join(' ; ')}.`,
+      ruleCorner:
+        'Trois faces se rejoignent à chaque coin, et autour du coin elles se suivent dans un ordre fixe. Tourner le cube change la face du dessus, pas l’ordre dans lequel les trois se suivent.',
+      ruleMirror:
+        'Un cube qui montre les trois bonnes faces dans l’autre sens est l’image miroir, qu’aucun pliage du patron ne peut produire. Choisissez un coin du patron où trois carrés se touchent et suivez-les autour.',
+    },
     logicGrid: {
       prompt: (place: number) => `Quelle forme est à la place ${place} ?`,
       summary: (place: number, shape: string) => `La place ${place} contient le ${shape}.`,
@@ -1630,7 +1661,7 @@ const fr: Dict = {
         },
       ],
       notMeasuredClose:
-        'Cela s’applique récursivement à ce site. Une précision élevée sur ces trente-six formats est une information sur ces trente-six formats, et sur rien d’autre.',
+        'Cela s’applique récursivement à ce site. Une précision élevée sur ces trente-sept formats est une information sur ces trente-sept formats, et sur rien d’autre.',
 
       difficultyP3:
         'Ce qui ne revient pas à un étalonnage. Les paliers sont conçus à partir d’opérateurs cognitifs publiés — un ordonnancement défendable — mais aucun item ne porte ici de paramètre de difficulté estimé sur des données de réponse réelles, ce qu’entend la théorie de réponse à l’item par « difficulté ». L’échelle adaptative est donc un escalier qui vous maintient près de votre propre taux de réussite, pas une estimation de votre aptitude.',

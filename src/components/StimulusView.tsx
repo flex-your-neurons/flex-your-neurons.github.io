@@ -6,6 +6,7 @@ import type { ComponentChildren } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import FigureView, { describeFigure } from './FigureView';
 import GridView from './GridView';
+import { NetView } from './CubeView';
 import ClockFaceView from './ClockFaceView';
 import HandView from './HandView';
 import TowerView from './TowerView';
@@ -197,6 +198,13 @@ export default function StimulusView({
           size={stimulus.size}
           locale={locale}
         />
+      );
+
+    case 'cube-net':
+      return (
+        <div data-stimulus="cube-net" class="cube-net">
+          <NetView rows={stimulus.rows} cols={stimulus.cols} cells={stimulus.cells} label={dict(locale).gen.cubeNet.netLabel} />
+        </div>
       );
 
     case 'feature-match':

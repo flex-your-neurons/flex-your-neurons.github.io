@@ -20,6 +20,7 @@
  */
 import FigureView from './FigureView';
 import GridView from './GridView';
+import CubeView, { NetView } from './CubeView';
 import ClockFaceView from './ClockFaceView';
 import HandView from './HandView';
 import TowerView from './TowerView';
@@ -174,6 +175,24 @@ function ThumbBody({ item, locale }: { item: Item; locale: Locale }) {
             {answer?.kind === 'grid' ? (
               <GridView grid={answer.grid} variant={answer.variant ?? 'solid'} className="thumb-svg" />
             ) : null}
+          </div>
+        </div>
+      );
+    }
+
+    /* The flat net, then the cube it closes into. */
+    case 'cube-net': {
+      const answer = item.options[item.answerIndex];
+      return (
+        <div class="thumb-row">
+          <div class="thumb-slot thumb-slot--wide">
+            <NetView rows={s.rows} cols={s.cols} cells={s.cells} className="thumb-svg" />
+          </div>
+          <span class="thumb-op" aria-hidden="true">
+            →
+          </span>
+          <div class="thumb-slot thumb-slot--wide">
+            {answer?.kind === 'cube' ? <CubeView faces={answer.faces} className="thumb-svg" /> : null}
           </div>
         </div>
       );

@@ -36,6 +36,8 @@ import { figureSignature } from '@/lib/geometry';
 import { handAngles, twelveHour } from '@/lib/clock';
 import { dict } from '@/lib/i18n';
 import { DIFFICULTIES, HANDS, type Difficulty, type Figure, type Hand } from '@/lib/types';
+import { marksByDirection, planFor } from '@/lib/generators/cube-net';
+import { isCrossNet, isDrawableCorner } from '@/lib/cube-geometry';
 import { isUnambiguous, solveSeries } from '@/lib/solvers/series';
 import { predict, solveAttribute, type Rule } from '@/lib/rules';
 import { createRng, deriveSeed, hashSeed, normaliseSeed } from '@/lib/rng';
@@ -2056,5 +2058,38 @@ describe('paired associates asks for a pairing it showed', () => {
     expect(diagnosePairs('3', '4')).toBe('off-by-one');
     expect(diagnosePairs('3', '2')).toBe('off-by-one');
     expect(diagnosePairs('3', '6')).toBe('plausible');
+  });
+});
+
+/**
+ * Cube net: the answer is the one option a real cube could show, checked by folding the net again
+ * and asking of every option whether its three faces are mutually adjacent and right-handed.
+ */
+describe('cube net', () => {
+  it('offers exactly one drawable cube, and names why each other option is not', () => {
+    for (const d of DIFFICULTIES) {
+      for (let i = 0; i < 60; i++) {
+        const item = generateItem('cube-net', `CUBE${i}`, d);
+        if (item.stimulus.kind !== 'cube-net') throw new Error('expected a cube-net stimulus');
+        const markAt = marksByDirection(item.stimulus.cells);
+        expect(markAt).not.toBeNull();
+        const dirOf = (mark: string) => markAt!.indexOf(mark as never);
+        item.options.forEach((option, k) => {
+          if (option.kind !== 'cube') throw new Error('expected cube options');
+          const [top, left, right] = option.faces.map(dirOf) as [number, number, number];
+          const drawable = isDrawableCorner(top, left, right);
+          expect(drawable, `${d}/${i}/${k}`).toBe(k === item.answerIndex);
+          const errorType = item.errorTypes[k];
+          if (errorType === 'mirror') expect(isDrawableCorner(top, right, left)).toBe(true);
+          if (errorType === 'opposite-faces') {
+            const axes = [top >> 1, left >> 1, right >> 1];
+            expect(new Set(axes).size, 'contains an opposite pair').toBe(2);
+          }
+        });
+        expect(item.options).toHaveLength(5);
+        expect(item.errorTypes.filter((e) => e === 'mirror')).toHaveLength(planFor(d).mirrors);
+        if (d === 1) expect(isCrossNet(item.stimulus.cells)).toBe(true);
+      }
+    }
   });
 });

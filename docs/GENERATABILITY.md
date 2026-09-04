@@ -54,7 +54,7 @@ Legend: ✅ pass · ⚠️ passes with engineering · ❌ fails
 | 16 | **Counting Stroop** / interference | Gs | ✅ | ✅ | ✅ | **SHIP** |
 | 17 | **Trail making** A/B | Gs/Gf | ✅ | ✅ | ✅ | **SHIP** |
 | 18 | **Number analogies / number matrices** | Gq | ✅ | ✅ | ⚠️ | *v2 — subsumed by #2/#1* |
-| 19 | **Cube-net folding** | Gv | ✅ | ✅ | ✅ | *v2 — cost, not feasibility* |
+| 19 | **Cube-net folding** | Gv | ✅ | ✅ | ✅ | **SHIP** — see row 47 |
 | 20 | **3-D block rotation** (Shepard–Metzler) | Gv | ✅ | ✅ | ✅ | *v2 — needs 3-D rendering; #7 covers the construct* |
 | 21 | **Visual puzzles** (assemble the target) | Gv | ✅ | ✅ | ⚠️ | *v2 — hard to guarantee a unique decomposition* |
 | 22 | **Corsi block-tapping** / block span | Gwm | ✅ | ✅ | ✅ | **SHIP** |
@@ -82,6 +82,7 @@ Legend: ✅ pass · ⚠️ passes with engineering · ❌ fails
 | 44 | **Chimp test** (Inoue & Matsuzawa; masked numerals in order) | Gwm | ✅ | ✅ | ✅ | **SHIP** — the layout is the key; reading-order layouts redrawn |
 | 45 | **Logic grid** (relational constraints over shapes in a row) | Gf | ✅ | ✅ | ✅ | **SHIP** — exhaustive search proves one occupant; clue set pruned to necessary |
 | 46 | **Feature match** (are two symbol panels identical) | Gs | ✅ | ✅ | ✅ | **SHIP** — one pair, one feature; same/different balanced |
+| 47 | **Cube net** (DAT Space Relations; which cube folds from the net) | Gv | ✅ | ✅ | ✅ | **SHIP** — folded by rolling; distractors are opposite-face pairs or the mirror-handed corner |
 
 Rows 29–37 are the batch drawn from *Brain Age* / *Dr Kawashima's Brain Training* (see the note in
 §3). Their ⚠️s are all the same ⚠️ and all in **U**, never in G or V: a numeric answer with a small
@@ -161,6 +162,7 @@ Thirty-two generators across seven CHC domains:
 | `chimp-test` | numerals scattered on a 5×4 grid, masked at the first tap, tapped in order | numerals to hold (4–8), and nothing else |
 | `logic-grid` | shapes in a row of places, 2–5 clues, which shape is in the marked place; 4 options | clue kinds withdrawn (placements, then eliminations), then a fifth shape |
 | `feature-match` | two panels of symbols in the same layout; same or different | symbols per panel (3–7) |
+| `cube-net` | six marked squares laid flat; which of five cubes folds from them | the cross net, then any of the eleven; distractors go from opposite-face pairs (4) to mirror-handed corners (4) |
 | `pattern-recall` | a 4×4 grid flashes a set of cells; tap the set back | cells to hold (3–7), and nothing else |
 | `paired-associates` | boxes open on symbols one by one; a filled 7 s interval; which box held this one? | pairings to learn (3–7) |
 
@@ -271,6 +273,14 @@ Thirty-two generators across seven CHC domains:
 > the old "number comparison" tests): two panels of symbols in the same layout, identical or differing
 > in exactly one pair by exactly one feature, so that the difference has to be found by comparing
 > rather than seen at a glance. It is the seventh Gs format and, like `symbol-search`, sprintable.
+> Row 47, `cube-net`, was the top of the v2 list (row 19) and turned out to cost a day: the net is
+> folded by *rolling* a cube across it, which finds the eleven nets by folding every hexomino rather
+> than typing them in, and the same routine decides the answer. A picture of a cube shows three faces
+> at a corner, and a corner has a handedness — so a wrong option is either two opposite faces shown
+> together (`opposite-faces`, a new error type) or the right three faces the other way round
+> (`mirror`), and the ladder trades the first kind for the second one distractor at a time. The face
+> marks are all symmetric under a quarter turn, a deliberate narrowing of the DAT item so that the
+> corner's handedness is the whole task rather than one of two.
 >
 > Three of the five are `tap` boards that own their own presentation, like `block-span`, and each has a
 > **computed** diagnosis of its own: a press before the signal is `premature` (a new error type, the

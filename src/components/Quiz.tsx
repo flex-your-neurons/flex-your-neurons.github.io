@@ -22,6 +22,7 @@ import PairsBoard from './PairsBoard';
 import PyramidBoard from './PyramidBoard';
 import FigureView, { describeFigure } from './FigureView';
 import GridView, { describeGrid } from './GridView';
+import CubeView, { describeCube } from './CubeView';
 import { generateItem, getItemText, getMeta } from '../lib/generators';
 import { deriveSeed, normaliseSeed, randomSeed } from '../lib/rng';
 import { dict, type Locale } from '../lib/i18n';
@@ -1221,6 +1222,12 @@ function OptionBody({ option }: { option: Option }) {
           <GridView grid={option.grid} variant={option.variant ?? 'solid'} />
         </span>
       );
+    case 'cube':
+      return (
+        <span class="option-figure option-figure--cube">
+          <CubeView faces={option.faces} />
+        </span>
+      );
   }
 }
 
@@ -1233,6 +1240,8 @@ function optionLabel(option: Option, i: number, locale: Locale): string {
       return t.quiz.optionLabel(i + 1, describeFigure(option.figure, locale));
     case 'grid':
       return t.quiz.optionLabel(i + 1, describeGrid(option.grid, locale));
+    case 'cube':
+      return t.quiz.optionLabel(i + 1, describeCube(option.faces, locale));
   }
 }
 

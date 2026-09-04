@@ -39,6 +39,7 @@ export const PREVIEW_PINS: Record<ItemTypeId, Pin> = {
   syllogism: { seed: 'PRVSYLLO', difficulty: 2 },
   rotation: { seed: 'PRVROTAT', difficulty: 2 },
   'paper-folding': { seed: 'PRVFOLDS', difficulty: 1 },
+  'cube-net': { seed: 'PRVCUBES', difficulty: 3 },
   span: { seed: 'PRVSPANS', difficulty: 2 },
   // Level 3 rather than 1: this format only draws its *two* targets from level 3 up, and
   // "is either of these two in the group" is the whole shape of the task.
