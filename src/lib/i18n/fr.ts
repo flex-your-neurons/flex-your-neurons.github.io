@@ -196,6 +196,8 @@ const fr: Dict = {
       sheet: 'feuille',
       punched: 'perforée',
       foldStep: (fold: string) => `pli ${fold}`,
+      leftPanel: 'Panneau de gauche',
+      rightPanel: 'Panneau de droite',
       step: (n: number) => `Étape ${n}`,
       layers: (n: number) => `${n} épaisseurs`,
       foldFrameLabel: (n: number, description: string) => `Étape ${n} : ${description}`,
@@ -313,6 +315,8 @@ const fr: Dict = {
       carry: 'report oublié',
       transposition: 'ordre perdu',
       premature: 'faux départ',
+      commission: 'appui sur stop',
+      omission: 'signal manqué',
       plausible: 'presque juste',
     },
     bodies: {
@@ -334,6 +338,10 @@ const fr: Dict = {
         'La bonne quantité, mais dans le sens inverse. Vous teniez la taille du pas, mais vous l’avez appliqué à l’envers : ajouté ce qu’il fallait retrancher, ou l’inverse. Sur un flux qui ne se rejoue pas, un pas inversé coûte deux fois plus qu’un pas manqué.',
       premature:
         'Vous avez répondu avant le signal. C’est de l’anticipation, pas de la réaction : l’attente est aléatoire précisément pour qu’on ne puisse pas la chronométrer, et une réponse qui devance le signal était un pari sur le moment où il viendrait. Laissez le signal arriver ; une vraie réaction un peu plus lente est une mesure, un faux départ rapide n’en est pas une.',
+      commission:
+        'Vous avez appuyé sur un signal barré. C’est exactement l’échec d’inhibition que la tâche cherche à saisir : après une suite d’appuis, le suivant est à moitié lancé avant que le signal soit lu, et le signal barré arrive trop tard pour l’arrêter. Le remède n’est pas de regarder plus fort mais d’appuyer plus tard : quelques dizaines de millisecondes de délai sur chaque signal plein achètent le temps de se retenir sur le barré.',
+      omission:
+        'Vous avez laissé passer un signal plein sans appuyer. Pas un défaut de contrôle mais un relâchement : la suite a continué et, pour un signal, l’attention non. Dans une tâche go/no-go c’est l’erreur opposée à celle qu’on cherche, et si elle se répète c’est que le rythme est trop prudent : appuyez plus tôt et laissez les signaux barrés faire l’arrêt.',
       transposition:
         'Tous les éléments, mais dans le désordre. Vous avez retenu ce qu’il y avait à retenir et vous en avez perdu l’agencement : c’est un autre échec que d’oublier un élément, et un échec plus encourageant, car dans une tâche d’empan le plus dur est d’ordinaire de retenir. L’ordre revient souvent avec un rythme délibéré : restituez la séquence à l’allure où elle vous a été donnée, plutôt qu’aussi vite que possible.',
       plausible:
@@ -412,7 +420,7 @@ const fr: Dict = {
     byDomain: 'Par domaine cognitif',
     domainChartLabel: 'Précision par domaine cognitif',
     domainLede:
-      'Votre précision sur les sept aptitudes larges du modèle Cattell–Horn–Carroll que ces formats sollicitent. Un profil, pas un score : aucun étalonnage ne sous-tend ces barres, elles vous comparent à vous-même et à personne d’autre.',
+      'Votre précision sur les sept aptitudes larges du modèle Cattell–Horn–Carroll que ces formats sollicitent. Un profil, pas un score : aucun étalonnage ne sous-tend ces barres, elles vous comparent à vous-même et à personne d’autre. Quand un domaine ne repose que sur un ou deux formats, la barre est le score de ces formats sous une étiquette de domaine.',
     provisional: (attempts: number) =>
       `${attempts} item${attempts === 1 ? '' : 's'} — bien trop peu pour en tirer quoi que ce soit`,
     provisionalKey: 'Les barres estompées reposent sur moins de dix items.',
@@ -452,7 +460,7 @@ const fr: Dict = {
 
     wall: {
       heading: 'Chaque format, dans le temps',
-      lede: 'Une courbe par format, les tentatives les plus anciennes à gauche. De petits graphiques côte à côte plutôt que trente-deux courbes sur un même axe : trente-deux couleurs sur un seul tracé seraient illisibles, et ceux-ci se parcourent du regard, ils ne se lisent pas au chiffre près.',
+      lede: 'Une courbe par format, les tentatives les plus anciennes à gauche. De petits graphiques côte à côte plutôt que trente-six courbes sur un même axe : trente-six couleurs sur un seul tracé seraient illisibles, et ceux-ci se parcourent du regard, ils ne se lisent pas au chiffre près.',
       never: 'pas encore tenté',
     },
     byItemType: 'Par type d’item',
@@ -718,10 +726,38 @@ const fr: Dict = {
     },
     'reaction-time': {
       name: 'Temps de réaction',
-      blurb: 'Attendez le signal. Touchez la cible qui s’allume.',
+      blurb: 'Attendez le signal. Touchez la cible qui s’allume. Cinq fois.',
       description:
-        'Une ou plusieurs cibles, une attente imprévisible, puis l’une d’elles s’allume : touchez-la. Avec une seule cible c’est le temps de réaction simple, la plus ancienne mesure de la psychologie ; avec plusieurs, c’est le temps de réaction de choix, et les millisecondes en plus sont le coût de la décision. C’est la seule chose que les niveaux changent — la loi de Hick dit que ce coût croît avec le nombre d’alternatives — si bien que l’échelle parcourt un seul construit, du simple réflexe au choix à six branches. L’attente avant le signal est tirée de la graine entre une et trois secondes, donc impossible à chronométrer, et une réponse avant le signal est un faux départ compté comme une erreur. Le plateau affiche votre temps en millisecondes après chaque essai : ici la latence est la mesure elle-même et non un sous-produit, et c’est le seul nombre de ce site qui ait un sens dans la vie courante.',
+        'Une ou plusieurs cibles, une attente imprévisible, puis l’une d’elles s’allume : touchez-la. Avec une seule cible c’est le temps de réaction simple, la plus ancienne mesure de la psychologie ; avec plusieurs, c’est le temps de réaction de choix, et les millisecondes en plus sont le coût de la décision. C’est la seule chose que les niveaux changent — la loi de Hick dit que ce coût croît avec le nombre d’alternatives — si bien que l’échelle parcourt un seul construit, du simple réflexe au choix à six branches. L’attente avant le signal est tirée de la graine entre une et trois secondes, donc impossible à chronométrer, et une réponse avant le signal est un faux départ compté comme une erreur. Un item est un bloc de cinq essais, et le temps enregistré est la médiane du bloc, parce qu’un essai isolé n’est que du bruit : ici la latence est la mesure elle-même et non un sous-produit, et c’est le seul nombre de ce site qui ait un sens dans la vie courante.',
       seenIn: 'Donders (1868), Hick (1952), le test de réaction de Human Benchmark, CANTAB Reaction Time, tâche de Deary–Liewald',
+    },
+    'feature-match': {
+      name: 'Comparaison de symboles',
+      blurb: 'Deux panneaux de symboles. Sont-ils identiques ?',
+      description:
+        'Deux panneaux, chacun avec le même nombre de symboles abstraits aux mêmes positions. Soit chaque symbole correspond à celui d’en face, soit exactement un diffère — et quand il diffère, c’est par un seul trait : la forme, ou le remplissage, ou l’orientation, jamais plus. Dites si les panneaux sont identiques. C’est la tâche de vérification que les anciennes batteries d’aptitude appelaient comparaison de nombres ou de noms et que Cambridge Brain Sciences appelle Feature Match ; elle est classée sous la vitesse de traitement parce qu’il n’y a rien à calculer. La réponse est visible, et la mesure est la vitesse à laquelle on trouve une réponse visible en vérifiant paire après paire. Les panneaux gardent la même disposition pour que la recherche ne s’ajoute pas à la comparaison, et le niveau ne change que le nombre de paires à vérifier.',
+      seenIn: 'Feature Match de Cambridge Brain Sciences, Minnesota Clerical Test, DAT Clerical Speed and Accuracy, Barrage de la WAIS (cousin)',
+    },
+    'logic-grid': {
+      name: 'Grille logique',
+      blurb: 'Des formes dans une rangée de places, quelques indices. Qu’y a-t-il à la place marquée ?',
+      description:
+        'Une rangée de places numérotées, autant de formes que de places, et une poignée d’indices : celle-ci est quelque part à gauche de celle-là, celle-ci n’est pas à la place 2, ces deux-là sont côte à côte. Une place porte un point d’interrogation, et la réponse est la forme qui doit s’y trouver. C’est le problème de contraintes derrière tous les casse-tête « zèbre » ou grilles logiques, débarrassé des maisons et des nationalités — c’est du vocabulaire, et le vocabulaire est ce que ce site ne génère pas. Tous les arrangements sont vérifiés contre les indices, donc la place marquée n’a qu’un occupant possible ; chaque indice est nécessaire, parce que l’ensemble est élagué jusqu’à ce qu’en retirer un laisse deux formes possibles ; et aucun indice ne dit jamais directement ce que contient la place marquée. Le niveau retire d’abord les indices faciles — les placements, puis les éliminations — et ajoute ensuite une cinquième forme : la part qu’il faut déduire plutôt que lire. Quatre réponses sont proposées à chaque niveau.',
+      seenIn: 'Casse-tête du zèbre / d’Einstein, inférence relationnelle de Wason & Johnson-Laird, raisonnement analytique du LSAT (en forme verbale)',
+    },
+    'chimp-test': {
+      name: 'Test du chimpanzé',
+      blurb: 'Des nombres éparpillés sur une grille. Touchez le 1, le reste s’efface : touchez-les dans l’ordre.',
+      description:
+        'Plusieurs chiffres sont éparpillés sur une grille. Regardez aussi longtemps que vous voulez. Touchez le 1, et tous les chiffres sont masqués ; touchez alors l’emplacement du 2, puis du 3, et ainsi de suite. La tâche vient de l’étude d’Inoue et Matsuzawa (2007), où le chimpanzé Ayumu s’en acquittait avec plus de chiffres et plus vite que les adultes humains testés en face de lui — Human Benchmark l’a rendue célèbre. Ce qu’il faut retenir n’est pas les nombres, toujours de un à N, mais où chacun se trouvait : une disposition entière encodée d’un coup avec un ordre imprimé dessus, la combinaison que les autres empans spatiaux du site ne couvrent pas. L’empan de blocs montre les places une à une, le rappel de motif montre un ensemble sans ordre. Le niveau ne change que le nombre de chiffres ; la grille garde la même taille, et une disposition dont les chiffres suivraient le sens de lecture est retirée, parce que ce serait une règle à retenir plutôt qu’un ensemble de places.',
+      seenIn: 'Inoue & Matsuzawa (2007), Chimp Test de Human Benchmark, Memory Matrix de Lumosity (variante)',
+    },
+    'go-no-go': {
+      name: 'Go ou stop',
+      blurb: 'Appuyez sur le signal plein. Retenez-vous sur le barré.',
+      description:
+        'Une cible, huit signaux à la suite. Six sont pleins : appuyez. Deux sont barrés : n’appuyez pas. Donders a posé cette tâche à côté de la réaction simple et de la réaction de choix en 1868 — sa réaction c, plusieurs signaux mais une réponse à un seul type — et elle isole le coût de décider s’il faut répondre du coût de décider quoi. Un siècle et demi plus tard, c’est la mesure standard de l’inhibition de réponse : après une suite d’appuis, le suivant est à moitié lancé avant que le signal soit lu, et le signal barré doit l’arrêter. Un signal barré n’est jamais le premier et n’en suit jamais un autre, pour que chacun ait une habitude à interrompre. Le niveau ne change qu’une chose, la durée d’affichage du signal : une fenêtre plus courte force des appuis plus rapides, et un appui plus rapide est plus dur à retenir. Appuyer sur un signal barré et laisser passer un signal plein sont comptés comme deux erreurs différentes, parce qu’elles le sont.',
+      seenIn: 'Donders (1868), la tâche go/no-go, la Sustained Attention to Response Task (Robertson et al., 1997), CANTAB Stop Signal, Lumosity Train of Thought',
     },
     'pattern-recall': {
       name: 'Rappel de motif',
@@ -734,7 +770,7 @@ const fr: Dict = {
       name: 'Paires associées',
       blurb: 'Des boîtes s’ouvrent une à une sur un symbole. Laquelle contenait celui-ci ?',
       description:
-        'Une rangée de boîtes fermées. Elles s’ouvrent une à la fois, chacune sur un symbole, puis se referment ; ensuite un symbole est montré seul et vous touchez la boîte qui le contenait. C’est l’apprentissage associatif — lier deux choses qui n’avaient aucune raison d’aller ensemble, ce à quoi revient retenir un nom sur un visage ou un mot et sa traduction — et c’est le premier format du site classé sous le stockage et la récupération à long terme. Il peut être généré là où le vocabulaire ne le peut pas parce que les paires sont arbitraires par construction : les symboles sont abstraits, les boîtes sont des boîtes, et rien d’autre que l’apprentissage n’aide. La question est un symbole et la réponse un emplacement : on retrouve un lieu à partir d’une chose, ce qui est le sens associatif. Limite honnête : l’intervalle entre l’apprentissage et la question est de quelques secondes, et la question posée des minutes plus tard — la mesure la plus complète — n’est pas construite.',
+        'Une rangée de boîtes fermées. Elles s’ouvrent une à la fois, chacune sur un symbole, puis se referment ; ensuite un symbole est montré seul et vous touchez la boîte qui le contenait. C’est l’apprentissage associatif — lier deux choses qui n’avaient aucune raison d’aller ensemble, ce à quoi revient retenir un nom sur un visage ou un mot et sa traduction — et c’est le premier format du site classé sous le stockage et la récupération à long terme. Il peut être généré là où le vocabulaire ne le peut pas parce que les paires sont arbitraires par construction : les symboles sont abstraits, les boîtes sont des boîtes, et rien d’autre que l’apprentissage n’aide. La question est un symbole et la réponse un emplacement : on retrouve un lieu à partir d’une chose, ce qui est le sens associatif. Entre la dernière boîte et la question, un intervalle rempli d’environ sept secondes — une grille allume des cases à toucher — bloque la répétition mentale, si bien que la réponse doit venir de ce qui a été stocké et non de ce qu’on se répétait encore. Limite honnête : une question des minutes plus tard, la mesure la plus complète, dépasse un seul item.',
       seenIn: 'CANTAB Paired Associates Learning, Paired Associates de Cambridge Brain Sciences, Paires de mots de la WMS (en forme verbale), Woodcock–Johnson Visual–Auditory Learning',
     },
     'calendar-count': {
@@ -1149,27 +1185,116 @@ const fr: Dict = {
         'La base est toujours le chiffre le plus ancien. Rapporter la variation au chiffre le plus récent donne un autre pourcentage, et c’est le leurre construit pour cela.',
     },
     reactionTime: {
-      promptSimple: 'Quand la cible s’allume, touchez-la.',
-      promptChoice: (targets: number) => `L’une des ${targets} cibles va s’allumer. Touchez celle-là.`,
-      summarySimple: 'La cible s’est allumée, et le temps entre cet instant et votre réponse est ce qui a été mesuré.',
-      summaryChoice: (position: number) => `La cible ${position} s’est allumée.`,
+      promptSimple: (trials: number) => `${trials} fois de suite : quand la cible s’allume, touchez-la.`,
+      promptChoice: (targets: number, trials: number) =>
+        `${trials} fois de suite : l’une des ${targets} cibles va s’allumer. Touchez celle-là.`,
+      summarySimple: (trials: number) =>
+        `La cible s’est allumée ${trials} fois, et la médiane de vos temps entre le signal et l’appui est ce qui a été enregistré.`,
+      summaryChoice: (positions: number[]) => `Les cibles qui se sont allumées, dans l’ordre : ${positions.join(', ')}.`,
       ruleWait:
-        'L’attente avant le signal est aléatoire, entre une et trois secondes, donc impossible à chronométrer. Restez attentif et laissez-le venir.',
+        'L’attente avant chaque signal est aléatoire, entre une et trois secondes, donc impossible à chronométrer. Restez attentif et laissez-le venir.',
       ruleFalseStart:
-        'Une réponse avant le signal est un faux départ et compte comme une erreur. Ce n’était la réaction à rien.',
+        'Une réponse avant le signal est un faux départ et fait échouer le bloc. Ce n’était la réaction à rien.',
+      ruleBlock: (trials: number) =>
+        `Un item, c’est ${trials} essais, parce qu’un seul temps de réaction n’est que du bruit : la dispersion des essais d’une même personne est une bonne fraction de sa moyenne, si bien que le laboratoire rapporte la médiane d’un bloc et jamais un essai isolé. La médiane est le temps enregistré pour l’item.`,
       ruleSimple:
-        'Une seule cible, c’est le temps de réaction simple : détecter et répondre, sans rien décider. Les valeurs adultes typiques dépassent un peu deux cents millisecondes ; le nombre affiché ici inclut l’écran et le pointeur, donc comparez-le à vos propres essais plutôt qu’à un manuel.',
+        'Une seule cible, c’est le temps de réaction simple : détecter et répondre, sans rien décider. Les médianes adultes typiques dépassent un peu deux cents millisecondes ; le nombre affiché ici inclut l’écran et le pointeur, donc comparez-le à vos propres blocs plutôt qu’à un manuel.',
       ruleHick: (targets: number) =>
         `${targets} cibles, c’est le temps de réaction de choix : détecter, identifier laquelle, puis répondre. La loi de Hick dit que le surcoût croît avec le logarithme du nombre d’alternatives, ce qui explique que ce niveau soit plus lent que le précédent d’un pas à peu près constant.`,
-      ready: (targets: number) =>
-        targets === 1 ? 'La cible s’allumera après une courte attente aléatoire.' : `L’une des ${targets} cibles s’allumera après une courte attente aléatoire.`,
+      ready: (targets: number, trials: number) =>
+        targets === 1
+          ? `La cible s’allumera ${trials} fois, chaque fois après une courte attente aléatoire.`
+          : `L’une des ${targets} cibles s’allumera, ${trials} fois, chaque fois après une courte attente aléatoire.`,
       start: 'Prêt',
-      waiting: 'Attendez…',
+      trial: (n: number, total: number) => `Essai ${n} sur ${total}`,
       go: 'Maintenant !',
       targetLabel: (position: number) => `Cible ${position}`,
-      falseStart: 'Trop tôt : c’était avant le signal.',
-      result: (ms: number) => `${ms} ms`,
-      wrongTarget: 'Ce n’était pas la cible qui s’est allumée.',
+      recordLabel: 'Le bloc, essai par essai',
+      markLabel: (n: number, lit: number, pressed: number | null) =>
+        pressed === null
+          ? `Essai ${n} : la cible ${lit} s’est allumée, appui avant le signal`
+          : pressed === lit
+            ? `Essai ${n} : la cible ${lit} s’est allumée et a été touchée`
+            : `Essai ${n} : la cible ${lit} s’est allumée, cible ${pressed} touchée`,
+      falseStarts: (n: number) => (n === 1 ? 'Un faux départ : avant le signal.' : `${n} faux départs.`),
+      wrongTargets: (n: number) => (n === 1 ? 'Un appui sur une cible qui ne s’était pas allumée.' : `${n} appuis sur des cibles qui ne s’étaient pas allumées.`),
+      result: (ms: number, trials: number) => `${ms} ms de médiane sur ${trials}`,
+    },
+    featureMatch: {
+      prompt: 'Les deux panneaux sont-ils identiques ?',
+      same: 'Identiques',
+      different: 'Différents',
+      summarySame: 'Identiques : chaque symbole correspond à celui d’en face.',
+      summaryDifferent: (position: number) => `Différents : les symboles en position ${position} ne correspondent pas.`,
+      ruleOne:
+        'Quand les panneaux diffèrent, exactement une paire diffère, et par exactement un trait : forme, remplissage ou orientation. Une différence grossière se verrait sans comparer ; une différence d’un seul trait doit être trouvée en vérifiant chaque paire, ce qui est toute la tâche.',
+      ruleLayout:
+        'Les deux panneaux gardent toujours leurs symboles aux mêmes positions, si bien que le partenaire de chaque symbole est juste en face. Comparer est la tâche ; trouver le partenaire ne l’est pas.',
+      ruleSpeed:
+        'Ce type est noté sur la vitesse : votre temps de réponse médian compte plus que votre précision, qui doit rester proche du plafond.',
+    },
+    logicGrid: {
+      prompt: (place: number) => `Quelle forme est à la place ${place} ?`,
+      summary: (place: number, shape: string) => `La place ${place} contient le ${shape}.`,
+      clueIs: (shape: string, place: number) => `Le ${shape} est à la place ${place}.`,
+      clueNot: (shape: string, place: number) => `Le ${shape} n’est pas à la place ${place}.`,
+      clueLeftOf: (a: string, b: string) => `Le ${a} est quelque part à gauche du ${b}.`,
+      clueAdjacent: (a: string, b: string) => `Le ${a} et le ${b} sont côte à côte.`,
+      clueNextLeft: (a: string, b: string) => `Le ${a} est juste à gauche du ${b}.`,
+      ruleUnique: (clues: number) =>
+        `Tous les arrangements des formes ont été confrontés aux ${clues} indices, et tous ceux qui survivent mettent la même forme à la place marquée. Le reste de la rangée n’a pas besoin d’être fixé : la question portait sur une seule place.`,
+      ruleMinimal:
+        'Chaque indice est nécessaire. Retirez-en un, et deux formes deviennent possibles à la place marquée — il n’y a donc pas de raccourci par un sous-ensemble, et le nombre d’indices compte honnêtement ce qu’il faut combiner.',
+      ruleMethod:
+        'Partez de l’indice qui dit le plus. « Quelque part à gauche » exclut une forme de la dernière place et une autre de la première ; « côte à côte » apparie deux formes dans des places voisines ; chaque élimination resserre la suivante. Noter ce que chaque place peut encore contenir, dans une petite grille, est la méthode qui donne son nom au casse-tête.',
+      placesLabel: 'Les places, de gauche à droite',
+      placeLabel: (n: number, asked: boolean) => (asked ? `Place ${n}, celle demandée` : `Place ${n}`),
+      shapesLabel: 'Les formes à placer',
+    },
+    chimpTest: {
+      prompt: (count: number) => `${count} nombres sont sur la grille. Touchez le 1 ; le reste s’efface. Puis touchez-les dans l’ordre.`,
+      summary: (count: number) => `Les ${count} chiffres étaient là où le plateau les montre maintenant.`,
+      ruleMask:
+        'Tous les chiffres disparaissent au premier toucher, y compris celui que vous avez touché. Pas de limite de temps avant : regardez autant qu’il le faut, et la mesure est ce qui survit à l’instant où les nombres s’effacent.',
+      ruleOrder: 'Touchez les emplacements dans l’ordre croissant, du un au dernier. Un emplacement ne porte jamais deux chiffres.',
+      ruleExact:
+        'Chaque toucher doit tomber sur la bonne case. Une seule case fausse fait échouer l’item, puisqu’on mesure si la disposition a survécu, et une disposition à moitié retenue n’a pas survécu.',
+      ruleAyumu:
+        'Le chimpanzé Ayumu d’Inoue et Matsuzawa réussissait avec neuf chiffres, après une exposition d’une fraction de seconde, et battait tous les adultes humains de l’étude. Les plafonds humains ici vont généralement de cinq à huit. Ce n’est pas un défaut : c’est une différence dans ce à quoi sert la mémoire des deux espèces.',
+      study: 'Repérez où est chaque nombre. Touchez le 1 quand vous êtes prêt.',
+      progress: (done: number, total: number) => `${done} sur ${total} touchés`,
+      reveal: 'Les chiffres sont revenus ; un nombre rouge marque un toucher qui a dévié.',
+      cellLabel: (position: number) => `Case ${position}`,
+      cellNumbered: (numeral: number | undefined) => `Nombre ${numeral}`,
+      cellReveal: (position: number, numeral: number | undefined, tapped: number | undefined) =>
+        numeral === undefined
+          ? tapped === undefined
+            ? `Case ${position}, vide`
+            : `Case ${position}, vide, touchée en ${tapped}e`
+          : tapped === undefined
+            ? `Case ${position} portait ${numeral}, non touchée`
+            : `Case ${position} portait ${numeral}, touchée en ${tapped}e`,
+    },
+    goNoGo: {
+      prompt: (count: number) => `${count} signaux, l’un après l’autre. Appuyez sur les pleins. N’appuyez pas sur les barrés.`,
+      summary: (stops: number[]) => `Les signaux ${stops.join(' et ')} étaient barrés ; les six autres étaient pleins.`,
+      ruleGo: 'Un signal plein, c’est le disque qui se remplit. Appuyez pendant qu’il est affiché, ou dans le blanc juste après : plus tard, c’est manqué.',
+      ruleStop:
+        'Un signal barré, c’est le disque traversé d’un X. Ne faites rien, et continuez à ne rien faire pendant le blanc qui suit. Le X est tracé aussi gras que le remplissage, pour qu’il n’y ait aucun temps de plus à le remarquer.',
+      ruleWindow: (ms: number) =>
+        `Chaque signal reste affiché ${ms} millisecondes. C’est la seule chose que le niveau change : une fenêtre plus courte force des appuis plus rapides, et un appui plus rapide est plus dur à retenir, ce qui est précisément le mécanisme mesuré.`,
+      ruleDonders:
+        'La réaction c de Donders : plusieurs signaux, une réponse à un seul type. La réaction simple, c’est détecter et répondre ; la réaction de choix ajoute lequel ; celle-ci ajoute si. Le temps qu’elle prend en plus de la réaction simple est le coût de cette décision, et un appui sur un signal barré est la décision qui arrive trop tard.',
+      ready: 'Huit signaux vont se succéder, un à la fois. N’appuyez que sur les pleins.',
+      start: 'Prêt',
+      running: (n: number, total: number) => `${n} sur ${total}`,
+      targetLabel: 'La cible',
+      recordLabel: 'Ce qui a été appuyé, signal par signal',
+      markLabel: (n: number, go: boolean, pressed: boolean) =>
+        `Signal ${n} : ${go ? 'plein' : 'barré'}, ${pressed ? 'appuyé' : 'non appuyé'}`,
+      result: (ms: number) => `${ms} ms en moyenne`,
+      commission: (n: number) => (n === 1 ? 'Appui sur un signal barré.' : `Appuis sur ${n} signaux barrés.`),
+      omission: (n: number) => (n === 1 ? 'Un signal plein manqué.' : `${n} signaux pleins manqués.`),
     },
     patternRecall: {
       prompt: (count: number) => `Touchez les ${count} cases qui se sont allumées.`,
@@ -1204,10 +1329,13 @@ const fr: Dict = {
       ruleArbitrary:
         'Les paires sont arbitraires à dessein. Rien dans un symbole ne dit à quelle boîte il appartient, donc rien d’autre que l’apprentissage ne peut aider — c’est ce qui en fait un test honnête de l’apprentissage.',
       ruleInterval:
-        'La question vient quelques secondes après la fermeture de la dernière boîte. La mesure plus complète — la même question des minutes plus tard — n’est pas construite ici, et le format le dit plutôt que de la revendiquer.',
+        'Entre la dernière boîte et la question, un intervalle rempli : une petite grille allume des cases une à une et vous touchez chacune quand elle s’allume. C’est là pour empêcher la répétition mentale. Une question posée aussitôt se répond depuis la mémoire de travail, et une question après une pause vide se répond en se répétant les paires pendant la pause ; une question après une pause remplie ne peut se répondre qu’à partir de ce qui a été stocké. Les touchers ne sont pas notés. Une question des minutes plus tard serait plus complète encore, et dépasse un seul item.',
       ready: (boxes: number) => `${boxes} boîtes vont s’ouvrir une à la fois. Retenez ce que chacune contient.`,
       start: 'Ouvrir les boîtes',
       watching: 'Regardez…',
+      delay: 'Touchez chaque case quand elle s’allume.',
+      distractorLabel: 'L’intervalle rempli',
+      cellLabel: (position: number) => `Case ${position}`,
       probe: 'Quelle boîte contenait ceci ?',
       boxLabel: (position: number) => `Boîte ${position}`,
       revealRight: 'C’était cette boîte.',
@@ -1488,7 +1616,7 @@ const fr: Dict = {
         },
       ],
       notMeasuredClose:
-        'Cela s’applique récursivement à ce site. Une précision élevée sur ces trente-deux formats est une information sur ces trente-deux formats, et sur rien d’autre.',
+        'Cela s’applique récursivement à ce site. Une précision élevée sur ces trente-six formats est une information sur ces trente-six formats, et sur rien d’autre.',
 
       difficultyP3:
         'Ce qui ne revient pas à un étalonnage. Les paliers sont conçus à partir d’opérateurs cognitifs publiés — un ordonnancement défendable — mais aucun item ne porte ici de paramètre de difficulté estimé sur des données de réponse réelles, ce qu’entend la théorie de réponse à l’item par « difficulté ». L’échelle adaptative est donc un escalier qui vous maintient près de votre propre taux de réussite, pas une estimation de votre aptitude.',

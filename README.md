@@ -42,7 +42,7 @@ Node 22.12+ is required (Astro 7).
 | `tests/` | Property-style unit tests, swept over hundreds of seeds |
 | `e2e/` | Playwright tests against the built static site |
 
-## The thirty-two formats
+## The thirty-six formats
 
 | Format | CHC | Verification |
 |--------|-----|--------------|
@@ -52,6 +52,7 @@ Node 22.12+ is required (Astro 7).
 | Odd one out | Gf | Every figure checked; exactly one may be defensibly odd |
 | Figural analogy | Gf | Every transformation must be visible in *both* pairs |
 | Syllogisms | Gf | Exhaustive model checking over all 256 models — provable |
+| Logic grid | Gf | Every arrangement tried against the clues; the asked place has one occupant, every clue is necessary, and none states the answer |
 | Tower (of London) | Gf | Minimum move count proved by breadth-first search over all 36 board states |
 | Mental rotation | Gv | Chirality proved; exactly one option is a rotation |
 | Paper folding | Gv | The unfolding is simulated, not asserted |
@@ -60,17 +61,20 @@ Node 22.12+ is required (Astro 7).
 | Figure weights | Gf | Every candidate group weighed; exactly one may balance — decidable |
 | Digit span | Gwm | Exact string match, whitespace-insensitive |
 | Block span | Gwm | The tapped sequence must match the one shown, exactly and in order |
+| Chimp test | Gwm | The tapped cells must be the numerals' cells in ascending order; layouts in reading order are redrawn |
 | N-back | Gwm | Match count re-derived from the finished stream |
 | Head count | Gwm | Total re-accumulated from the script; the room may never empty |
 | Add what you saw | Gwm | The sum is re-added from the stream; no term repeats and some pair must carry |
-| Paired associates | Glr | Every box's symbol distinct by rendered signature; the probe is one of them, the box is the key |
+| Paired associates | Glr | Every box's symbol distinct by rendered signature; the probe, after a filled interval, is one of them and the box is the key |
 | Symbol search | Gs | Membership re-checked after shuffling |
+| Feature match | Gs | Panels re-compared by rendered signature; a difference is exactly one pair, one feature |
 | Digit–symbol coding | Gs | Every option is a key entry; the pairing is re-looked-up |
 | Trail making | Gs | Targets proved non-overlapping and inside the board; the order is printed on them |
 | Count, don’t read (Stroop) | Gs | The keyed answer is the array length the renderer draws; both congruency conditions occur |
 | Which is worth more | Gs | The keyed side holds the larger value; both congruency conditions occur at every level |
 | Rock, paper, scissors | Gs | The keyed hand is re-derived from the cycle; all six items occur |
-| Reaction time | Gt | The lit target is the key; a press before the signal is scored as a false start |
+| Reaction time | Gt | A block of five trials; every lit target is the key, a press before any signal is a false start, and the median is the latency |
+| Go / no-go | Gt | The run's record is compared signal by signal; a press on a crossed signal and a missed plain one are named apart |
 | Mental arithmetic | Gq | The displayed expression is re-evaluated; two options share the answer's units digit |
 | Counting down | Gq | The printed chain is re-walked; two options share the answer's units digit |
 | Time passed | Gq | The interval is re-derived from the two faces, in minutes past midday |
@@ -79,7 +83,7 @@ Node 22.12+ is required (Astro 7).
 | Number pyramid | Gq | Every cell re-derived from the base; the blanks are compared one by one, not as one string |
 | Table reasoning | Gq | The keyed value re-derived by parsing the printed question against the printed cells |
 
-Seven CHC domains: **Gf 8, Gv 4, Gwm 5, Glr 1, Gs 6, Gt 1, Gq 7** — and no Gc at all, which is a
+Seven CHC domains: **Gf 9, Gv 4, Gwm 6, Glr 1, Gs 7, Gt 2, Gq 7** — and no Gc at all, which is a
 limit of generation rather than an oversight and is the reason no Full Scale figure is even
 approximable. Glr and Gt arrived in 2026-09 with the gap analysis against *Brain Age*, Human
 Benchmark and Cambridge Brain Sciences: associative memory can be generated where vocabulary cannot,

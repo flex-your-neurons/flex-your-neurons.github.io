@@ -110,6 +110,10 @@ export const PREVIEW_PINS: Record<ItemTypeId, Pin> = {
   'table-reasoning': { seed: 'PRVTABLE', difficulty: 1 },
   // Level 3: three targets, one lit. One target is a button; three with one lit is a choice.
   'reaction-time': { seed: 'PRVREACT', difficulty: 3 },
+  'go-no-go': { seed: 'PRVGONOGO', difficulty: 2 },
+  'chimp-test': { seed: 'PRVCHIMP', difficulty: 2 },
+  'logic-grid': { seed: 'PRVLOGIC', difficulty: 3 },
+  'feature-match': { seed: 'PRVMATCH', difficulty: 3 },
   // Level 2: four cells on sixteen. Enough to read as a pattern, sparse enough to read as a grid.
   'pattern-recall': { seed: 'PRVPATRN', difficulty: 2 },
   // Level 2: four boxes. The card fits four open boxes and a probe; six would not.

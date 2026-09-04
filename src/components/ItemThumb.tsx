@@ -489,7 +489,50 @@ function ThumbBody({ item, locale }: { item: Item; locale: Locale }) {
       return (
         <div class="thumb-reaction">
           {Array.from({ length: s.targets }, (_, i) => (
-            <span class="thumb-reaction-target" data-lit={i === s.lit ? 'true' : undefined} key={i} />
+            <span class="thumb-reaction-target" data-lit={i === s.trials[0]?.lit ? 'true' : undefined} key={i} />
+          ))}
+        </div>
+      );
+
+    /* The places in a row, one marked with the question, and the shapes beneath. */
+    case 'logic':
+      return (
+        <div class="thumb-logic">
+          <div class="thumb-logic-places">
+            {Array.from({ length: s.places }, (_, i) => (
+              <span class="thumb-logic-place" data-asked={i === s.asked ? 'true' : undefined} key={i}>
+                {i === s.asked ? '?' : ''}
+              </span>
+            ))}
+          </div>
+          <div class="thumb-logic-shapes">
+            {s.shapes.map((figure, i) => (
+              <FigureView key={i} figure={figure} label="" />
+            ))}
+          </div>
+        </div>
+      );
+
+    /* The grid with its numerals in place — before the mask, which is the state that says what the task is. */
+    case 'chimp': {
+      const at = new Map(s.cells.map((cell, i) => [cell, i + 1]));
+      return (
+        <div class="thumb-chimp" style={{ gridTemplateColumns: `repeat(${s.cols}, 1fr)` }}>
+          {Array.from({ length: s.cols * s.rows }, (_, i) => (
+            <span class="thumb-chimp-cell" data-numbered={at.has(i) ? 'true' : undefined} key={i}>
+              {at.get(i) ?? ''}
+            </span>
+          ))}
+        </div>
+      );
+    }
+
+    /* The run as a row: plain discs to press, crossed ones to leave alone. */
+    case 'gonogo':
+      return (
+        <div class="thumb-gonogo">
+          {s.signals.map((go, i) => (
+            <span class="thumb-gonogo-signal" data-stop={go ? undefined : 'true'} key={i} />
           ))}
         </div>
       );
@@ -624,6 +667,27 @@ function ThumbBody({ item, locale }: { item: Item; locale: Locale }) {
         </div>
       );
     }
+
+    case 'feature-match':
+      return (
+        <div class="thumb-search">
+          <div class="thumb-row thumb-row--tight">
+            {s.left.slice(0, SET_LIMIT).map((figure, i) => (
+              <div class="thumb-slot" key={i}>
+                <Mini figure={figure} />
+              </div>
+            ))}
+          </div>
+          <span class="thumb-rule" aria-hidden="true" />
+          <div class="thumb-row thumb-row--tight">
+            {s.right.slice(0, SET_LIMIT).map((figure, i) => (
+              <div class="thumb-slot" key={i}>
+                <Mini figure={figure} />
+              </div>
+            ))}
+          </div>
+        </div>
+      );
 
     case 'symbol-search':
       return (

@@ -416,6 +416,8 @@ describe('no format leaks its answer through the option set', () => {
      */
     expect(uncovered.sort()).toEqual([
       'block-span',
+      'chimp-test',
+      'go-no-go',
       'odd-one-out',
       'paired-associates',
       'pattern-recall',

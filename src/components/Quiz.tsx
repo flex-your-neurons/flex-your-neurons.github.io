@@ -15,6 +15,8 @@ import StimulusView from './StimulusView';
 import TrailBoard from './TrailBoard';
 import BlockSpanBoard from './BlockSpanBoard';
 import ReactionBoard from './ReactionBoard';
+import GoNoGoBoard from './GoNoGoBoard';
+import ChimpBoard from './ChimpBoard';
 import PatternBoard from './PatternBoard';
 import PairsBoard from './PairsBoard';
 import PyramidBoard from './PyramidBoard';
@@ -394,8 +396,12 @@ export default function Quiz({
      * `trailMisses` is only ever passed by the trail board, where correctness is a binarisation of a
      * timed run rather than a fact about an answer: a trail always completes, so "correct" is set to
      * "finished without a misclick". The latency is the measurement.
+     *
+     * `latencyMs` is only ever passed by a board that measures its own time better than the quiz can
+     * — the reaction block, whose item latency is the median of its trials rather than the length of
+     * the whole block. Everything else is timed from `shownAt`.
      */
-    (choiceIndex: number | null, text?: string, trailMisses?: number) => {
+    (choiceIndex: number | null, text?: string, trailMisses?: number, latencyMs?: number) => {
       if (!item || !session || phase !== 'answering') return;
 
       const correct = isCorrect(item, choiceIndex, text, trailMisses);
@@ -425,7 +431,7 @@ export default function Quiz({
         item.answerIndex,
         choiceIndex,
         correct,
-        Math.max(0, Math.round(performance.now() - shownAt.current)),
+        latencyMs ?? Math.max(0, Math.round(performance.now() - shownAt.current)),
         text,
         errorType,
       );
@@ -887,12 +893,32 @@ export default function Quiz({
           <ReactionBoard
             key={`${item.type}:${item.seed}:${item.difficulty}`}
             targets={item.stimulus.targets}
-            lit={item.stimulus.lit}
-            presentation={item.presentation}
+            trials={item.stimulus.trials}
             locale={locale}
             frozen={revealed}
             onRecallStart={beginResponse}
-            onComplete={(pressed) => submit(null, pressed)}
+            onComplete={(pressed, medianMs) => submit(null, pressed, undefined, medianMs)}
+          />
+        ) : item.responseMode === 'tap' && item.stimulus.kind === 'gonogo' ? (
+          <GoNoGoBoard
+            key={`${item.type}:${item.seed}:${item.difficulty}`}
+            signals={item.stimulus.signals}
+            windowMs={item.stimulus.windowMs}
+            locale={locale}
+            frozen={revealed}
+            onRecallStart={beginResponse}
+            onComplete={(record) => submit(null, record)}
+          />
+        ) : item.responseMode === 'tap' && item.stimulus.kind === 'chimp' ? (
+          <ChimpBoard
+            key={`${item.type}:${item.seed}:${item.difficulty}`}
+            cols={item.stimulus.cols}
+            rows={item.stimulus.rows}
+            cells={item.stimulus.cells}
+            locale={locale}
+            frozen={revealed}
+            onRecallStart={beginResponse}
+            onComplete={(tapped) => submit(null, tapped)}
           />
         ) : item.responseMode === 'tap' && item.stimulus.kind === 'pattern' ? (
           <PatternBoard
@@ -912,6 +938,7 @@ export default function Quiz({
             symbols={item.stimulus.symbols}
             order={item.stimulus.order}
             probe={item.stimulus.probe}
+            distractor={item.stimulus.distractor}
             presentation={item.presentation}
             reducedMotion={settings.reducedMotion}
             locale={locale}

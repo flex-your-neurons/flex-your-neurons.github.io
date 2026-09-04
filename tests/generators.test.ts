@@ -15,7 +15,7 @@ import type { Difficulty, Item, Option } from '@/lib/types';
 const SEEDS = Array.from({ length: 80 }, (_, i) => `SEED${i}`);
 
 /** How many formats ship. See the registry test below before changing this. */
-const EXPECTED_TYPES = 32;
+const EXPECTED_TYPES = 36;
 
 function optionKey(o: Option): string {
   switch (o.kind) {
@@ -177,7 +177,16 @@ describe.each(ITEM_TYPE_IDS)('generator: %s', (id) => {
            * therefore never unlock — the board would wait for a stream that never runs — so the
            * pairing is asserted rather than assumed.
            */
-          if (item.responseMode === 'tap') expect(item.presentation, where).toBeDefined();
+          if (item.responseMode === 'tap' && item.stimulus.kind !== 'chimp') {
+            expect(item.presentation, where).toBeDefined();
+          } else if (item.responseMode === 'tap') {
+            /*
+             * The one exception: the chimp test's board is studied for as long as the reader likes
+             * and the first tap is what masks it, so there is no timed playback to wait for. Its board
+             * starts the response clock itself at that tap, through the same `onRecallStart` hook.
+             */
+            expect(item.presentation, where).toBeUndefined();
+          }
         } else {
           expect(item.options.length, where).toBeGreaterThanOrEqual(2);
           expect(item.answerIndex, where).toBeGreaterThanOrEqual(0);
@@ -226,7 +235,13 @@ describe.each(ITEM_TYPE_IDS)('generator: %s', (id) => {
      * wait, in steps of fifty milliseconds, which is exactly as much variety as the paradigm wants.
      * What matters is that the wait is genuinely unpredictable, which the solver suite checks.
      */
-    if (id === 'interference' || id === 'hand-game' || id === 'reaction-time') return;
+    /*
+     * `go-no-go` is exempt because its run is fixed by design: eight signals with two crossed, never
+     * first and never adjacent, is fifteen patterns, and five windows make seventy-five items. A run
+     * that varied in length or in how many withholds it asked for would vary the prepotency the task
+     * depends on, and the level would no longer mean one thing. The solver suite checks the constraints.
+     */
+    if (id === 'interference' || id === 'hand-game' || id === 'reaction-time' || id === 'go-no-go') return;
 
     const items = DIFFICULTIES.flatMap((d) =>
       SEEDS.map((s) => {
@@ -281,7 +296,7 @@ describe('cross-generator properties', () => {
       const wrong = choice.flatMap((i) => i.errorTypes.filter((e) => e !== 'correct'));
       const named = wrong.filter((e) => e !== 'plausible');
       // syllogism and odd-one-out have a single uniform error mode; exempt them.
-      if (id === 'syllogism' || id === 'symbol-search') continue;
+      if (id === 'syllogism' || id === 'symbol-search' || id === 'feature-match') continue;
       expect(named.length / wrong.length, `${id} distractor diagnosis rate`).toBeGreaterThan(0.2);
     }
   });

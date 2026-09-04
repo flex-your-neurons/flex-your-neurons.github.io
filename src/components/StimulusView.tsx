@@ -66,6 +66,8 @@ export default function StimulusView({
      * chosen. Each is drawn once, in the answer tray.
      */
     case 'reaction':
+    case 'gonogo':
+    case 'chimp':
     case 'pattern':
     case 'pairs':
       return null;
@@ -95,6 +97,58 @@ export default function StimulusView({
           ))}
         </div>
       );
+
+    case 'logic': {
+      const g = dict(locale).gen.logicGrid;
+      const names = dict(locale).quiz.shapeNames;
+      const shapeName = (i: number) => names[stimulus.shapes[i]!.shapes[0]!.type];
+      const word = (clue: (typeof stimulus.clues)[number]): string => {
+        switch (clue.type) {
+          case 'is':
+            return g.clueIs(shapeName(clue.shape), clue.place + 1);
+          case 'not':
+            return g.clueNot(shapeName(clue.shape), clue.place + 1);
+          case 'left-of':
+            return g.clueLeftOf(shapeName(clue.a), shapeName(clue.b));
+          case 'adjacent':
+            return g.clueAdjacent(shapeName(clue.a), shapeName(clue.b));
+          case 'next-left':
+            return g.clueNextLeft(shapeName(clue.a), shapeName(clue.b));
+        }
+      };
+      return (
+        <div data-stimulus="logic" class="logic">
+          <ol class="logic-places" aria-label={g.placesLabel}>
+            {Array.from({ length: stimulus.places }, (_, i) => (
+              <li key={i} class="logic-place" data-asked={i === stimulus.asked ? 'true' : undefined} aria-label={g.placeLabel(i + 1, i === stimulus.asked)}>
+                <span class="logic-place-number" aria-hidden="true">
+                  {i + 1}
+                </span>
+                {i === stimulus.asked ? (
+                  <span class="logic-place-mark" aria-hidden="true">
+                    ?
+                  </span>
+                ) : null}
+              </li>
+            ))}
+          </ol>
+          <div class="logic-shapes" aria-label={g.shapesLabel} role="group">
+            {stimulus.shapes.map((figure, i) => (
+              <FigureView key={i} figure={figure} label={shapeName(i)} />
+            ))}
+          </div>
+          <div class="card premises">
+            <ol class="premises-list">
+              {stimulus.clues.map((clue, i) => (
+                <li key={i} data-premise={String(i)}>
+                  {word(clue)}
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      );
+    }
 
     case 'text':
       return (
@@ -143,6 +197,14 @@ export default function StimulusView({
           size={stimulus.size}
           locale={locale}
         />
+      );
+
+    case 'feature-match':
+      return (
+        <div data-stimulus="feature-match" class="symbol-search feature-match">
+          <SymbolRow title={t.figureLabels.leftPanel} figures={stimulus.left} testid="left" locale={locale} />
+          <SymbolRow title={t.figureLabels.rightPanel} figures={stimulus.right} testid="right" locale={locale} />
+        </div>
       );
 
     case 'symbol-search':

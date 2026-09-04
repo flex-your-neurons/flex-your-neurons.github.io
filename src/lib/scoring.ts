@@ -20,6 +20,7 @@ import { generateItem, getMeta, ITEM_VERSION } from './generators';
 import { isCongruent } from './generators/interference';
 import { isFormB } from './generators/trail-making';
 import { FALSE_START } from './generators/reaction-time';
+import { decodeRun } from './generators/go-no-go';
 import { decodeCells } from './generators/pattern-recall';
 import { dict, DEFAULT_LOCALE, type Locale } from './i18n';
 
@@ -100,7 +101,21 @@ export function diagnoseTaps(expected: string, tapped: string): ErrorType {
  */
 export function diagnoseReaction(expected: string, pressed: string): ErrorType {
   if (pressed === expected) return 'correct';
-  return pressed === FALSE_START ? 'premature' : 'plausible';
+  return pressed.includes(FALSE_START) ? 'premature' : 'plausible';
+}
+
+/**
+ * Names the mistake in a go/no-go run. A press on a crossed signal is the failure the task is built to
+ * catch and takes precedence: a run with both kinds of slip is reported as a commission, since that is
+ * the one with a remedy specific to this format.
+ */
+export function diagnoseGoNoGo(expected: string, pressed: string): ErrorType {
+  if (pressed === expected) return 'correct';
+  const want = decodeRun(expected);
+  const got = decodeRun(pressed);
+  if (want.some((go, i) => !go && got[i])) return 'commission';
+  if (want.some((go, i) => go && !got[i])) return 'omission';
+  return 'plausible';
 }
 
 /**
@@ -140,6 +155,8 @@ export function diagnoseTap(item: { answerText?: string; stimulus: Stimulus }, t
   switch (item.stimulus.kind) {
     case 'reaction':
       return diagnoseReaction(expected, tapped);
+    case 'gonogo':
+      return diagnoseGoNoGo(expected, tapped);
     case 'pattern':
       return diagnosePattern(expected, tapped, item.stimulus.size);
     case 'pairs':

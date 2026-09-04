@@ -125,22 +125,67 @@ async function tapBlocks(page: Page, sequence: number[], reversed: boolean): Pro
 }
 
 /**
- * Presses a reaction-time board.
- *
- * Right: wait for the signal, press the lit target. Wrong: with several targets, press one that did
- * not light; with a single target, press during the wait — a false start, which is the only wrong
- * answer a simple-reaction trial has, and the one the diagnosis names.
+ * Plays a reaction-time block: for each trial, waits for that trial's signal and presses the lit
+ * target. `wrong` false-starts the first trial — presses during its wait — which is the diagnosis
+ * this format names; the remaining trials are then played correctly, since the block goes on.
  */
-async function pressReaction(page: Page, targets: number, lit: number, wrong: boolean): Promise<void> {
+async function pressReaction(page: Page, trials: { lit: number }[], wrong: boolean): Promise<void> {
   const board = page.getByTestId('reaction-board');
-  if (wrong && targets === 1) {
-    await expect(board).toHaveAttribute('data-reaction-phase', 'wait', { timeout: 30_000 });
-    await page.getByTestId('reaction-target-1').click();
-    return;
+  await expect(board).toHaveAttribute('data-reaction-phase', 'wait', { timeout: 30_000 });
+  for (const [i, trial] of trials.entries()) {
+    if (wrong && i === 0) {
+      await page.locator(`[data-testid="reaction-board"][data-reaction-trial="0"][data-reaction-phase="wait"]`).waitFor({ timeout: 30_000 });
+      await page.getByTestId('reaction-target-1').click();
+      continue;
+    }
+    await page
+      .locator(`[data-testid="reaction-board"][data-reaction-trial="${i}"][data-reaction-phase="go"]`)
+      .waitFor({ timeout: 30_000 });
+    await page.getByTestId(`reaction-target-${trial.lit + 1}`).click();
   }
-  await expect(board).toHaveAttribute('data-reaction-phase', 'go', { timeout: 30_000 });
-  const index = wrong ? (lit === 0 ? 1 : 0) : lit;
-  await page.getByTestId(`reaction-target-${index + 1}`).click();
+  // The last press opens a pause, and the block is only handed in when it ends. Wait for that, or a
+  // caller reads the quiz before it has moved on: the board is revealed in practice, gone in a test.
+  await page
+    .locator('[data-testid="reaction-board"][data-reaction-phase="pause"]')
+    .waitFor({ state: 'hidden', timeout: 30_000 });
+}
+
+/**
+ * Taps a chimp-test board: the 1 first, which masks the rest, then the others in order. `wrong` swaps
+ * the last two taps, which is the transposition the diagnosis names.
+ */
+async function tapChimp(page: Page, cells: number[], wrong: boolean): Promise<void> {
+  const board = page.getByTestId('chimp-board');
+  await expect(board).toHaveAttribute('data-chimp-phase', 'study');
+  const order = [...cells];
+  if (wrong) {
+    const n = order.length;
+    [order[n - 2], order[n - 1]] = [order[n - 1]!, order[n - 2]!];
+  }
+  for (const cell of order) await page.getByTestId(`chimp-cell-${cell}`).click();
+}
+
+/**
+ * Plays a go/no-go run. Each plain signal is pressed as soon as the board shows it; the crossed ones
+ * are left alone. `wrong` presses on the first crossed signal as well — a commission, which is the
+ * diagnosis this format exists to name.
+ */
+async function pressGoNoGo(page: Page, signals: boolean[], wrong: boolean): Promise<void> {
+  const board = page.getByTestId('gonogo-board');
+  await expect(board).toHaveAttribute('data-gonogo-phase', 'run', { timeout: 30_000 });
+  let commissioned = false;
+  for (const [i, go] of signals.entries()) {
+    const shown = page.locator(`[data-testid="gonogo-board"][data-gonogo-index="${i}"]`);
+    await shown.waitFor({ timeout: 30_000 });
+    if (go || (wrong && !commissioned)) {
+      await page.getByTestId('gonogo-target').click();
+      if (!go) commissioned = true;
+    }
+  }
+  // The run is handed in only when the last window and its gap have elapsed.
+  await page
+    .locator('[data-testid="gonogo-board"][data-gonogo-phase="run"]')
+    .waitFor({ state: 'hidden', timeout: 30_000 });
 }
 
 /** Taps a pattern back. `wrong` swaps the last lit cell for an unlit neighbour of the grid. */
@@ -170,7 +215,11 @@ async function tapBoard(page: Page, item: ReturnType<typeof expectedItem>, wrong
     case 'block-span':
       return tapBlocks(page, item.stimulus.sequence, wrong);
     case 'reaction':
-      return pressReaction(page, item.stimulus.targets, item.stimulus.lit, wrong);
+      return pressReaction(page, item.stimulus.trials, wrong);
+    case 'gonogo':
+      return pressGoNoGo(page, item.stimulus.signals, wrong);
+    case 'chimp':
+      return tapChimp(page, item.stimulus.cells, wrong);
     case 'pattern':
       return tapPattern(page, item.stimulus.size, item.stimulus.cells, wrong);
     case 'pairs':

@@ -24,11 +24,21 @@
  * the item. A response before the signal is a false start and is scored as wrong — the standard
  * treatment, and the only honest one, since the response was not to the stimulus.
  *
+ * ## Why an item is a block of trials
+ *
+ * One reaction time is noise: the spread of a single person's trials is a good fraction of the mean,
+ * so the lab never reports one — it reports the median of a block, with the false starts and wrong
+ * targets counted separately. An item here is therefore five trials run back to back, each with its
+ * own seeded wait, and the latency recorded for the item is the *median* of the correct trials rather
+ * than the clock the quiz would otherwise run. Five is short enough to sit inside one item and long
+ * enough for a median to mean something; the level does not change it.
+ *
  * ## What is measured
  *
  * The latency, as always — but here it *is* the construct rather than a proxy for it, and the board
- * shows it after every trial in milliseconds because that is the number the format exists to
- * produce. Correctness is a binarisation like a trail's: right target after the signal, or not.
+ * shows the median after the block in milliseconds because that is the number the format exists to
+ * produce. Correctness is a binarisation like a trail's: every trial hit its target after its signal,
+ * or the block did not.
  */
 import { createRng } from '../rng';
 import { dict, type Locale } from '../i18n';
@@ -36,6 +46,16 @@ import type { Difficulty, Generator, Item, ItemTypeMeta } from '../types';
 
 /** The unpredictable wait before the signal, in milliseconds. */
 export const FOREPERIOD: readonly [min: number, max: number] = [1000, 3000];
+/** Trials in a block. Fixed: the level changes the targets, not the length. */
+export const TRIALS = 5;
+/** The pause between one trial's response and the next trial's wait. */
+export const INTER_TRIAL_MS = 700;
+
+export interface ReactionTrial {
+  /** The target that lights, 0-based. */
+  lit: number;
+  foreperiodMs: number;
+}
 
 /** How many targets each level shows: one is simple reaction time, more is choice. */
 export function targetsFor(difficulty: Difficulty): number {
@@ -53,11 +73,18 @@ export function targetsFor(difficulty: Difficulty): number {
   }
 }
 
-/** The tapped-target encoding: the target's 1-based position, or `0` for a response before the signal. */
+/**
+ * The block's encoding: one character per trial — the pressed target's 1-based position, or `0` for a
+ * response before that trial's signal. Six targets at most, so one digit always suffices.
+ */
 export const FALSE_START = '0';
 
 export function encodeTarget(index: number): string {
   return String(index + 1);
+}
+
+export function encodeBlock(pressed: readonly (number | null)[]): string {
+  return pressed.map((p) => (p === null ? FALSE_START : encodeTarget(p))).join('');
 }
 
 const meta: ItemTypeMeta = {
@@ -65,10 +92,8 @@ const meta: ItemTypeMeta = {
   domain: 'Gt',
   icon: '⚡',
   /*
-   * Not sprintable, although a block of reaction trials is exactly how the lab runs it: the item
-   * carries a presentation — the foreperiod — and the contract test forbids the pairing, for the
-   * good reason that a sprint's clock would run through the waits. A reaction block would need its
-   * own harness, and until it exists the honest flag is false.
+   * Not sprintable: the item carries a presentation — the waits — and a sprint's clock would run
+   * through them. The block *is* the harness the lab uses; it lives inside the item instead.
    */
   sprintable: false,
 };
@@ -77,31 +102,34 @@ function generate(seed: string, difficulty: Difficulty, locale: Locale): Item {
   const t = dict(locale).gen.reactionTime;
   const rng = createRng(`reaction-time:${seed}:${difficulty}`);
   const targets = targetsFor(difficulty);
-  const lit = rng.int(0, targets - 1);
-  // Drawn in steps of fifty so two seeds rarely share a wait exactly, without being finer than a frame.
-  const foreperiodMs = rng.int(FOREPERIOD[0] / 50, FOREPERIOD[1] / 50) * 50;
+  const trials: ReactionTrial[] = Array.from({ length: TRIALS }, () => ({
+    lit: rng.int(0, targets - 1),
+    // Drawn in steps of fifty so two trials rarely share a wait exactly, without being finer than a frame.
+    foreperiodMs: rng.int(FOREPERIOD[0] / 50, FOREPERIOD[1] / 50) * 50,
+  }));
 
   return {
     type: 'reaction-time',
     seed,
     difficulty,
-    prompt: targets === 1 ? t.promptSimple : t.promptChoice(targets),
-    stimulus: { kind: 'reaction', targets, lit, foreperiodMs },
+    prompt: targets === 1 ? t.promptSimple(TRIALS) : t.promptChoice(targets, TRIALS),
+    stimulus: { kind: 'reaction', targets, trials },
     responseMode: 'tap',
     options: [],
     answerIndex: -1,
-    answerText: encodeTarget(lit),
+    answerText: encodeBlock(trials.map((trial) => trial.lit)),
     errorTypes: [],
     explanation: {
-      summary: targets === 1 ? t.summarySimple : t.summaryChoice(lit + 1),
-      rules: [t.ruleWait, t.ruleFalseStart, targets === 1 ? t.ruleSimple : t.ruleHick(targets)],
+      summary: targets === 1 ? t.summarySimple(TRIALS) : t.summaryChoice(trials.map((trial) => trial.lit + 1)),
+      rules: [t.ruleWait, t.ruleFalseStart, t.ruleBlock(TRIALS), targets === 1 ? t.ruleSimple : t.ruleHick(targets)],
     },
-    suggestedSeconds: 6,
+    suggestedSeconds: 20,
     /*
-     * The foreperiod is the presentation: the item is gated behind a start, waits, and only then
-     * can be answered — which is exactly what `presentation` means to the quiz and the test helpers.
+     * The waits are the presentation: the item is gated behind a start and plays itself between
+     * responses — which is what `presentation` means to the quiz and the test helpers. The first
+     * trial's wait stands for the block; the gap is the pause between trials.
      */
-    presentation: { stepMs: foreperiodMs, gapMs: 0 },
+    presentation: { stepMs: trials[0]?.foreperiodMs ?? FOREPERIOD[0], gapMs: INTER_TRIAL_MS },
   };
 }
 

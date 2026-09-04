@@ -35,6 +35,10 @@ import { triangleMathGenerator } from './triangle-math';
 import { towerGenerator } from './tower';
 import { tableReasoningGenerator } from './table-reasoning';
 import { reactionTimeGenerator } from './reaction-time';
+import { goNoGoGenerator } from './go-no-go';
+import { chimpTestGenerator } from './chimp-test';
+import { logicGridGenerator } from './logic-grid';
+import { featureMatchGenerator } from './feature-match';
 import { patternRecallGenerator } from './pattern-recall';
 import { pairedAssociatesGenerator } from './paired-associates';
 
@@ -50,6 +54,7 @@ export const GENERATORS: Generator[] = [
   oddOneOutGenerator,
   figuralAnalogyGenerator,
   syllogismGenerator,
+  logicGridGenerator,
   towerGenerator,
   rotationGenerator,
   paperFoldingGenerator,
@@ -57,9 +62,11 @@ export const GENERATORS: Generator[] = [
   patternRecallGenerator,
   spanGenerator,
   blockSpanGenerator,
+  chimpTestGenerator,
   mathRecallGenerator,
   pairedAssociatesGenerator,
   symbolSearchGenerator,
+  featureMatchGenerator,
   figureWeightsGenerator,
   nBackGenerator,
   headCountGenerator,
@@ -68,6 +75,7 @@ export const GENERATORS: Generator[] = [
   highNumberGenerator,
   handGameGenerator,
   reactionTimeGenerator,
+  goNoGoGenerator,
   trailMakingGenerator,
   arithmeticGenerator,
   serialSubtractionGenerator,
@@ -103,8 +111,13 @@ export const GENERATORS: Generator[] = [
  *  2 — 2026-08: the distractor-leakage pass reworked twelve formats' option sets. Neither
  *      `interference` nor `trail-making` was among them, so no contrast actually lost data at
  *      this bump — the stamp exists so that the next one is not silent.
+ *  3 — 2026-09: `reaction-time` became a block of five trials per item, with the median of the
+ *      block recorded as the item's latency. A version-2 reaction item was one trial, so its
+ *      latency and answer string are not comparable with a version-3 one. `paired-associates`
+ *      gained a filled retention interval before its probe in the same bump, for the same reason:
+ *      an immediate probe and a probe after seven seconds of distraction are different measurements.
  */
-export const ITEM_VERSION = 2;
+export const ITEM_VERSION = 3;
 
 const BY_ID = new Map<ItemTypeId, Generator>(GENERATORS.map((g) => [g.meta.id, g]));
 

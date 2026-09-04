@@ -78,6 +78,10 @@ Legend: ✅ pass · ⚠️ passes with engineering · ❌ fails
 | 40 | **Simple / choice reaction time** | Gt | ✅ | ✅ | ✅ | **SHIP** — the latency is the construct |
 | 41 | **Visual pattern recall** (simultaneous grid) | Gv | ✅ | ✅ | ✅ | **SHIP** — set compared exactly |
 | 42 | **Paired associates** (object–location) | Glr | ✅ | ✅ | ✅ | **SHIP** — arbitrary pairings, no lookup |
+| 43 | **Go / no-go** (Donders' c-reaction, SART) | Gt | ✅ | ✅ | ✅ | **SHIP** — the record is the response; commission and omission named apart |
+| 44 | **Chimp test** (Inoue & Matsuzawa; masked numerals in order) | Gwm | ✅ | ✅ | ✅ | **SHIP** — the layout is the key; reading-order layouts redrawn |
+| 45 | **Logic grid** (relational constraints over shapes in a row) | Gf | ✅ | ✅ | ✅ | **SHIP** — exhaustive search proves one occupant; clue set pruned to necessary |
+| 46 | **Feature match** (are two symbol panels identical) | Gs | ✅ | ✅ | ✅ | **SHIP** — one pair, one feature; same/different balanced |
 
 Rows 29–37 are the batch drawn from *Brain Age* / *Dr Kawashima's Brain Training* (see the note in
 §3). Their ⚠️s are all the same ⚠️ and all in **U**, never in G or V: a numeric answer with a small
@@ -152,9 +156,13 @@ Thirty-two generators across seven CHC domains:
 | `triangle-math` | fill a pyramid where each cell sums the two below | width of the given row (three or six blanks); magnitude |
 | `tower` | two Tower of London boards, how few moves between them, 4 options | length of the shortest solution (3–8), proved by search |
 | `table-reasoning` | a 4-row table and one question about it, 4 options | columns (3–5); which questions are on the menu |
-| `reaction-time` | wait, then press the target that lit | number of targets (1–6), Hick's law |
+| `reaction-time` | five trials: wait, then press the target that lit; the median is recorded | number of targets (1–6), Hick's law |
+| `go-no-go` | eight signals on one target; press the plain, withhold on the crossed | response window (1200–600 ms); run and stop count fixed |
+| `chimp-test` | numerals scattered on a 5×4 grid, masked at the first tap, tapped in order | numerals to hold (4–8), and nothing else |
+| `logic-grid` | shapes in a row of places, 2–5 clues, which shape is in the marked place; 4 options | clue kinds withdrawn (placements, then eliminations), then a fifth shape |
+| `feature-match` | two panels of symbols in the same layout; same or different | symbols per panel (3–7) |
 | `pattern-recall` | a 4×4 grid flashes a set of cells; tap the set back | cells to hold (3–7), and nothing else |
-| `paired-associates` | boxes open on symbols one by one; which box held this one? | pairings to learn (3–7) |
+| `paired-associates` | boxes open on symbols one by one; a filled 7 s interval; which box held this one? | pairings to learn (3–7) |
 
 > **On the batch drawn from *Brain Age*.** Nine formats — rows 29–37 — come from Nintendo's *Brain
 > Age* / *Dr Kawashima's Brain Training*, and the reason to mine a game rather than a battery is that
@@ -243,6 +251,26 @@ Thirty-two generators across seven CHC domains:
 > found and its length known before any of it happens), simultaneous visual memory
 > (`pattern-recall`, which dissociates from the sequential `block-span`), and selection from a table
 > (`table-reasoning`, the only format resembling the tests people actually sit for jobs).
+>
+> Rows 43–44 followed in the same month. `go-no-go` is Donders' *c*-reaction — the third of the
+> 1868 trio, after the simple and choice reactions `reaction-time` already covered — and its response
+> is a record rather than a choice: eight signals, pressed or withheld, graded as one string, with a
+> press on a crossed signal (commission) named apart from a plain signal left alone (omission),
+> because they are different failures with opposite remedies. `chimp-test` is Inoue and Matsuzawa's
+> masked-numerals task, and it fills the one cell the site's spatial spans left open: a set encoded
+> at once *with* an order (block span is sequential; pattern recall is simultaneous but unordered).
+> The same month `reaction-time` became a block of five trials per item with the median recorded as
+> the item's latency, which is what the lab reports and cost an `ITEM_VERSION` bump — the first
+> since the leakage pass — and `paired-associates` gained a filled retention interval (Brown–Peterson:
+> a grid to tap for seven seconds between the last box and the probe), so the probe can no longer be
+> answered from rehearsal. Row 45, `logic-grid`, is the deductive format the registry lacked beyond
+> syllogisms: relational constraints over shapes in a row, with an exhaustive search proving the
+> asked place has one occupant and a pruning pass proving every clue is needed. It is the zebra
+> puzzle with the vocabulary removed, which is the only way §2 lets a zebra puzzle in.
+> Row 46, `feature-match`, is the clerical-checking task (Cambridge Brain Sciences' Feature Match,
+> the old "number comparison" tests): two panels of symbols in the same layout, identical or differing
+> in exactly one pair by exactly one feature, so that the difference has to be found by comparing
+> rather than seen at a glance. It is the seventh Gs format and, like `symbol-search`, sprintable.
 >
 > Three of the five are `tap` boards that own their own presentation, like `block-span`, and each has a
 > **computed** diagnosis of its own: a press before the signal is `premature` (a new error type, the

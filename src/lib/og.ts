@@ -646,6 +646,24 @@ function stage(item: Item): string {
       ].join('');
     }
 
+    /* Two panels, one above the other, a rule between. */
+    case 'feature-match': {
+      const box = 84;
+      const left = s.left.slice(0, 5);
+      const right = s.right.slice(0, 5);
+      const midY = STAGE.y + STAGE.h / 2;
+      const place = (n: number, y: number) => {
+        const total = n * box + (n - 1) * 14;
+        const startX = STAGE.x + (STAGE.w - total) / 2;
+        return Array.from({ length: n }, (_, i) => ({ x: startX + i * (box + 14), y }));
+      };
+      return [
+        ...place(left.length, midY - box - 30).map((at, i) => figureTile(left[i]!, at.x, at.y, box)),
+        `<line x1="${STAGE.x + 40}" y1="${midY}" x2="${STAGE.x + STAGE.w - 40}" y2="${midY}" stroke="${LINE}" stroke-width="3"/>`,
+        ...place(right.length, midY + 30).map((at, i) => figureTile(right[i]!, at.x, at.y, box)),
+      ].join('');
+    }
+
     case 'symbol-search': {
       const box = 96;
       const targets = s.targets.slice(0, 2);
@@ -791,13 +809,77 @@ function stage(item: Item): string {
       const gap = 28;
       const box = Math.min(96, (STAGE.w - (s.targets - 1) * gap) / s.targets);
       const at = row(s.targets, box, gap);
+      const lit = s.trials[0]?.lit ?? 0;
       return at
         .map((p, i) =>
-          i === s.lit
+          i === lit
             ? `<circle cx="${round(p.x + box / 2)}" cy="${round(p.y + box / 2)}" r="${box / 2}" fill="${ACCENT}"/>` +
               `<circle cx="${round(p.x + box / 2)}" cy="${round(p.y + box / 2)}" r="${box / 2 + 10}" fill="none" stroke="${ACCENT}" stroke-width="4" stroke-opacity="0.4"/>`
             : `<circle cx="${round(p.x + box / 2)}" cy="${round(p.y + box / 2)}" r="${box / 2}" fill="${SUNKEN}" stroke="${LINE}" stroke-width="3"/>`,
         )
+        .join('');
+    }
+
+    /* The places in a row, one marked with a question mark; the shapes sit underneath as text-free discs. */
+    case 'logic': {
+      const gap = 16;
+      const box = Math.min(96, (STAGE.w - (s.places - 1) * gap) / s.places);
+      const at = row(s.places, box, gap);
+      const parts = at.map((p, i) => {
+        const asked = i === s.asked;
+        return (
+          `<rect x="${round(p.x)}" y="${round(p.y)}" width="${round(box)}" height="${round(box)}" rx="12" fill="${asked ? RAISED : SUNKEN}" stroke="${asked ? ACCENT : LINE}" stroke-width="${asked ? 5 : 3}"/>` +
+          `<text x="${round(p.x + box / 2)}" y="${round(p.y + box / 2)}" text-anchor="middle" dominant-baseline="central" font-family="ui-monospace, monospace" font-size="${round(box * 0.5)}" font-weight="650" fill="${asked ? ACCENT : SUBTLE}">${asked ? '?' : i + 1}</text>`
+        );
+      });
+      return parts.join('');
+    }
+
+    /* The grid with its numerals. */
+    case 'chimp': {
+      const gap = 10;
+      const cell = Math.min(
+        Math.floor((STAGE.w - (s.cols - 1) * gap) / s.cols),
+        Math.floor((STAGE.h - (s.rows - 1) * gap) / s.rows),
+      );
+      const total = { w: s.cols * cell + (s.cols - 1) * gap, h: s.rows * cell + (s.rows - 1) * gap };
+      const x0 = STAGE.x + (STAGE.w - total.w) / 2;
+      const y0 = STAGE.y + (STAGE.h - total.h) / 2;
+      const at = new Map(s.cells.map((c, i) => [c, i + 1]));
+      const parts: string[] = [];
+      for (let i = 0; i < s.cols * s.rows; i++) {
+        const x = round(x0 + (i % s.cols) * (cell + gap));
+        const y = round(y0 + Math.floor(i / s.cols) * (cell + gap));
+        const n = at.get(i);
+        parts.push(
+          `<rect x="${x}" y="${y}" width="${cell}" height="${cell}" rx="10" fill="${n ? RAISED : SUNKEN}" stroke="${LINE}" stroke-width="3"/>`,
+        );
+        if (n) {
+          parts.push(
+            `<text x="${round(x + cell / 2)}" y="${round(y + cell / 2)}" text-anchor="middle" dominant-baseline="central" font-family="ui-monospace, monospace" font-size="${round(cell * 0.5)}" font-weight="650" fill="${INK}">${n}</text>`,
+          );
+        }
+      }
+      return parts.join('');
+    }
+
+    /* The run in a row: plain discs and crossed ones. */
+    case 'gonogo': {
+      const gap = 18;
+      const box = Math.min(84, (STAGE.w - (s.signals.length - 1) * gap) / s.signals.length);
+      const at = row(s.signals.length, box, gap);
+      return at
+        .map((p, i) => {
+          const cx = round(p.x + box / 2);
+          const cy = round(p.y + box / 2);
+          const r = round(box / 2);
+          if (s.signals[i]) return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${ACCENT}"/>`;
+          const d = round(r * 0.5);
+          return (
+            `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${SUNKEN}" stroke="${LINE}" stroke-width="4"/>` +
+            `<path d="M${cx - d} ${cy - d}L${cx + d} ${cy + d}M${cx + d} ${cy - d}L${cx - d} ${cy + d}" stroke="${LINE}" stroke-width="6" stroke-linecap="round"/>`
+          );
+        })
         .join('');
     }
 

@@ -2,16 +2,36 @@ import { describe, expect, it } from 'vitest';
 import { generateItem } from '@/lib/generators';
 import { NODE_RADIUS } from '@/lib/generators/trail-making';
 import { BLOCKS, BLOCK_RADIUS, encodeTaps, hasStraightRun } from '@/lib/generators/block-span';
-import { diagnoseFills, diagnosePairs, diagnosePattern, diagnoseReaction, diagnoseTaps, isCorrect } from '@/lib/scoring';
+import {
+  diagnoseFills,
+  diagnoseGoNoGo,
+  diagnosePairs,
+  diagnosePattern,
+  diagnoseReaction,
+  diagnoseTaps,
+  isCorrect,
+} from '@/lib/scoring';
 import { isSizeCongruent } from '@/lib/generators/high-number';
 import { elapsedMinutes } from '@/lib/generators/time-lapse';
 import { weekdayAfter } from '@/lib/generators/calendar-count';
 import { DENOMINATIONS, totalOf } from '@/lib/generators/change-maker';
 import { minimumMoves } from '@/lib/generators/tower';
 import { ROWS } from '@/lib/generators/table-reasoning';
-import { FALSE_START, FOREPERIOD, targetsFor } from '@/lib/generators/reaction-time';
+import { encodeBlock, FALSE_START, FOREPERIOD, targetsFor, TRIALS } from '@/lib/generators/reaction-time';
+import { decodeRun, encodeRun, RUN_LENGTH, STOP_COUNT, windowFor } from '@/lib/generators/go-no-go';
+import { arrangements, candidatesAt, clueHolds, planFor as logicPlanFor } from '@/lib/generators/logic-grid';
+import { panelSizeFor } from '@/lib/generators/feature-match';
+import {
+  CHIMP_COLS,
+  CHIMP_ROWS,
+  countFor as chimpCountFor,
+  decodeCells as decodeChimp,
+  encodeCells as encodeChimp,
+  isOneLine,
+  isReadingOrder,
+} from '@/lib/generators/chimp-test';
 import { countFor, encodeCells, EXPOSURE_MS, GRID, isNameable } from '@/lib/generators/pattern-recall';
-import { boxesFor } from '@/lib/generators/paired-associates';
+import { boxesFor, DISTRACTOR_GRID, DISTRACTOR_TAPS } from '@/lib/generators/paired-associates';
 import { figureSignature } from '@/lib/geometry';
 import { handAngles, twelveHour } from '@/lib/clock';
 import { dict } from '@/lib/i18n';
@@ -1916,10 +1936,10 @@ describe('table reasoning is decidable from the table and the question on screen
   });
 });
 
-describe('reaction time is a fair trial', () => {
+describe('reaction time is a fair block', () => {
   const SEEDS = Array.from({ length: 150 }, (_, i) => `RT${i}`);
 
-  it('lights one of the targets the level promises, after an unpredictable wait', () => {
+  it('runs five trials, each lighting one of the promised targets after an unpredictable wait', () => {
     for (const difficulty of DIFFICULTIES) {
       const waits = new Set<number>();
       const lits = new Set<number>();
@@ -1927,15 +1947,20 @@ describe('reaction time is a fair trial', () => {
         const item = generateItem('reaction-time', seed, difficulty);
         if (item.stimulus.kind !== 'reaction') throw new Error('unexpected stimulus');
         const where = `reaction-time ${seed} d${difficulty}`;
-        expect(item.stimulus.targets, where).toBe(targetsFor(difficulty));
-        expect(item.stimulus.lit, where).toBeGreaterThanOrEqual(0);
-        expect(item.stimulus.lit, where).toBeLessThan(item.stimulus.targets);
-        expect(item.answerText, where).toBe(String(item.stimulus.lit + 1));
-        expect(item.stimulus.foreperiodMs, where).toBeGreaterThanOrEqual(FOREPERIOD[0]);
-        expect(item.stimulus.foreperiodMs, where).toBeLessThanOrEqual(FOREPERIOD[1]);
-        expect(item.presentation?.stepMs, where).toBe(item.stimulus.foreperiodMs);
-        waits.add(item.stimulus.foreperiodMs);
-        lits.add(item.stimulus.lit);
+        const { targets, trials } = item.stimulus;
+        expect(targets, where).toBe(targetsFor(difficulty));
+        expect(trials, where).toHaveLength(TRIALS);
+        for (const trial of trials) {
+          expect(trial.lit, where).toBeGreaterThanOrEqual(0);
+          expect(trial.lit, where).toBeLessThan(targets);
+          expect(trial.foreperiodMs, where).toBeGreaterThanOrEqual(FOREPERIOD[0]);
+          expect(trial.foreperiodMs, where).toBeLessThanOrEqual(FOREPERIOD[1]);
+          waits.add(trial.foreperiodMs);
+          lits.add(trial.lit);
+        }
+        expect(item.answerText, where).toBe(encodeBlock(trials.map((x) => x.lit)));
+        expect(item.answerText, where).not.toContain(FALSE_START);
+        expect(item.presentation?.stepMs, where).toBe(trials[0]!.foreperiodMs);
       }
       // Unpredictable: many different waits. And every target lights somewhere.
       expect(waits.size, `d${difficulty} waits`).toBeGreaterThan(20);
@@ -1943,14 +1968,16 @@ describe('reaction time is a fair trial', () => {
     }
   });
 
-  it('names a false start, and scores it wrong', () => {
+  it('names a false start anywhere in the block, and scores the block wrong', () => {
     const item = generateItem('reaction-time', 'RT1', 3);
-    expect(isCorrect(item, null, FALSE_START)).toBe(false);
-    expect(diagnoseReaction(item.answerText!, FALSE_START)).toBe('premature');
-    expect(diagnoseReaction(item.answerText!, item.answerText!)).toBe('correct');
-    const other = item.answerText === '1' ? '2' : '1';
+    const want = item.answerText!;
+    expect(diagnoseReaction(want, want)).toBe('correct');
+    const falseStarted = want.slice(0, 2) + FALSE_START + want.slice(3);
+    expect(isCorrect(item, null, falseStarted)).toBe(false);
+    expect(diagnoseReaction(want, falseStarted)).toBe('premature');
+    const other = (want[0] === '1' ? '2' : '1') + want.slice(1);
     expect(isCorrect(item, null, other)).toBe(false);
-    expect(diagnoseReaction(item.answerText!, other)).toBe('plausible');
+    expect(diagnoseReaction(want, other)).toBe('plausible');
   });
 });
 
@@ -2004,8 +2031,15 @@ describe('paired associates asks for a pairing it showed', () => {
         const item = generateItem('paired-associates', seed, difficulty);
         if (item.stimulus.kind !== 'pairs') throw new Error('unexpected stimulus');
         const where = `paired-associates ${seed} d${difficulty}`;
-        const { symbols, order, probe } = item.stimulus;
+        const { symbols, order, probe, distractor } = item.stimulus;
         expect(symbols, where).toHaveLength(boxesFor(difficulty));
+        // The filled interval: the right number of cells, all on the grid, never the same one twice running.
+        expect(distractor, where).toHaveLength(DISTRACTOR_TAPS);
+        for (const [i, cell] of distractor.entries()) {
+          expect(cell, where).toBeGreaterThanOrEqual(0);
+          expect(cell, where).toBeLessThan(DISTRACTOR_GRID * DISTRACTOR_GRID);
+          if (i > 0) expect(cell, where).not.toBe(distractor[i - 1]);
+        }
         expect(new Set(symbols.map(figureSignature)).size, `${where}: two boxes look alike`).toBe(symbols.length);
         expect([...order].sort((a, b) => a - b), where).toEqual(symbols.map((_, i) => i));
         expect(probe, where).toBeGreaterThanOrEqual(0);

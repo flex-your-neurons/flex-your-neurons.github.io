@@ -245,6 +245,8 @@ const en = {
       sheet: 'sheet',
       punched: 'punched',
       foldStep: (fold: string) => `fold ${fold}`,
+      leftPanel: 'Left panel',
+      rightPanel: 'Right panel',
       step: (n: number) => `Step ${n}`,
       layers: (n: number) => `${n} layers`,
       /** Accessible description of one frame of the folding diagram. */
@@ -420,6 +422,8 @@ const en = {
       carry: 'carry slip',
       transposition: 'order lost',
       premature: 'false start',
+      commission: 'pressed on stop',
+      omission: 'missed a go',
       plausible: 'near miss',
     } as Record<ErrorType, string>,
     bodies: {
@@ -441,6 +445,10 @@ const en = {
         'Right amount, opposite direction. You had the size of the step but applied it the wrong way — adding what should have come off, or the reverse. On a stream that does not repeat, a reversed step costs twice what a missed one does.',
       premature:
         'You responded before the signal. That is anticipation, not reaction — the wait is random precisely so it cannot be timed, and a response that beats the signal was a guess about when it would come. Let the signal arrive; a slightly slower true reaction is a measurement, a fast false start is not.',
+      commission:
+        'You pressed on a crossed signal. That is the failure of inhibition the task is built to catch: after a run of presses the next one is half-launched before the signal is read, and the crossed one arrives too late to stop it. The remedy is not to look harder but to press later — a few tens of milliseconds of delay on every plain signal buys the time to withhold on the crossed one.',
+      omission:
+        'You left a plain signal unpressed. Not a failure of control but a lapse: the run went on and, for one signal, attention did not. On a go/no-go task this is the opposite error to the one it is looking for, and if it recurs it means the pace has been set too cautious — press sooner and let the crossed signals do the stopping.',
       transposition:
         'Every item, in the wrong order. You held what there was to hold and lost the arrangement of it, which is a different failure from forgetting an item — and a more encouraging one, since the hard part of a span task is usually the holding. Order tends to come back with a deliberate rhythm: reproduce the sequence at the pace it was given rather than as fast as you can.',
       plausible:
@@ -523,7 +531,7 @@ const en = {
     byDomain: 'By cognitive domain',
     domainChartLabel: 'Accuracy by cognitive domain',
     domainLede:
-      'Your accuracy on the seven Cattell–Horn–Carroll broad abilities these formats load on. A profile, not a score: there is no norm behind any of these bars, so they compare you with yourself and with nobody else.',
+      'Your accuracy on the seven Cattell–Horn–Carroll broad abilities these formats load on. A profile, not a score: there is no norm behind any of these bars, so they compare you with yourself and with nobody else. Where a domain has only one or two formats behind it, the bar is those formats’ score wearing a domain label.',
     /** Marks a bar with too few attempts to mean anything yet. */
     provisional: (attempts: number) =>
       `${attempts} item${attempts === 1 ? '' : 's'} — too few to read anything into`,
@@ -570,7 +578,7 @@ const en = {
     /** Small multiples: one trend per format. */
     wall: {
       heading: 'Every format, over time',
-      lede: 'One trace per format, oldest attempts on the left. Small charts side by side rather than thirty-two lines on one axis — thirty-two colours on one plot would be unreadable, and these are meant to be scanned for shape, not read for values.',
+      lede: 'One trace per format, oldest attempts on the left. Small charts side by side rather than thirty-six lines on one axis — thirty-six colours on one plot would be unreadable, and these are meant to be scanned for shape, not read for values.',
       never: 'not attempted yet',
     },
     byItemType: 'By item type',
@@ -835,10 +843,38 @@ const en = {
     },
     'reaction-time': {
       name: 'Reaction time',
-      blurb: 'Wait for the signal. Hit the target that lit.',
+      blurb: 'Wait for the signal. Hit the target that lit. Five times.',
       description:
-        'One or more targets, a wait you cannot predict, and then one of them lights: hit it. With a single target this is simple reaction time, the oldest measurement in psychology; with several it becomes choice reaction time, and the extra milliseconds are the cost of deciding which. That is the only thing the levels change — Hick’s law says the decision cost grows with the number of alternatives — so the ladder runs through one construct from a plain reflex to a six-way choice. The wait before the signal is drawn from the seed between one and three seconds, so it cannot be timed, and a response before the signal is a false start and counts as wrong. The board shows your time in milliseconds after every trial: here the latency is the measurement rather than a side-effect of it, and it is the one number on this site with an everyday meaning.',
+        'One or more targets, a wait you cannot predict, and then one of them lights: hit it. With a single target this is simple reaction time, the oldest measurement in psychology; with several it becomes choice reaction time, and the extra milliseconds are the cost of deciding which. That is the only thing the levels change — Hick’s law says the decision cost grows with the number of alternatives — so the ladder runs through one construct from a plain reflex to a six-way choice. The wait before the signal is drawn from the seed between one and three seconds, so it cannot be timed, and a response before the signal is a false start and counts as wrong. An item is a block of five trials and the time recorded is the block’s median, because a single trial is noise: here the latency is the measurement rather than a side-effect of it, and it is the one number on this site with an everyday meaning.',
       seenIn: 'Donders (1868), Hick (1952), the Human Benchmark reaction test, CANTAB Reaction Time, Deary–Liewald task',
+    },
+    'feature-match': {
+      name: 'Feature match',
+      blurb: 'Two panels of symbols. Are they identical?',
+      description:
+        'Two panels, each holding the same number of abstract symbols in the same positions. Either every symbol matches the one opposite it, or exactly one differs — and when one differs it differs in a single feature: shape, or shading, or orientation, never more. Say whether the panels are the same. This is the clerical-checking task that the old aptitude batteries called number or name comparison and that Cambridge Brain Sciences calls Feature Match; it is filed under processing speed because nothing has to be worked out. The answer is visible, and the measurement is how quickly a visible answer can be found by checking pair after pair. The panels keep the same layout so that no searching is added to the comparing, and the level changes only how many pairs there are to check.',
+      seenIn: 'Cambridge Brain Sciences Feature Match, Minnesota Clerical Test, DAT Clerical Speed and Accuracy, WAIS Cancellation (cousin)',
+    },
+    'logic-grid': {
+      name: 'Logic grid',
+      blurb: 'Shapes in a row of places, a few clues. What is in the place marked?',
+      description:
+        'A row of numbered places, as many shapes as places, and a handful of clues: this one is somewhere to the left of that one, this one is not in place 2, these two are side by side. One place carries a question mark, and the answer is the shape that must be there. It is the constraint puzzle behind every “zebra” or logic-grid problem, with the houses and nationalities taken away — they are vocabulary, and vocabulary is what this site does not generate. Every arrangement is checked against the clues, so the marked place has exactly one possible occupant; every clue is needed, because the set is pruned until dropping any one would leave two shapes possible; and no clue ever says outright what the marked place holds. The level withdraws the easy kinds of clue first — placements, then eliminations — and then adds a fifth shape: how much has to be inferred rather than read. Four options are shown at every level.',
+      seenIn: 'Zebra / Einstein puzzles, Wason & Johnson-Laird relational inference, LSAT analytical reasoning (in verbal form), Lumosity Word Bubbles (no), Brain Age 2 (no)',
+    },
+    'chimp-test': {
+      name: 'Chimp test',
+      blurb: 'Numbers scattered on a grid. Tap the 1, the rest go blank — tap them in order.',
+      description:
+        'Several numerals sit scattered on a grid. Look as long as you like. Tap the 1, and every numeral is masked; now tap where the 2 was, then the 3, and so on. The task is from Inoue and Matsuzawa’s 2007 study, in which the chimpanzee Ayumu did this with more numerals and faster than the adult humans tested against him — Human Benchmark made it a household name. What is held is not the numbers, which are always one to N, but where each of them was: a whole layout encoded at once with an order printed on it, which is the combination the site’s other spatial spans do not cover. Block span shows places one at a time, pattern recall shows a set with no order. The level changes only how many numerals there are; the grid is the same size throughout, and a layout whose numerals happen to run in reading order is redrawn, because that would be a rule to hold rather than a set of places.',
+      seenIn: 'Inoue & Matsuzawa (2007), Human Benchmark Chimp Test, Lumosity Memory Matrix (variant)',
+    },
+    'go-no-go': {
+      name: 'Go / no-go',
+      blurb: 'Press on the plain signal. Hold back on the crossed one.',
+      description:
+        'One target, eight signals in a row. Six are plain: press. Two are crossed: do not. Donders set this task alongside simple and choice reaction in 1868 — his c-reaction, several signals but a response to only one kind — and it isolates the cost of deciding whether to respond from the cost of deciding which. A century and a half later it is the standard measure of response inhibition: after a run of presses the next one is half-launched before the signal is read, and the crossed signal has to stop it. A crossed signal is never first and never follows another, so each has a habit to interrupt. The level changes one thing, how long a signal stays up — a shorter window forces faster presses, and a faster press is harder to withhold. A press on a crossed signal and a plain one left unpressed are scored as different mistakes, because they are.',
+      seenIn: 'Donders (1868), the go/no-go task, the Sustained Attention to Response Task (Robertson et al., 1997), CANTAB Stop Signal, Lumosity Train of Thought',
     },
     'pattern-recall': {
       name: 'Pattern recall',
@@ -851,7 +887,7 @@ const en = {
       name: 'Paired associates',
       blurb: 'Boxes open one by one to show a symbol. Which box held this one?',
       description:
-        'A row of closed boxes. They open one at a time, each showing a symbol, and close again; then one symbol is shown on its own and you tap the box it was in. This is associative learning — the ability to bind two things that had no reason to go together, which is what learning a name to a face or a word to its translation comes down to — and it is the first format here filed under long-term storage and retrieval. It can be generated where vocabulary cannot because the pairings are arbitrary by construction: the symbols are abstract, the boxes are boxes, and nothing but the learning helps. The probe is a symbol rather than a position, so you retrieve a place from a thing, which is the associative direction. Honest limit: the interval between learning and probe is seconds, and a delayed probe minutes later — the fuller measurement — is not built.',
+        'A row of closed boxes. They open one at a time, each showing a symbol, and close again; then one symbol is shown on its own and you tap the box it was in. This is associative learning — the ability to bind two things that had no reason to go together, which is what learning a name to a face or a word to its translation comes down to — and it is the first format here filed under long-term storage and retrieval. It can be generated where vocabulary cannot because the pairings are arbitrary by construction: the symbols are abstract, the boxes are boxes, and nothing but the learning helps. The probe is a symbol rather than a position, so you retrieve a place from a thing, which is the associative direction. Between the last box and the probe is a filled interval of about seven seconds — a grid lights cells to be tapped — which blocks rehearsal, so the answer has to come from what was stored rather than from what was still being repeated. Honest limit: a probe minutes later, the fuller measurement, is beyond a single item.',
       seenIn: 'CANTAB Paired Associates Learning, Cambridge Brain Sciences Paired Associates, WMS Verbal Paired Associates (in verbal form), Woodcock–Johnson Visual–Auditory Learning',
     },
     'calendar-count': {
@@ -1263,28 +1299,119 @@ const en = {
         'The base is always the earlier figure. Taking the change against the later one gives a different percentage, and that is the distractor built for it.',
     },
     reactionTime: {
-      promptSimple: 'When the target lights, hit it.',
-      promptChoice: (targets: number) => `One of the ${targets} targets will light. Hit that one.`,
-      summarySimple: 'The target lit, and the time from that moment to your response is what was measured.',
-      summaryChoice: (position: number) => `Target ${position} lit.`,
+      promptSimple: (trials: number) => `${trials} times over: when the target lights, hit it.`,
+      promptChoice: (targets: number, trials: number) =>
+        `${trials} times over: one of the ${targets} targets will light. Hit that one.`,
+      summarySimple: (trials: number) =>
+        `The target lit ${trials} times, and the median of your times from signal to press is what was recorded.`,
+      summaryChoice: (positions: number[]) => `The targets that lit, in order: ${positions.join(', ')}.`,
       ruleWait:
-        'The wait before the signal is random, between one and three seconds, so it cannot be timed. Attend, and let it come.',
+        'The wait before each signal is random, between one and three seconds, so it cannot be timed. Attend, and let it come.',
       ruleFalseStart:
-        'A response before the signal is a false start and is scored wrong. It was not a reaction to anything.',
+        'A response before the signal is a false start and fails the block. It was not a reaction to anything.',
+      ruleBlock: (trials: number) =>
+        `An item is ${trials} trials, because one reaction time is noise: the spread of a single person’s trials is a good fraction of their mean, so the lab reports the median of a block and never a single trial. The median is the time recorded for the item.`,
       ruleSimple:
-        'One target is simple reaction time: detect and respond, with nothing to decide. Typical adult values are a little over two hundred milliseconds; the number here includes the display and the pointer, so compare it with your own earlier trials rather than with a textbook.',
+        'One target is simple reaction time: detect and respond, with nothing to decide. Typical adult medians are a little over two hundred milliseconds; the number here includes the display and the pointer, so compare it with your own earlier blocks rather than with a textbook.',
       ruleHick: (targets: number) =>
         `${targets} targets is choice reaction time: detect, identify which, then respond. Hick’s law says the extra cost grows with the logarithm of the number of alternatives, which is why this level is slower than the last by a roughly constant step.`,
       /** Live board copy. */
-      ready: (targets: number) =>
-        targets === 1 ? 'The target will light after a short, random wait.' : `One of ${targets} targets will light after a short, random wait.`,
+      ready: (targets: number, trials: number) =>
+        targets === 1
+          ? `The target will light ${trials} times, each after a short, random wait.`
+          : `One of ${targets} targets will light, ${trials} times, each after a short, random wait.`,
       start: 'Ready',
-      waiting: 'Wait…',
+      trial: (n: number, total: number) => `Trial ${n} of ${total}`,
       go: 'Now!',
       targetLabel: (position: number) => `Target ${position}`,
-      falseStart: 'Too early — that was before the signal.',
-      result: (ms: number) => `${ms} ms`,
-      wrongTarget: 'That was not the target that lit.',
+      recordLabel: 'The block, trial by trial',
+      markLabel: (n: number, lit: number, pressed: number | null) =>
+        pressed === null
+          ? `Trial ${n}: target ${lit} lit, pressed before the signal`
+          : pressed === lit
+            ? `Trial ${n}: target ${lit} lit and was hit`
+            : `Trial ${n}: target ${lit} lit, target ${pressed} pressed`,
+      falseStarts: (n: number) => (n === 1 ? 'One false start — before the signal.' : `${n} false starts.`),
+      wrongTargets: (n: number) => (n === 1 ? 'One press on a target that had not lit.' : `${n} presses on targets that had not lit.`),
+      result: (ms: number, trials: number) => `${ms} ms median over ${trials}`,
+    },
+    featureMatch: {
+      prompt: 'Are the two panels identical?',
+      same: 'Same',
+      different: 'Different',
+      summarySame: 'Same — every symbol matches the one opposite it.',
+      summaryDifferent: (position: number) => `Different — the symbols in position ${position} do not match.`,
+      ruleOne:
+        'When the panels differ, exactly one pair differs, and in exactly one feature: shape, shading or orientation. A gross difference could be seen without comparing; a single-feature difference has to be found by checking each pair, which is the whole task.',
+      ruleLayout:
+        'The two panels always hold their symbols in the same positions, so each symbol’s partner is directly opposite. Comparing is the task; finding the partner is not.',
+      ruleSpeed:
+        'This type is scored on speed: your median response time matters more than your accuracy, which should stay near ceiling.',
+    },
+    logicGrid: {
+      prompt: (place: number) => `Which shape is in place ${place}?`,
+      summary: (place: number, shape: string) => `Place ${place} holds the ${shape}.`,
+      clueIs: (shape: string, place: number) => `The ${shape} is in place ${place}.`,
+      clueNot: (shape: string, place: number) => `The ${shape} is not in place ${place}.`,
+      clueLeftOf: (a: string, b: string) => `The ${a} is somewhere to the left of the ${b}.`,
+      clueAdjacent: (a: string, b: string) => `The ${a} and the ${b} are side by side.`,
+      clueNextLeft: (a: string, b: string) => `The ${a} is immediately to the left of the ${b}.`,
+      ruleUnique: (clues: number) =>
+        `Every arrangement of the shapes was tried against the ${clues} clues, and all the arrangements that survive put the same shape in the marked place. The rest of the row need not be settled: the question was about one place.`,
+      ruleMinimal:
+        'Every clue is needed. Drop any one of them and two shapes become possible in the marked place — so there is no shortcut through a subset, and the number of clues is an honest count of how much has to be combined.',
+      ruleMethod:
+        'Work from the clue that says most. “Somewhere to the left” rules a shape out of the last place and another out of the first; “side by side” pairs two shapes into neighbouring places; each elimination narrows the next. Marking what each place can still hold, as a small grid, is the method the puzzle is named after.',
+      placesLabel: 'The places, left to right',
+      placeLabel: (n: number, asked: boolean) => (asked ? `Place ${n}, the one asked about` : `Place ${n}`),
+      shapesLabel: 'The shapes to be placed',
+    },
+    chimpTest: {
+      prompt: (count: number) => `${count} numbers are on the grid. Tap the 1; the rest go blank. Then tap them in order.`,
+      summary: (count: number) => `The ${count} numerals were where the board now shows them.`,
+      ruleMask:
+        'Every numeral goes at the first tap, including the one you tapped. There is no time limit before that: look as long as you need, and the measurement is what survives the moment the numbers vanish.',
+      ruleOrder: 'Tap the places in ascending order, one to the last. A place never holds two numerals.',
+      ruleExact:
+        'Every tap has to land on the right cell. One wrong cell fails the item, since what is being measured is whether the layout survived, and a partly-remembered one did not.',
+      ruleAyumu:
+        'Inoue and Matsuzawa’s chimpanzee Ayumu did this with nine numerals, from an exposure of a fraction of a second, and beat every adult human in the study. Human ceilings here are usually five to eight. That is not a failing: it is a difference in what the two species’ memory is for.',
+      /** Live board copy. */
+      study: 'Take in where each number is. Tap the 1 when you are ready.',
+      progress: (done: number, total: number) => `${done} of ${total} tapped`,
+      reveal: 'The numerals are back; a red number marks where a tap went wrong.',
+      cellLabel: (position: number) => `Cell ${position}`,
+      cellNumbered: (numeral: number | undefined) => `Number ${numeral}`,
+      cellReveal: (position: number, numeral: number | undefined, tapped: number | undefined) =>
+        numeral === undefined
+          ? tapped === undefined
+            ? `Cell ${position}, empty`
+            : `Cell ${position}, empty, tapped ${tapped}th`
+          : tapped === undefined
+            ? `Cell ${position} held ${numeral}, not tapped`
+            : `Cell ${position} held ${numeral}, tapped ${tapped}th`,
+    },
+    goNoGo: {
+      prompt: (count: number) => `${count} signals, one after another. Press on the plain ones. Do not press on the crossed ones.`,
+      summary: (stops: number[]) => `Signals ${stops.join(' and ')} were crossed; the other six were plain.`,
+      ruleGo: 'A plain signal is the disc going solid. Press it while it is up, or in the blank just after — a press later than that is a miss.',
+      ruleStop:
+        'A crossed signal is the disc with an X through it. Do nothing, and keep doing nothing through the blank after it. The X is drawn as boldly as the fill, so there is no extra time in noticing it.',
+      ruleWindow: (ms: number) =>
+        `Each signal stays up for ${ms} milliseconds. That is the only thing the level changes: a shorter window forces faster presses, and a faster press is harder to withhold, which is the mechanism the task measures.`,
+      ruleDonders:
+        'Donders’ c-reaction: several signals, a response to only one kind. Simple reaction time is detect-and-respond; choice reaction adds which; this adds whether. The time it takes over simple reaction is the cost of that decision, and a press on a crossed signal is the decision arriving too late.',
+      /** Live board copy. */
+      ready: 'Eight signals will follow, one at a time. Press on the plain ones only.',
+      start: 'Ready',
+      running: (n: number, total: number) => `${n} of ${total}`,
+      targetLabel: 'The target',
+      recordLabel: 'What was pressed, signal by signal',
+      markLabel: (n: number, go: boolean, pressed: boolean) =>
+        `Signal ${n}: ${go ? 'plain' : 'crossed'}, ${pressed ? 'pressed' : 'not pressed'}`,
+      result: (ms: number) => `${ms} ms on average`,
+      commission: (n: number) => (n === 1 ? 'Pressed on a crossed signal.' : `Pressed on ${n} crossed signals.`),
+      omission: (n: number) => (n === 1 ? 'Missed a plain signal.' : `Missed ${n} plain signals.`),
     },
     patternRecall: {
       prompt: (count: number) => `Tap the ${count} cells that lit.`,
@@ -1320,11 +1447,14 @@ const en = {
       ruleArbitrary:
         'The pairings are arbitrary on purpose. Nothing about a symbol says which box it belongs in, so nothing but the learning can help — which is what makes it a fair test of learning.',
       ruleInterval:
-        'The probe comes seconds after the last box closes. The fuller measurement — the same question minutes later — is not built here, and the format says so rather than claiming it.',
+        'Between the last box and the question there is a filled interval: a small grid lights cells one at a time and you tap each as it lights. That is there to stop rehearsal. A question asked at once can be answered from working memory, and a question after an empty pause can be answered by repeating the pairings through it; a question after a filled pause can only be answered from what was stored. The taps are not scored. A question minutes later would be fuller still, and is beyond one item.',
       /** Live board copy. */
       ready: (boxes: number) => `${boxes} boxes will open one at a time. Remember what each one holds.`,
       start: 'Open the boxes',
       watching: 'Watch…',
+      delay: 'Tap each cell as it lights.',
+      distractorLabel: 'The filled interval',
+      cellLabel: (position: number) => `Cell ${position}`,
       probe: 'Which box held this?',
       boxLabel: (position: number) => `Box ${position}`,
       revealRight: 'That was the box.',
@@ -1617,7 +1747,7 @@ const en = {
         },
       ],
       notMeasuredClose:
-        'That applies recursively to this site. High accuracy on these thirty-two formats is evidence about these thirty-two formats, and about nothing else.',
+        'That applies recursively to this site. High accuracy on these thirty-six formats is evidence about these thirty-six formats, and about nothing else.',
 
       difficultyP3:
         'What that does not amount to is calibration. The bands are *designed* from published cognitive operators — a defensible ordering — but no item here carries a difficulty parameter fitted to real response data, which is what item-response theory means by difficulty. So the adaptive ladder is a staircase that keeps you near your own success rate, not an estimate of your ability.',

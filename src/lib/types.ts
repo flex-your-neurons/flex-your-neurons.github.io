@@ -12,6 +12,8 @@ export type Difficulty = 1 | 2 | 3 | 4 | 5;
 
 export const DIFFICULTIES: readonly Difficulty[] = [1, 2, 3, 4, 5];
 
+import type { LogicClue } from './generators/logic-grid';
+
 export type ItemTypeId =
   | 'matrix'
   | 'series-number'
@@ -44,7 +46,11 @@ export type ItemTypeId =
   | 'table-reasoning'
   | 'reaction-time'
   | 'pattern-recall'
-  | 'paired-associates';
+  | 'paired-associates'
+  | 'go-no-go'
+  | 'chimp-test'
+  | 'logic-grid'
+  | 'feature-match';
 
 /**
  * CHC broad ability. See docs/IQ-TESTS.md §2.
@@ -144,6 +150,8 @@ export type Stimulus =
   | { kind: 'span'; sequence: string[]; direction: 'forward' | 'backward' }
   /** Timed target detection: is any target present in the search set? */
   | { kind: 'symbol-search'; targets: Figure[]; search: Figure[] }
+  /** Two panels in the same layout; `changed` is the index that differs, or -1 when the panels are identical. */
+  | { kind: 'feature-match'; left: Figure[]; right: Figure[]; changed: number }
   /**
    * A digit↔symbol key, and the digit to look up in it. The key is shown in its own
    * order, which is what makes "read one column off" a mistake the format can diagnose.
@@ -250,7 +258,17 @@ export type Stimulus =
    * it does. The wait is part of the item — it is drawn from the seed, so a trial replays exactly —
    * and it is also the item's `presentation`, which is what gates the response behind it.
    */
-  | { kind: 'reaction'; targets: number; lit: number; foreperiodMs: number }
+  /** A reaction block: `trials[i]` is the target that lights and the wait before it, for each trial in turn. */
+  | { kind: 'reaction'; targets: number; trials: { lit: number; foreperiodMs: number }[] }
+  /** A go/no-go run: `signals[i]` is true for a plain (press) signal, false for a crossed (withhold) one. */
+  | { kind: 'gonogo'; signals: boolean[]; windowMs: number }
+  /**
+   * A logic grid: `places` numbered slots in a row, `shapes[i]` the figure of shape `i`, `clues` the
+   * constraints (language-neutral records; the views word them), `asked` the place in question.
+   */
+  | { kind: 'logic'; shapes: Figure[]; places: number; clues: LogicClue[]; asked: number }
+  /** A chimp-test board: `cells[i]` is the grid index (row-major) holding numeral `i + 1`. */
+  | { kind: 'chimp'; cols: number; rows: number; cells: number[] }
   /**
    * A pattern on a square grid, flashed whole and then tapped back. `cells` is row-major indices,
    * sorted: the reader reproduces a set, not a sequence, so there is no order to carry.
@@ -260,7 +278,14 @@ export type Stimulus =
    * Boxes in a row, each holding one symbol. `symbols[i]` is what box `i` holds; `order` is the
    * order the boxes open in during learning; `probe` is the box whose symbol is then asked for.
    */
-  | { kind: 'pairs'; symbols: Figure[]; order: number[]; probe: number };
+  | {
+      kind: 'pairs';
+      symbols: Figure[];
+      order: number[];
+      probe: number;
+      /** Cells of a 3×3 grid lit one at a time during the filled retention interval. */
+      distractor: number[];
+    };
 
 /** One analogue clock face. `hour` is 1–12 and `minute` is 0–59; `rotation` is degrees clockwise. */
 export interface ClockFace {
@@ -345,6 +370,14 @@ export type ErrorType =
    * starts is not reacting badly, they are anticipating, which calls for the opposite remedy.
    */
   | 'premature'
+  /*
+   * A response that should have been withheld — the press on a no-go signal. The failure of
+   * inhibition itself, and the number a go/no-go task exists to produce. Its counterpart is
+   * `omission`: a go signal left unpressed, which is a lapse of attention rather than of control.
+   * The two are named apart because they call for opposite corrections.
+   */
+  | 'commission'
+  | 'omission'
   | 'plausible'; // a generic near-miss with no single diagnosis
 
 export interface Explanation {

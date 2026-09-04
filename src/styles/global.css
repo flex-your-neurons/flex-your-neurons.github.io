@@ -4540,3 +4540,399 @@ table.data th.num {
   gap: 0.3rem;
   height: 100%;
 }
+
+/* ---- Go / no-go ------------------------------------------------------------------------------ */
+
+.gonogo {
+  display: grid;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.gonogo-stage {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem 0.5rem;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-sunken);
+}
+
+/*
+ * One target. The disc is drawn hollow and blank between signals; a plain signal fills it, a crossed
+ * one draws the X. No transition, so the moment a signal appears is the moment it is on screen.
+ */
+.gonogo-target {
+  inline-size: clamp(6rem, 30vw, 9rem);
+  block-size: clamp(6rem, 30vw, 9rem);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+  transition: none;
+}
+
+.gonogo-target:disabled {
+  cursor: default;
+}
+
+.gonogo-target svg {
+  inline-size: 100%;
+  block-size: 100%;
+  display: block;
+}
+
+.gonogo-disc {
+  fill: var(--bg-raised);
+  stroke: var(--border-strong, var(--border));
+  stroke-width: 4;
+}
+
+.gonogo-cross {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 10;
+  stroke-linecap: round;
+  visibility: hidden;
+}
+
+.gonogo-target[data-gonogo-showing='go'] .gonogo-disc {
+  fill: var(--accent);
+  stroke: var(--accent);
+}
+
+.gonogo-target[data-gonogo-showing='stop'] .gonogo-disc {
+  stroke: currentColor;
+  stroke-width: 6;
+}
+
+.gonogo-target[data-gonogo-showing='stop'] .gonogo-cross {
+  visibility: visible;
+}
+
+/* The record afterwards: one mark per signal, plain or crossed, filled where it was pressed. */
+.gonogo-record {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gonogo-mark {
+  position: relative;
+  inline-size: 1.6rem;
+  block-size: 1.6rem;
+  border: 2px solid var(--border-strong, var(--border));
+  border-radius: 50%;
+  background: var(--bg-raised);
+}
+
+.gonogo-mark[data-pressed] {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.gonogo-mark[data-stop]::before,
+.gonogo-mark[data-stop]::after {
+  content: '';
+  position: absolute;
+  inset: 45% 20%;
+  background: currentColor;
+  transform: rotate(45deg);
+}
+
+.gonogo-mark[data-stop]::after {
+  transform: rotate(-45deg);
+}
+
+.gonogo-mark[data-wrong] {
+  border-style: dashed;
+  border-color: var(--wrong);
+  outline: 2px solid var(--wrong);
+  outline-offset: 2px;
+}
+
+.thumb-gonogo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  height: 100%;
+}
+
+.thumb-gonogo-signal {
+  position: relative;
+  inline-size: 0.9rem;
+  block-size: 0.9rem;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.thumb-gonogo-signal[data-stop] {
+  background: transparent;
+}
+
+.thumb-gonogo-signal[data-stop]::before,
+.thumb-gonogo-signal[data-stop]::after {
+  content: '';
+  position: absolute;
+  inset: 40% 15%;
+  background: currentColor;
+  transform: rotate(45deg);
+}
+
+.thumb-gonogo-signal[data-stop]::after {
+  transform: rotate(-45deg);
+}
+
+/* ---- Chimp test ------------------------------------------------------------------------------ */
+
+.chimp {
+  display: grid;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.chimp-grid {
+  display: grid;
+  gap: clamp(0.3rem, 1.5vw, 0.6rem);
+  width: min(100%, 24rem);
+  margin: 0 auto;
+  padding: clamp(0.5rem, 2vw, 0.9rem);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-sunken);
+}
+
+/*
+ * A cell is a square. Numbered while studying; every cell looks the same once masked, tapped or not,
+ * so the board gives nothing back until the item is over.
+ */
+.chimp-cell {
+  position: relative;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm, 0.4rem);
+  background: var(--bg-sunken);
+  color: var(--text);
+  font: 700 clamp(1.1rem, 4.5vw, 1.6rem) / 1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: none;
+}
+
+.chimp-cell:disabled {
+  cursor: default;
+}
+
+.chimp-cell[data-chimp-numbered],
+.chimp-cell[data-chimp-answer] {
+  background: var(--bg-raised);
+  border-color: var(--border-strong, var(--border));
+}
+
+.chimp-cell[data-chimp-masked] {
+  background: var(--bg-raised);
+  border-color: var(--border-strong, var(--border));
+}
+
+.chimp-cell[data-chimp-answer][data-chimp-tapped]:not([data-chimp-wrong]) {
+  border-color: var(--correct);
+  box-shadow: inset 0 0 0 2px var(--correct);
+}
+
+.chimp-cell[data-chimp-wrong] {
+  border-color: var(--wrong);
+  border-style: dashed;
+}
+
+.chimp-tapped {
+  position: absolute;
+  right: 0.15rem;
+  bottom: 0.1rem;
+  font: 600 0.7rem / 1 var(--font-mono);
+  color: var(--wrong);
+}
+
+.thumb-chimp {
+  display: grid;
+  gap: 0.15rem;
+  width: 100%;
+  height: 100%;
+  align-content: center;
+}
+
+.thumb-chimp-cell {
+  aspect-ratio: 1;
+  border: 1.5px solid currentColor;
+  border-radius: 0.15rem;
+  opacity: 0.35;
+  font: 700 0.55rem / 1 var(--font-mono);
+  display: grid;
+  place-items: center;
+}
+
+.thumb-chimp-cell[data-numbered] {
+  opacity: 1;
+}
+
+/* The reaction block's record: one mark per trial, a tick for a hit, the pressed target or a bang otherwise. */
+.reaction-record {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reaction-mark {
+  display: grid;
+  place-items: center;
+  inline-size: 1.75rem;
+  block-size: 1.75rem;
+  border: 2px dashed var(--wrong);
+  border-radius: 50%;
+  color: var(--wrong);
+  font: 700 0.85rem / 1 var(--font-mono);
+}
+
+.reaction-mark[data-ok] {
+  border-style: solid;
+  border-color: var(--correct);
+  color: var(--correct);
+}
+
+/* The paired-associates filled interval: a small grid, one cell lit at a time, tapped to acknowledge. */
+.pairs-distractor {
+  display: grid;
+  gap: 0.4rem;
+  width: min(100%, 12rem);
+  margin: 0 auto;
+}
+
+.pairs-distractor-cell {
+  aspect-ratio: 1;
+  padding: 0;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm, 0.4rem);
+  background: var(--bg-raised);
+  cursor: pointer;
+  transition: none;
+}
+
+.pairs-distractor-cell[data-lit] {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.pairs-distractor-cell[data-hit] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+/* ---- Logic grid ------------------------------------------------------------------------------ */
+
+.logic {
+  display: grid;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 34rem;
+  margin: 0 auto;
+}
+
+.logic-places {
+  display: flex;
+  justify-content: center;
+  gap: clamp(0.4rem, 2vw, 0.75rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.logic-place {
+  position: relative;
+  display: grid;
+  place-items: center;
+  inline-size: clamp(2.6rem, 11vw, 3.6rem);
+  block-size: clamp(2.6rem, 11vw, 3.6rem);
+  border: 2px dashed var(--border-strong, var(--border));
+  border-radius: var(--radius-sm, 0.4rem);
+  background: var(--bg-sunken);
+  color: var(--text-subtle);
+  font: 600 var(--step-0) / 1 var(--font-mono);
+}
+
+.logic-place[data-asked] {
+  border-style: solid;
+  border-color: var(--accent);
+  background: var(--bg-raised);
+}
+
+.logic-place-number {
+  position: absolute;
+  top: 0.15rem;
+  left: 0.3rem;
+  font-size: 0.7rem;
+}
+
+.logic-place-mark {
+  font: 700 var(--step-2) / 1 var(--font-sans);
+  color: var(--accent);
+}
+
+.logic-shapes {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.logic-shapes > * {
+  inline-size: clamp(2rem, 8vw, 2.6rem);
+  block-size: clamp(2rem, 8vw, 2.6rem);
+}
+
+.thumb-logic {
+  display: grid;
+  gap: 0.3rem;
+  align-content: center;
+  height: 100%;
+}
+
+.thumb-logic-places {
+  display: flex;
+  justify-content: center;
+  gap: 0.2rem;
+}
+
+.thumb-logic-place {
+  inline-size: 0.9rem;
+  block-size: 0.9rem;
+  border: 1.5px dashed currentColor;
+  border-radius: 0.15rem;
+  opacity: 0.5;
+  display: grid;
+  place-items: center;
+  font: 700 0.6rem / 1 var(--font-sans);
+}
+
+.thumb-logic-place[data-asked] {
+  border-style: solid;
+  opacity: 1;
+}
+
+.thumb-logic-shapes {
+  display: flex;
+  justify-content: center;
+  gap: 0.2rem;
+}
+
+.thumb-logic-shapes > * {
+  inline-size: 0.8rem;
+  block-size: 0.8rem;
+}

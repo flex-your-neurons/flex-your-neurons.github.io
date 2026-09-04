@@ -20,8 +20,18 @@
  * reproduced, and this is a set of arbitrary pairings to be queried. The probe is a symbol, not a
  * position, so the reader has to retrieve a location *from* a symbol — the associative direction —
  * rather than replay a sequence. That is the operation Glr names, and it is the operation the
- * Wechsler and Woodcock–Johnson associative subtests score. What this site does not build is a
- * delayed probe minutes later, which would be the fuller measurement; the description says so.
+ * Wechsler and Woodcock–Johnson associative subtests score.
+ *
+ * ## The filled interval
+ *
+ * Between the last box closing and the probe there is a retention interval of about seven seconds
+ * that is *filled*: a small grid lights cells one at a time and the reader taps each as it lights.
+ * This is the Brown–Peterson arrangement, and its point is to block rehearsal. An immediate probe
+ * can be answered from working memory — the last box is still in the loop — and a probe after an
+ * empty interval can be answered by rehearsing through it; a probe after a filled interval can only
+ * be answered from what was actually stored. The taps on the grid are not scored: they exist to
+ * occupy attention, not to measure it. A delayed probe minutes later would be the fuller measurement
+ * still, and is out of reach of a single item; the description says so.
  *
  * ## Why difficulty is the number of boxes
  *
@@ -52,6 +62,21 @@ export function boxesFor(difficulty: Difficulty): number {
 /** How long each box stays open, and the pause between boxes. */
 export const STEP_MS = 1300;
 export const GAP_MS = 300;
+
+/** The filled interval: a 3×3 grid lights this many cells, one at a time, this long each. */
+export const DISTRACTOR_GRID = 3;
+export const DISTRACTOR_TAPS = 6;
+export const DISTRACTOR_STEP_MS = 1200;
+
+/** The cells to light during the interval — never the same cell twice running. */
+export function drawDistractor(rng: ReturnType<typeof createRng>): number[] {
+  const cells: number[] = [];
+  while (cells.length < DISTRACTOR_TAPS) {
+    const cell = rng.int(0, DISTRACTOR_GRID * DISTRACTOR_GRID - 1);
+    if (cell !== cells[cells.length - 1]) cells.push(cell);
+  }
+  return cells;
+}
 
 /** The tapped-box encoding: the box's 1-based position. */
 export function encodeBox(index: number): string {
@@ -87,13 +112,15 @@ function generate(seed: string, difficulty: Difficulty, locale: Locale): Item {
   // The boxes open in a shuffled order, so the order of opening says nothing about position.
   const order = rng.shuffle(symbols.map((_, i) => i));
   const probe = rng.int(0, boxes - 1);
+  // Drawn last, so the pairings and the probe are the same as they were before the interval existed.
+  const distractor = drawDistractor(rng);
 
   return {
     type: 'paired-associates',
     seed,
     difficulty,
     prompt: t.prompt(boxes),
-    stimulus: { kind: 'pairs', symbols, order, probe },
+    stimulus: { kind: 'pairs', symbols, order, probe, distractor },
     responseMode: 'tap',
     options: [],
     answerIndex: -1,
@@ -101,9 +128,9 @@ function generate(seed: string, difficulty: Difficulty, locale: Locale): Item {
     errorTypes: [],
     explanation: {
       summary: t.summary(probe + 1),
-      rules: [t.ruleEachOnce, t.ruleProbe, t.ruleArbitrary, t.ruleInterval],
+      rules: [t.ruleEachOnce, t.ruleInterval, t.ruleProbe, t.ruleArbitrary],
     },
-    suggestedSeconds: 8 + boxes * 2,
+    suggestedSeconds: 16 + boxes * 2,
     presentation: { stepMs: STEP_MS, gapMs: GAP_MS },
   };
 }
