@@ -139,6 +139,13 @@ Sprint results are kept strictly apart from the practice and test statistics. A 
 measure how fast you *chose* to go and its accuracy is pushed down by the clock, so pooling the two
 would have moved every per-format median the first time anyone sprinted without saying so.
 
+### The numbers that are spans
+
+The working-memory formats' ladders are all spans, so the progress page reads each one's highest
+level held back into its own unit: digits forward or backward, blocks, squares, how far back, terms,
+comings and goings. It is a ceiling reached once, not the two-failures-and-stop span procedure, and
+the page says so.
+
 ### The one measurement that is a difference
 
 Every other figure this site reports is a tally — how many right, how fast, how often. The

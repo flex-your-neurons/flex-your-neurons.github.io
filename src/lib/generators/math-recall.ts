@@ -49,7 +49,7 @@ interface Plan {
  * is to encode it. The magnitudes grow too, but only as far as two digits — three-digit addition is
  * a different task, and it would be arithmetic difficulty wearing a memory format's clothes.
  */
-function planFor(difficulty: Difficulty): Plan {
+export function planFor(difficulty: Difficulty): Plan {
   switch (difficulty) {
     case 1:
       return { terms: 2, range: [3, 19], stepMs: 1400 };

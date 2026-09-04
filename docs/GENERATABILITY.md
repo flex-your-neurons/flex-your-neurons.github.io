@@ -332,6 +332,11 @@ Thirty-two generators across seven CHC domains:
 > The cube count rises with the level too, so the slope is turns-plus-complexity, and the copy says
 > so rather than pretending otherwise.
 >
+> The six Gwm ladders are spans, and the progress page now says so in each format's unit — the
+> **span profile** (`src/lib/spans.ts`) maps peak level back through each generator's own `planFor`,
+> so "level 4" on `span` reads as six digits backward. A ceiling reached once rather than an
+> estimated span; the copy is explicit that the ladder is not a span procedure.
+>
 > At forty formats the full test is a long sitting, so a **short test** now sits beside it: seven
 > items, one per domain, the format standing for each drawn from the session seed (`onePerDomain`).
 > It keeps the property the full test was derived-length to guarantee — every domain reached — and

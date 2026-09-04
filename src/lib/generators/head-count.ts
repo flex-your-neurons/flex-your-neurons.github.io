@@ -76,7 +76,7 @@ const MAX_PER_EVENT = 3;
 /** Smallest final total an item may end on. See the check in `buildScript`. */
 const MIN_ANSWER = 4;
 
-function planFor(difficulty: Difficulty): Plan {
+export function planFor(difficulty: Difficulty): Plan {
   const base = { maxPerEvent: MAX_PER_EVENT, capacity: CAPACITY };
   switch (difficulty) {
     case 1:

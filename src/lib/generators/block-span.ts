@@ -105,7 +105,7 @@ interface Plan {
  * runs about a block shorter than digit span in every published comparison — starting both at the
  * same length would make this format's level 1 harder than the other's.
  */
-function planFor(difficulty: Difficulty): Plan {
+export function planFor(difficulty: Difficulty): Plan {
   switch (difficulty) {
     case 1:
       return { length: 3 };

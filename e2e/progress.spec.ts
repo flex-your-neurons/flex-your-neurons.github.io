@@ -59,6 +59,23 @@ async function seedHistory(
   await expect(page.getByTestId('dashboard')).toHaveAttribute('data-has-data', 'true');
 }
 
+test.describe('the span profile', () => {
+  test('reads each working-memory peak level in its own unit, and only for formats played', async ({ page }) => {
+    await page.goto('en/progress/');
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
+    await expect(page.getByTestId('gwm-section')).toHaveCount(0);
+
+    // Synthetic history at level 3 for two span formats: five digits backward, five blocks.
+    // Matrix first: the fixture marks every third response wrong, starting with the first.
+    await seedHistory(page, { sessions: 1, types: ['matrix', 'span', 'block-span'] });
+    await expect(page.getByTestId('gwm-section')).toBeVisible();
+    await expect(page.getByTestId('span-span')).toContainText('5 digits backward');
+    await expect(page.getByTestId('span-block-span')).toContainText('5 blocks');
+    await expect(page.getByTestId('span-n-back')).toHaveCount(0);
+  });
+});
+
 test.describe('the empty state is designed, not a void', () => {
   test('explains why it is empty and offers both ways to fill it', async ({ page }) => {
     await page.goto('en/progress/');

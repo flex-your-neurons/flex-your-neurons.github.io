@@ -79,7 +79,7 @@ const MATCHES: [number, number] = [4, 7];
  */
 const LURE_RATE = 0.3;
 
-function planFor(difficulty: Difficulty): Plan {
+export function planFor(difficulty: Difficulty): Plan {
   switch (difficulty) {
     case 1:
       return { n: 1, length: 9, stepMs: 1100, matches: MATCHES };

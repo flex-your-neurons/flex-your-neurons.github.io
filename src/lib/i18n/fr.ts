@@ -425,6 +425,22 @@ const fr: Dict = {
       note:
         'Trois blocs sans faux départ à un niveau avant d’afficher son temps, deux niveaux de ce genre avant une pente, quatre séries avant les décomptes du go ou stop. Un bloc avec un faux départ n’est pas chronométré.',
     },
+    gwm: {
+      heading: 'Ce que vous pouvez retenir',
+      lede:
+        'Le niveau le plus haut que vous ayez réussi sur chaque format de mémoire de travail, dans l’unité propre du format plutôt qu’en niveau : chiffres, blocs, cases, profondeur de rappel, nombre de termes, nombre d’allées et venues. Ce sont les chiffres que rapporte la littérature — un empan de six chiffres à l’envers est celui du manuel.',
+      units: {
+        'digits-forward': (n: number) => `${n} chiffres à l’endroit`,
+        'digits-backward': (n: number) => `${n} chiffres à l’envers`,
+        blocks: (n: number) => `${n} bloc${n === 1 ? '' : 's'}`,
+        squares: (n: number) => `${n} case${n === 1 ? '' : 's'}`,
+        back: (n: number) => `${n} en arrière`,
+        terms: (n: number) => `${n} terme${n === 1 ? '' : 's'}`,
+        events: (n: number) => `${n} événement${n === 1 ? '' : 's'}`,
+      },
+      note:
+        'Un plafond atteint une fois, pas un empan estimé : une vraie procédure d’empan s’arrête à la longueur ratée deux fois de suite, et l’échelle d’entraînement ne suit pas cette procédure. Lisez-les comme « tenu au moins une fois ».',
+    },
     gv: {
       heading: 'Tourner les choses en tête',
       lede:

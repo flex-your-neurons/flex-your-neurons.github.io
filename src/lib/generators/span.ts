@@ -44,7 +44,7 @@ interface Plan {
  */
 const STEP_MS = 900;
 
-function planFor(difficulty: Difficulty): Plan {
+export function planFor(difficulty: Difficulty): Plan {
   const base = { alphabet: DIGITS, stepMs: STEP_MS };
   switch (difficulty) {
     case 1:

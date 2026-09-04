@@ -536,6 +536,22 @@ const en = {
       note:
         'Three clean blocks at a level before its time is shown, two such levels before a slope, four runs before the go / no-go counts. A block with a false start is not timed.',
     },
+    gwm: {
+      heading: 'How much you can hold',
+      lede:
+        'The highest level you have answered correctly on each working-memory format, in that format’s own unit rather than as a level: digits, blocks, squares, how far back, how many terms, how many comings and goings. These are the numbers the literature reports — a digit span of six backward is the figure from the manual.',
+      units: {
+        'digits-forward': (n: number) => `${n} digits forward`,
+        'digits-backward': (n: number) => `${n} digits backward`,
+        blocks: (n: number) => `${n} block${n === 1 ? '' : 's'}`,
+        squares: (n: number) => `${n} square${n === 1 ? '' : 's'}`,
+        back: (n: number) => `${n}-back`,
+        terms: (n: number) => `${n} term${n === 1 ? '' : 's'}`,
+        events: (n: number) => `${n} event${n === 1 ? '' : 's'}`,
+      },
+      note:
+        'A ceiling reached once, not a span estimated: a proper span procedure stops at the length failed twice running, and the practice ladder does not run that procedure. Read these as “held at least once”.',
+    },
     gv: {
       heading: 'Turning things in mind',
       lede:

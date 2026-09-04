@@ -35,6 +35,8 @@ import {
   switchCostScore,
   tallyErrorTypes,
 } from '../lib/scoring';
+import { spanProfile } from '../lib/spans';
+import type { TypeStats } from '../lib/scoring';
 import {
   $sessions,
   $settings,
@@ -233,6 +235,7 @@ export default function ProgressDashboard({ locale }: { locale: Locale }) {
       <InterferenceCard locale={locale} sessions={sessions} />
       <SwitchCostCard locale={locale} sessions={sessions} />
       <SpeedCard locale={locale} sessions={sessions} />
+      <SpanCard locale={locale} byType={byType} />
       <RotationCard locale={locale} sessions={sessions} />
       <RetentionCard locale={locale} sessions={sessions} />
       {hasData && <MistakeProfile locale={locale} sessions={sessions} />}
@@ -613,6 +616,30 @@ function SpeedCard({ locale, sessions }: { locale: Locale; sessions: Session[] }
           value={enoughRuns ? String(score.omissions) : s.notYet}
           testid="stat-omissions"
         />
+      </div>
+      <p class="muted">{s.note}</p>
+    </section>
+  );
+}
+
+/**
+ * The Gwm read-out: each working-memory format's highest level held, in its own unit — digits,
+ * blocks, squares, back, terms, events — rather than as a level number.
+ */
+function SpanCard({ locale, byType }: { locale: Locale; byType: TypeStats[] }) {
+  const t = dict(locale);
+  const rows = spanProfile(byType);
+  if (rows.length === 0) return null;
+  const s = t.dashboard.gwm;
+
+  return (
+    <section data-testid="gwm-section">
+      <h3 class="section-heading section-heading--sm">{s.heading}</h3>
+      <p class="muted dashboard-lede">{s.lede}</p>
+      <div class="card-grid card-grid--fit stat-grid">
+        {rows.map((row) => (
+          <Stat key={row.type} label={getItemText(row.type, locale).name} value={s.units[row.unit](row.span)} testid={`span-${row.type}`} />
+        ))}
       </div>
       <p class="muted">{s.note}</p>
     </section>
