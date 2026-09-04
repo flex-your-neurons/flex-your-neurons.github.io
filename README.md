@@ -298,8 +298,12 @@ opening the same link get byte-identical items, in either language.
 `.github/workflows/deploy.yml` type-checks, runs the unit tests, builds, runs the Playwright
 suite, and publishes `dist/` to GitHub Pages on every push to `main`.
 
-The site URL and base path are derived from the repository, so a fork deploys to its own URL
-with no code change. Locally they default to `/iq`; override with `SITE_URL` and `BASE_PATH`.
+The site is an organisation page — `flex-your-neurons/flex-your-neurons.github.io` — so GitHub
+Pages serves it at the origin root and there is no base path: `/en/practice/matrix/`, not
+`/<repo>/en/practice/matrix/`. The workflow derives both from the repository rather than assuming
+one shape, so a fork deploys to its own URL with no code change: a repository named
+`<owner>.github.io` gets no base path, any other gets `/<name>/`. Override locally with `SITE_URL`
+and `BASE_PATH` (`BASE_PATH=''` means the root).
 
 Enable Pages once, under **Settings → Pages → Source → GitHub Actions**.
 
@@ -327,6 +331,3 @@ Enable Pages once, under **Settings → Pages → Source → GitHub Actions**.
   suite quietly ran against the dev server instead of `dist` — and passed, while testing an
   artefact nobody was going to deploy.
 
-## Licence
-
-MIT.
