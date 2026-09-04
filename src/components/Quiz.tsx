@@ -24,7 +24,7 @@ import FigureView, { describeFigure } from './FigureView';
 import GridView, { describeGrid } from './GridView';
 import CubeView, { describeCube } from './CubeView';
 import NumberLineBoard from './NumberLineBoard';
-import PolycubeView, { describePolycube } from './PolycubeView';
+import PolycubeView, { describePolycube, polycubeBox } from './PolycubeView';
 import { generateItem, getItemText, getMeta, onePerDomain } from '../lib/generators';
 import { deriveSeed, normaliseSeed, randomSeed } from '../lib/rng';
 import { dict, type Locale } from '../lib/i18n';
@@ -1184,6 +1184,9 @@ function OptionGrid({
 }) {
   const t = dict(locale);
   const isFigural = options.some((o) => o.kind !== 'text');
+  // Polycube options share one box, so they share one scale: see `polycubeBox`.
+  const polycubes = options.flatMap((o) => (o.kind === 'polycube' ? [o.cubes] : []));
+  const box = polycubes.length > 1 ? polycubeBox(polycubes) : undefined;
   return (
     <div
       data-testid="options"
@@ -1245,7 +1248,7 @@ function OptionGrid({
             <span class="option-key" aria-hidden="true">
               {i + 1}
             </span>
-            <OptionBody option={option} />
+            <OptionBody option={option} box={box} />
             {tag && (
               <span
                 class={isAnswer ? 'tag option-tag option-tag--correct' : 'tag option-tag'}
@@ -1261,7 +1264,7 @@ function OptionGrid({
   );
 }
 
-function OptionBody({ option }: { option: Option }) {
+function OptionBody({ option, box }: { option: Option; box?: { width: number; height: number } }) {
   switch (option.kind) {
     case 'text':
       return <span class="option-text">{option.text}</span>;
@@ -1286,7 +1289,7 @@ function OptionBody({ option }: { option: Option }) {
     case 'polycube':
       return (
         <span class="option-figure option-figure--polycube">
-          <PolycubeView cubes={option.cubes} />
+          <PolycubeView cubes={option.cubes} box={box} />
         </span>
       );
   }

@@ -59,4 +59,41 @@ test.describe('block rotation', () => {
     await expect(page.getByTestId('stat-rotation-base')).toContainText(/\d/);
     await expect(page.getByTestId('stat-rotation-slope')).toContainText(/ms/);
   });
+  /*
+   * Every option whole, on the screen it is drawn on.
+   *
+   * An isometric drawing is as tall as the object's orientation makes it, and the options live in
+   * the one region the stage design lets scroll — so a tall object did not push the page down, it
+   * ran past the bottom of the tray and the reader met the fourth option cut across the middle.
+   * This runs in both viewport projects, which is the point: the desktop row of four and the phone's
+   * two rows of two fail in different ways.
+   */
+  test('draws every option whole, inside the answer tray', async ({ page }) => {
+    await page.goto(practiceUrl('block-rotation', { seed: SEED, difficulty: 2, length: 1 }));
+    await expect(page.getByTestId('quiz')).toHaveAttribute('data-hydrated', 'true');
+    const tray = (await page.getByTestId('answer-tray').boundingBox())!;
+    const figures = page.locator('.option-figure--polycube');
+    await expect(figures).toHaveCount(4);
+    for (let i = 0; i < 4; i++) {
+      const box = (await figures.nth(i).boundingBox())!;
+      expect(box.height).toBeGreaterThan(0);
+      expect(box.y).toBeGreaterThanOrEqual(tray.y - 1);
+      expect(box.y + box.height).toBeLessThanOrEqual(tray.y + tray.height + 1);
+    }
+    // And the stimulus inside its own region, which is capped the same way.
+    const figure = (await page.locator('.polycube-stage').boundingBox())!;
+    const region = (await page.locator('.quiz-figure').boundingBox())!;
+    expect(figure.y + figure.height).toBeLessThanOrEqual(region.y + region.height + 1);
+  });
+
+  /* Four objects to be compared are drawn at one scale: the same cube edge in every option. */
+  test('draws the options at one scale', async ({ page }) => {
+    await page.goto(practiceUrl('block-rotation', { seed: SEED, difficulty: 2, length: 1 }));
+    await expect(page.getByTestId('quiz')).toHaveAttribute('data-hydrated', 'true');
+    const boxes = await page.locator('.option-figure--polycube svg[data-polycube]').evaluateAll((els) =>
+      els.map((el) => ({ viewBox: el.getAttribute('viewBox')!, width: el.getBoundingClientRect().width })),
+    );
+    const scales = boxes.map((b) => b.width / Number(b.viewBox.split(' ')[2]));
+    for (const scale of scales) expect(Math.abs(scale - scales[0]!)).toBeLessThan(0.01);
+  });
 });

@@ -10,20 +10,42 @@ import { drawPolycube, normalise, POLYCUBE_SHADE, type Cube } from '../lib/polyc
 
 const EDGE = 18;
 
+/**
+ * A box that fits every one of these objects, for drawing a set of them at one scale.
+ *
+ * An isometric drawing of a polycube is as tall or as wide as the object's orientation happens to
+ * make it, and an option box that fits each drawing on its own draws each at its own scale — a
+ * column of nine cubes in small cubes beside a compact block in large ones. The options of a
+ * rotation item are there to be compared, so they are given one box and one scale: the largest
+ * drawing sets it, the rest are centred in it.
+ */
+export function polycubeBox(objects: readonly (readonly Cube[])[]): { width: number; height: number } {
+  const drawings = objects.map((cubes) => drawPolycube(cubes, EDGE));
+  return {
+    width: Math.max(...drawings.map((d) => d.width)),
+    height: Math.max(...drawings.map((d) => d.height)),
+  };
+}
+
 export default function PolycubeView({
   cubes,
   label,
   className,
+  box,
 }: {
   cubes: readonly Cube[];
   label?: string;
   className?: string;
+  /** A common box, from `polycubeBox`, to centre the drawing in rather than fitting it alone. */
+  box?: { width: number; height: number };
 }) {
   const drawing = drawPolycube(cubes, EDGE);
+  const width = box ? Math.max(box.width, drawing.width) : drawing.width;
+  const height = box ? Math.max(box.height, drawing.height) : drawing.height;
   return (
     <svg
       class={className ?? 'figure-svg polycube-svg'}
-      viewBox={`0 0 ${drawing.width} ${drawing.height}`}
+      viewBox={`${(drawing.width - width) / 2} ${(drawing.height - height) / 2} ${width} ${height}`}
       role={label ? 'img' : 'presentation'}
       aria-label={label}
       aria-hidden={label ? undefined : 'true'}

@@ -3247,6 +3247,28 @@ kbd {
     }
   }
 
+  /*
+   * Block rotation divides the height differently, because its options are objects and not marks.
+   *
+   * Four isometric objects side by side need a row about as tall as it is wide — near 180px where a
+   * row of cube nets or coding symbols needs 90 — and the default split left the tray 141px of a
+   * 720px window, so the option row was cut across the middle. The stimulus gives the height up: one
+   * object drawn at 200px is still legible, and four options cut in half are not options.
+   */
+  [data-drill] .quiz-root:has(.quiz-answer[data-format='block-rotation']) {
+    --stage-item: 28dvh;
+    --polycube-option: 6rem;
+  }
+
+  /* One row of four instead of two rows of two: the row is half as tall, so the objects can be
+     bigger and the stimulus can keep more of the height. */
+  @media (width >= 60rem) {
+    [data-drill] .quiz-root:has(.quiz-answer[data-format='block-rotation']) {
+      --stage-item: 36dvh;
+      --polycube-option: 8rem;
+    }
+  }
+
   /* `.stack` spaces with sibling margins, which would stack on top of the flex gap and
      cost 40px between the progress meter and the prompt. */
   [data-drill] .quiz-root > * + * {
@@ -3303,6 +3325,39 @@ kbd {
    */
   [data-drill] .quiz-figure .matrix-grid {
     width: min(26rem, 100%, calc(var(--stage-item) - 3.5rem));
+  }
+
+  /*
+   * The polycube stimulus, sized the same way and for the same reason: an isometric drawing is as
+   * tall as the object's orientation makes it, so a column of nine cubes is twice as high as it is
+   * wide and a width cap alone lets it run past the item region — where it does not scroll into
+   * view, it is simply cut. Capping the height and letting the drawing centre itself in the width
+   * costs a smaller object and never a hidden one.
+   *
+   * Against the region's own height, not `var(--stage-item)` less an allowance for the prompt: the
+   * matrix rule below can afford that allowance because it is 3.5rem of one prompt line, and this
+   * prompt wraps to two on a phone — which put the object 20px past the region on a Pixel 7. The
+   * region is a grid row with a definite height whenever the ceiling binds, so a percentage reads
+   * the real figure, and where the ceiling does not bind it resolves to auto and nothing is capped.
+   */
+  [data-drill] .quiz-figure .polycube-stage {
+    min-block-size: 0;
+    block-size: 100%;
+    align-items: center;
+  }
+
+  [data-drill] .quiz-figure .polycube-svg--stage {
+    max-block-size: 100%;
+  }
+
+  /*
+   * And the options, against the tray rather than the item region. `16dvh` is the room a four-across
+   * row has on the window that binds hardest — 1280x720, where the tray is 141px and an 8rem figure
+   * made a 190px row — and it relaxes to the full 8rem as soon as the window is tall enough to seat
+   * it. A capped figure is a smaller drawing; an uncapped one is a fourth option cut in half.
+   */
+  [data-drill] .option-figure--polycube .polycube-svg {
+    max-block-size: min(var(--polycube-option, 8rem), 16dvh);
   }
 
   /*
@@ -5129,9 +5184,23 @@ table.data th.num {
   height: auto;
 }
 
+/*
+ * An option is bounded in both directions, not just across.
+ *
+ * A polycube's drawing is as tall as its orientation makes it: nine cubes standing in a column
+ * project to a box half as wide as it is high, and `max-width` alone let that box become 214px of
+ * option row. The tray is the region the stage design allows to scroll, so the row did not overflow
+ * the page — it overflowed the tray, and the reader met the fourth option cut in half. Height is the
+ * dimension that binds here, so it is the one that is capped; the drawing is centred in whatever is
+ * left, at the same scale as its siblings.
+ */
 .option-figure--polycube {
   max-width: 8rem;
   margin-inline: auto;
+}
+
+.option-figure--polycube .polycube-svg {
+  max-block-size: 8rem;
 }
 
 /* --- Gear train ----------------------------------------------------------- */
