@@ -821,8 +821,15 @@ const fr: Dict = {
       name: 'Paires associées',
       blurb: 'Des boîtes s’ouvrent une à une sur un symbole. Laquelle contenait celui-ci ?',
       description:
-        'Une rangée de boîtes fermées. Elles s’ouvrent une à la fois, chacune sur un symbole, puis se referment ; ensuite un symbole est montré seul et vous touchez la boîte qui le contenait. C’est l’apprentissage associatif — lier deux choses qui n’avaient aucune raison d’aller ensemble, ce à quoi revient retenir un nom sur un visage ou un mot et sa traduction — et c’est le premier format du site classé sous le stockage et la récupération à long terme. Il peut être généré là où le vocabulaire ne le peut pas parce que les paires sont arbitraires par construction : les symboles sont abstraits, les boîtes sont des boîtes, et rien d’autre que l’apprentissage n’aide. La question est un symbole et la réponse un emplacement : on retrouve un lieu à partir d’une chose, ce qui est le sens associatif. Entre la dernière boîte et la question, un intervalle rempli d’environ sept secondes — une grille allume des cases à toucher — bloque la répétition mentale, si bien que la réponse doit venir de ce qui a été stocké et non de ce qu’on se répétait encore. Limite honnête : une question des minutes plus tard, la mesure la plus complète, dépasse un seul item.',
+        'Une rangée de boîtes fermées. Elles s’ouvrent une à la fois, chacune sur un symbole, puis se referment ; ensuite un symbole est montré seul et vous touchez la boîte qui le contenait. C’est l’apprentissage associatif — lier deux choses qui n’avaient aucune raison d’aller ensemble, ce à quoi revient retenir un nom sur un visage ou un mot et sa traduction — et c’est le premier format du site classé sous le stockage et la récupération à long terme. Il peut être généré là où le vocabulaire ne le peut pas parce que les paires sont arbitraires par construction : les symboles sont abstraits, les boîtes sont des boîtes, et rien d’autre que l’apprentissage n’aide. La question est un symbole et la réponse un emplacement : on retrouve un lieu à partir d’une chose, ce qui est le sens associatif. Entre la dernière boîte et la question, un intervalle rempli d’environ sept secondes — une grille allume des cases à toucher — bloque la répétition mentale, si bien que la réponse doit venir de ce qui a été stocké et non de ce qu’on se répétait encore. Une question des minutes plus tard dépasse un seul item ; une série d’entraînement de ce format en pose donc une : une fois tous les ensembles appris, chacun est redemandé, sur une autre boîte à chaque fois.',
       seenIn: 'CANTAB Paired Associates Learning, Paired Associates de Cambridge Brain Sciences, Paires de mots de la WMS (en forme verbale), Woodcock–Johnson Visual–Auditory Learning',
+    },
+    'pairs-delayed': {
+      name: 'Rappel différé',
+      blurb: 'Les paires apprises plus tôt dans la série, redemandées.',
+      description:
+        'Pas un format à choisir : une série d’entraînement en paires associées en ajoute un pour chaque ensemble appris, après toute la série. Les boîtes sont fermées, un symbole s’affiche, et vous touchez la boîte qui le contenait — une autre boîte que celle demandée sur le moment, si bien qu’une bonne réponse prouve que la paire a été stockée et non qu’une récupération a été répétée. C’est la question différée que l’item immédiat ne peut poser, et la mesure la plus complète du stockage et de la récupération à long terme.',
+      seenIn: 'WMS Paires associées verbales II (différé), rappel à long délai du CVLT, essai différé du RAVLT',
     },
     'calendar-count': {
       name: 'Compte des jours',
@@ -1447,7 +1454,7 @@ const fr: Dict = {
       ruleArbitrary:
         'Les paires sont arbitraires à dessein. Rien dans un symbole ne dit à quelle boîte il appartient, donc rien d’autre que l’apprentissage ne peut aider — c’est ce qui en fait un test honnête de l’apprentissage.',
       ruleInterval:
-        'Entre la dernière boîte et la question, un intervalle rempli : une petite grille allume des cases une à une et vous touchez chacune quand elle s’allume. C’est là pour empêcher la répétition mentale. Une question posée aussitôt se répond depuis la mémoire de travail, et une question après une pause vide se répond en se répétant les paires pendant la pause ; une question après une pause remplie ne peut se répondre qu’à partir de ce qui a été stocké. Les touchers ne sont pas notés. Une question des minutes plus tard serait plus complète encore, et dépasse un seul item.',
+        'Entre la dernière boîte et la question, un intervalle rempli : une petite grille allume des cases une à une et vous touchez chacune quand elle s’allume. C’est là pour empêcher la répétition mentale. Une question posée aussitôt se répond depuis la mémoire de travail, et une question après une pause vide se répond en se répétant les paires pendant la pause ; une question après une pause remplie ne peut se répondre qu’à partir de ce qui a été stocké. Les touchers ne sont pas notés. Une question des minutes plus tard est plus complète encore, et une série d’entraînement de ce format en pose une pour chaque ensemble une fois l’apprentissage terminé.',
       ready: (boxes: number) => `${boxes} boîtes vont s’ouvrir une à la fois. Retenez ce que chacune contient.`,
       start: 'Ouvrir les boîtes',
       watching: 'Regardez…',
@@ -1455,9 +1462,18 @@ const fr: Dict = {
       distractorLabel: 'L’intervalle rempli',
       cellLabel: (position: number) => `Case ${position}`,
       probe: 'Quelle boîte contenait ceci ?',
+      probeDelayed: 'Plus tôt : quelle boîte contenait ceci ?',
       boxLabel: (position: number) => `Boîte ${position}`,
       revealRight: 'C’était cette boîte.',
       revealWrong: 'Les boîtes sont ouvertes ci-dessous ; la bonne est marquée.',
+    },
+    pairsDelayed: {
+      prompt: 'Plus tôt dans cette série : quelle boîte contenait ce symbole ?',
+      summary: (position: number) => `C’était la boîte ${position}.`,
+      ruleDelayed:
+        'Cet ensemble a été appris plus tôt dans la série, et d’autres ont été appris et interrogés depuis. Répondre maintenant, c’est récupérer ce qui a été stocké, non ce qui restait à l’esprit — la mesure que la question immédiate ne pouvait faire.',
+      ruleDifferentBox:
+        'Le symbole demandé n’est pas celui demandé sur le moment, si bien que la réponse ne peut être le souvenir d’avoir répondu ; elle doit venir de la paire elle-même.',
     },
     changeMaker: {
       prompt: 'Quelles pièces font la monnaie ?',

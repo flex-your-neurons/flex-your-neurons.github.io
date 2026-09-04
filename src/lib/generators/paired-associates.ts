@@ -30,8 +30,10 @@
  * can be answered from working memory — the last box is still in the loop — and a probe after an
  * empty interval can be answered by rehearsing through it; a probe after a filled interval can only
  * be answered from what was actually stored. The taps on the grid are not scored: they exist to
- * occupy attention, not to measure it. A delayed probe minutes later would be the fuller measurement
- * still, and is out of reach of a single item; the description says so.
+ * occupy attention, not to measure it. Within one item, this interval is as far as the measurement
+ * can go. A delayed probe minutes later is the fuller one, and a practice drill of this format makes
+ * it: after its learning items it appends one `pairs-delayed` probe per set, regenerated from the
+ * source seed and asking a different box.
  *
  * ## Why difficulty is the number of boxes
  *

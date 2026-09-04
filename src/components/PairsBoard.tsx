@@ -20,6 +20,8 @@ interface Props {
   distractor: number[];
   presentation?: Presentation;
   reducedMotion?: boolean;
+  /** A delayed probe: no learning, no interval — the boxes are closed and the question is asked. */
+  delayed?: boolean;
   locale: Locale;
   frozen: boolean;
   onRecallStart: () => void;
@@ -35,13 +37,14 @@ export default function PairsBoard({
   distractor,
   presentation,
   reducedMotion,
+  delayed = false,
   locale,
   frozen,
   onRecallStart,
   onComplete,
 }: Props) {
   const t = dict(locale).gen.pairedAssociates;
-  const [phase, setPhase] = useState<Phase>('gate');
+  const [phase, setPhase] = useState<Phase>(delayed ? 'probe' : 'gate');
   const [open, setOpen] = useState<number | null>(null);
   const [tapped, setTapped] = useState<number | null>(null);
   const [lit, setLit] = useState<number | null>(null);
@@ -51,9 +54,9 @@ export default function PairsBoard({
   // As on every stream: the accommodation lengthens the blank between boxes, never the exposure.
   const gapMs = reducedMotion ? Math.max(600, (presentation?.gapMs ?? 300) * 2) : (presentation?.gapMs ?? 300);
 
-  const key = `${order.join('|')}:${probe}`;
+  const key = `${order.join('|')}:${probe}:${delayed}`;
   useEffect(() => {
-    setPhase('gate');
+    setPhase(delayed ? 'probe' : 'gate');
     setOpen(null);
     setTapped(null);
     setLit(null);
@@ -64,6 +67,11 @@ export default function PairsBoard({
   completeRef.current = onComplete;
   const recallRef = useRef(onRecallStart);
   recallRef.current = onRecallStart;
+
+  // A delayed probe is self-paced: the clock starts when the question is on screen.
+  useEffect(() => {
+    if (delayed && !frozen) recallRef.current();
+  }, [key, delayed, frozen]);
 
   useEffect(() => {
     if (phase !== 'gate' || frozen) return;
@@ -137,6 +145,7 @@ export default function PairsBoard({
       data-stimulus="pairs"
       data-testid="pairs-board"
       data-pairs-phase={frozen ? 'revealed' : phase}
+      data-pairs-delayed={delayed ? 'true' : undefined}
     >
       <div class="pairs-status" role="status" aria-live="polite">
         {frozen ? (
@@ -148,7 +157,7 @@ export default function PairsBoard({
         ) : phase === 'delay' ? (
           <span class="pairs-headline">{t.delay}</span>
         ) : (
-          <span class="pairs-headline">{t.probe}</span>
+          <span class="pairs-headline">{delayed ? t.probeDelayed : t.probe}</span>
         )}
       </div>
 

@@ -76,7 +76,7 @@ export default function NumberLineBoard({
   return (
     <div
       class="numline"
-      data-stimulus="number-line"
+      data-board="number-line"
       data-testid="numline-board"
       data-numline-phase={frozen ? 'revealed' : 'placing'}
       data-numline-position={String(position)}

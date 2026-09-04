@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { PREVIEW_PINS, previewItem } from '@/lib/previews';
 import { ogCard, OG_HEIGHT, OG_WIDTH } from '@/lib/og';
-import { getItemText, getMeta, ITEM_TYPE_IDS } from '@/lib/generators';
+import { getItemText, getMeta, ITEM_TYPE_IDS, SCHEDULED_META } from '@/lib/generators';
 import { BASE_HUE, typeColour, typeHue } from '@/lib/identity';
 import { dict, LOCALES } from '@/lib/i18n';
 import type { Locale } from '@/lib/i18n';
@@ -25,7 +25,7 @@ function card(id: ItemTypeId, locale: Locale): string {
 
 describe('preview pins', () => {
   it('covers every format', () => {
-    expect(Object.keys(PREVIEW_PINS).sort()).toEqual([...ITEM_TYPE_IDS].sort());
+    expect(Object.keys(PREVIEW_PINS).sort()).toEqual([...ITEM_TYPE_IDS, ...SCHEDULED_META.map((m) => m.id)].sort());
   });
 
   /** A card that changed on every build would read as an unstable site. */

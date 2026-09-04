@@ -45,6 +45,7 @@ import { logicGridGenerator } from './logic-grid';
 import { featureMatchGenerator } from './feature-match';
 import { patternRecallGenerator } from './pattern-recall';
 import { pairedAssociatesGenerator } from './paired-associates';
+import { pairsDelayedGenerator } from './pairs-delayed';
 
 /**
  * Presentation order: reasoning first, then spatial, then memory (working, then long-term), then
@@ -127,7 +128,14 @@ export const GENERATORS: Generator[] = [
  */
 export const ITEM_VERSION = 3;
 
-const BY_ID = new Map<ItemTypeId, Generator>(GENERATORS.map((g) => [g.meta.id, g]));
+/**
+ * Formats produced only inside another format's drill — see `ItemTypeMeta.scheduledBy`. Resolvable
+ * by id like any other, so their responses replay from history, but absent from `ITEM_TYPE_IDS`
+ * and `ALL_META`, which list what a reader can choose.
+ */
+export const SCHEDULED_GENERATORS: Generator[] = [pairsDelayedGenerator];
+
+const BY_ID = new Map<ItemTypeId, Generator>([...GENERATORS, ...SCHEDULED_GENERATORS].map((g) => [g.meta.id, g]));
 
 export const ITEM_TYPE_IDS: ItemTypeId[] = GENERATORS.map((g) => g.meta.id);
 
@@ -168,6 +176,9 @@ export function generateItem(
 }
 
 export const ALL_META: ItemTypeMeta[] = GENERATORS.map((g) => g.meta);
+
+/** The scheduled formats' metadata, for the progress page's per-type rows. */
+export const SCHEDULED_META: ItemTypeMeta[] = SCHEDULED_GENERATORS.map((g) => g.meta);
 
 /** Every item type paired with its translated text, in presentation order. */
 export function allItemTypes(locale: Locale): (ItemTypeMeta & ItemTypeText)[] {

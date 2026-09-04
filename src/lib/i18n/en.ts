@@ -938,8 +938,15 @@ const en = {
       name: 'Paired associates',
       blurb: 'Boxes open one by one to show a symbol. Which box held this one?',
       description:
-        'A row of closed boxes. They open one at a time, each showing a symbol, and close again; then one symbol is shown on its own and you tap the box it was in. This is associative learning — the ability to bind two things that had no reason to go together, which is what learning a name to a face or a word to its translation comes down to — and it is the first format here filed under long-term storage and retrieval. It can be generated where vocabulary cannot because the pairings are arbitrary by construction: the symbols are abstract, the boxes are boxes, and nothing but the learning helps. The probe is a symbol rather than a position, so you retrieve a place from a thing, which is the associative direction. Between the last box and the probe is a filled interval of about seven seconds — a grid lights cells to be tapped — which blocks rehearsal, so the answer has to come from what was stored rather than from what was still being repeated. Honest limit: a probe minutes later, the fuller measurement, is beyond a single item.',
+        'A row of closed boxes. They open one at a time, each showing a symbol, and close again; then one symbol is shown on its own and you tap the box it was in. This is associative learning — the ability to bind two things that had no reason to go together, which is what learning a name to a face or a word to its translation comes down to — and it is the first format here filed under long-term storage and retrieval. It can be generated where vocabulary cannot because the pairings are arbitrary by construction: the symbols are abstract, the boxes are boxes, and nothing but the learning helps. The probe is a symbol rather than a position, so you retrieve a place from a thing, which is the associative direction. Between the last box and the probe is a filled interval of about seven seconds — a grid lights cells to be tapped — which blocks rehearsal, so the answer has to come from what was stored rather than from what was still being repeated. A probe minutes later is beyond a single item, so a practice drill of this format asks one: after every set has been learned, each is asked about again, a different box each time.',
       seenIn: 'CANTAB Paired Associates Learning, Cambridge Brain Sciences Paired Associates, WMS Verbal Paired Associates (in verbal form), Woodcock–Johnson Visual–Auditory Learning',
+    },
+    'pairs-delayed': {
+      name: 'Delayed recall',
+      blurb: 'The pairings you learned earlier in the drill, asked about again.',
+      description:
+        'Not a format to pick: a paired-associates drill appends one of these for every set it taught, after the whole drill. The boxes are closed, a symbol is shown, and you tap the box it was in — a different box from the one asked at the time, so a right answer is evidence that the pairing was stored rather than that one retrieval was repeated. This is the delayed probe that the immediate item cannot make, and the fuller measurement of long-term storage and retrieval.',
+      seenIn: 'WMS Verbal Paired Associates II (delayed), CVLT long-delay recall, RAVLT delayed trial',
     },
     'calendar-count': {
       name: 'Counting the days',
@@ -1568,7 +1575,7 @@ const en = {
       ruleArbitrary:
         'The pairings are arbitrary on purpose. Nothing about a symbol says which box it belongs in, so nothing but the learning can help — which is what makes it a fair test of learning.',
       ruleInterval:
-        'Between the last box and the question there is a filled interval: a small grid lights cells one at a time and you tap each as it lights. That is there to stop rehearsal. A question asked at once can be answered from working memory, and a question after an empty pause can be answered by repeating the pairings through it; a question after a filled pause can only be answered from what was stored. The taps are not scored. A question minutes later would be fuller still, and is beyond one item.',
+        'Between the last box and the question there is a filled interval: a small grid lights cells one at a time and you tap each as it lights. That is there to stop rehearsal. A question asked at once can be answered from working memory, and a question after an empty pause can be answered by repeating the pairings through it; a question after a filled pause can only be answered from what was stored. The taps are not scored. A question minutes later is fuller still, and a practice drill of this format asks one for every set once the learning is over.',
       /** Live board copy. */
       ready: (boxes: number) => `${boxes} boxes will open one at a time. Remember what each one holds.`,
       start: 'Open the boxes',
@@ -1577,9 +1584,18 @@ const en = {
       distractorLabel: 'The filled interval',
       cellLabel: (position: number) => `Cell ${position}`,
       probe: 'Which box held this?',
+      probeDelayed: 'From earlier: which box held this?',
       boxLabel: (position: number) => `Box ${position}`,
       revealRight: 'That was the box.',
       revealWrong: 'The boxes are open below; the right one is marked.',
+    },
+    pairsDelayed: {
+      prompt: 'From earlier in this drill: which box held this symbol?',
+      summary: (position: number) => `It was in box ${position}.`,
+      ruleDelayed:
+        'This set was learned earlier in the drill, with other sets learned and asked about since. Answering now is retrieval from what was stored, not from what was still in mind — the measurement the immediate question could not make.',
+      ruleDifferentBox:
+        'The symbol asked about is not the one asked at the time, so the answer cannot be a memory of having answered; it has to come from the pairing itself.',
     },
     changeMaker: {
       prompt: 'Which coins make the change?',

@@ -7,7 +7,7 @@
  */
 import { useState } from 'preact/hooks';
 import { useStore } from '@nanostores/preact';
-import { ALL_META, getItemText } from '../lib/generators';
+import { ALL_META, getItemText, SCHEDULED_META } from '../lib/generators';
 import { typeHue } from '../lib/identity';
 import Mascot from './Mascot';
 import ActivityChart from './charts/ActivityChart';
@@ -289,12 +289,13 @@ export default function ProgressDashboard({ locale }: { locale: Locale }) {
               </tr>
             </thead>
             <tbody>
-              {ALL_META.map((meta) => {
+              {/* Scheduled formats follow the format that schedules them, and link to its drill. */}
+              {ALL_META.flatMap((meta) => [meta, ...SCHEDULED_META.filter((s) => s.scheduledBy === meta.id)]).map((meta) => {
                 const stats = byType.find((t) => t.type === meta.id);
                 return (
                   <tr key={meta.id} data-testid={`type-row-${meta.id}`}>
                     <td>
-                      <a href={practiceHref(meta.id)}>
+                      <a href={practiceHref(meta.scheduledBy ?? meta.id)}>
                         {meta.icon} {getItemText(meta.id, locale).name}
                       </a>
                     </td>

@@ -57,7 +57,9 @@ export type ItemTypeId =
   | 'cube-net'
   | 'number-line'
   | 'block-rotation'
-  | 'gear-train';
+  | 'gear-train'
+  /** Scheduled, not offered: the delayed probe a paired-associates drill appends. */
+  | 'pairs-delayed';
 
 /**
  * CHC broad ability. See docs/IQ-TESTS.md §2.
@@ -161,6 +163,8 @@ export type Stimulus =
   | { kind: 'feature-match'; left: Figure[]; right: Figure[]; changed: number }
   /** A line from `min` to `max`; place `value` on it. `tolerance` is a fraction of the line. */
   | { kind: 'number-line'; min: number; max: number; label: string; value: number; tolerance: number }
+  /** The pairings of a paired-associates item, asked about again minutes later. */
+  | { kind: 'pairs-delayed'; symbols: Figure[]; probe: number }
   /** Wheels on one axis, the first turning as `driverClockwise` says; `links[i]` joins wheel i to i + 1. */
   | { kind: 'gears'; sizes: number[]; links: GearLink[]; driverClockwise: boolean }
   /** A face-connected set of unit cubes, to be matched against rotations and reflections. */
@@ -504,6 +508,13 @@ export interface Item {
 export interface ItemTypeMeta {
   id: ItemTypeId;
   domain: ChcDomain;
+  /**
+   * Set on a format that cannot be practised on its own and is produced only inside the drill of
+   * another — the delayed probe that a paired-associates drill appends after its learning items.
+   * Such a format is generatable by id and counted on the progress page, but is not in the
+   * registry: not on the practice wall, not in a test, never a sprint.
+   */
+  scheduledBy?: ItemTypeId;
   /** Glyph used as a lightweight visual key. Language-neutral. */
   icon: string;
   /**

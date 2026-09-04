@@ -171,6 +171,7 @@ export function diagnoseTap(item: { answerText?: string; stimulus: Stimulus }, t
     case 'pattern':
       return diagnosePattern(expected, tapped, item.stimulus.size);
     case 'pairs':
+    case 'pairs-delayed':
       return diagnosePairs(expected, tapped);
     case 'number-line':
       // A miss on a line has a direction, and the direction is the diagnosis.

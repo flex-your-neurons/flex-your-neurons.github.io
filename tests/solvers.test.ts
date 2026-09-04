@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { generateItem } from '@/lib/generators';
+import { generateItem, getMeta, ITEM_TYPE_IDS, SCHEDULED_META } from '@/lib/generators';
 import { NODE_RADIUS } from '@/lib/generators/trail-making';
 import { BLOCKS, BLOCK_RADIUS, encodeTaps, hasStraightRun } from '@/lib/generators/block-span';
 import {
@@ -31,7 +31,7 @@ import {
   isReadingOrder,
 } from '@/lib/generators/chimp-test';
 import { countFor, encodeCells, EXPOSURE_MS, GRID, isNameable } from '@/lib/generators/pattern-recall';
-import { boxesFor, DISTRACTOR_GRID, DISTRACTOR_TAPS } from '@/lib/generators/paired-associates';
+import { boxesFor, DISTRACTOR_GRID, DISTRACTOR_TAPS, encodeBox } from '@/lib/generators/paired-associates';
 import { figureSignature } from '@/lib/geometry';
 import { handAngles, twelveHour } from '@/lib/clock';
 import { dict } from '@/lib/i18n';
@@ -2211,5 +2211,31 @@ describe('gear train', () => {
         if (d <= 2) expect(links.every((l) => l === 'mesh')).toBe(true);
       }
     }
+  });
+});
+
+/**
+ * Delayed recall: regenerates the source pairings exactly and asks a different box.
+ */
+describe('pairs delayed', () => {
+  it('asks about the source pairings, on a box the immediate probe did not ask', () => {
+    for (const d of DIFFICULTIES) {
+      for (let i = 0; i < 30; i++) {
+        const source = generateItem('paired-associates', `PD${i}`, d);
+        const delayed = generateItem('pairs-delayed', `PD${i}`, d);
+        if (source.stimulus.kind !== 'pairs' || delayed.stimulus.kind !== 'pairs-delayed') throw new Error('unexpected stimuli');
+        expect(delayed.stimulus.symbols.map(figureSignature)).toEqual(source.stimulus.symbols.map(figureSignature));
+        expect(delayed.stimulus.probe).not.toBe(source.stimulus.probe);
+        expect(delayed.answerText).toBe(encodeBox(delayed.stimulus.probe));
+        expect(delayed.presentation).toBeUndefined();
+        expect(delayed.responseMode).toBe('tap');
+      }
+    }
+  });
+
+  it('is scheduled, not offered', () => {
+    expect(ITEM_TYPE_IDS).not.toContain('pairs-delayed');
+    expect(SCHEDULED_META.map((m) => m.id)).toEqual(['pairs-delayed']);
+    expect(getMeta('pairs-delayed').scheduledBy).toBe('paired-associates');
   });
 });

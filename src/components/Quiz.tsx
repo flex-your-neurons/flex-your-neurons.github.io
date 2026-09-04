@@ -251,9 +251,18 @@ export default function Quiz({
    * and barely better evidence than from one, while the domain figures — which pool several formats
    * apiece — are what the run actually produces.
    */
-  const total = isSprint
+  const learnTotal = isSprint
     ? Number.POSITIVE_INFINITY
     : (overrides.length ?? length ?? (mode === 'test' ? types.length : (settings.practiceLength ?? 10)));
+  /*
+   * A paired-associates drill is followed by one delayed probe per set it learned — the same
+   * pairings, a different box, asked after every other set has come and gone. That is the Glr
+   * measurement the format's own item cannot make, and it only exists here: the probe items are
+   * regenerated from the source items' seeds (see `pairs-delayed`), so nothing is stored beyond the
+   * responses, and a test or sprint never schedules them.
+   */
+  const delayedProbes = mode === 'practice' && types.length === 1 && types[0] === 'paired-associates' && Number.isFinite(learnTotal);
+  const total = delayedProbes ? learnTotal * 2 : learnTotal;
 
   /**
    * The level a sprint runs at, chosen once and held.
@@ -287,13 +296,21 @@ export default function Quiz({
     // Intentionally mount-only: restarting mid-session would discard answers.
   }, []);
 
-  const itemType: ItemTypeId = types[index % types.length]!;
-  const difficulty: Difficulty = heldDifficulty ?? (settings.adaptive ? cursor.difficulty : 2);
+  // Past the learning items of a paired-associates drill, item i probes the set learned at i - n.
+  const probeSource = delayedProbes && index >= learnTotal ? index - learnTotal : null;
+  const itemType: ItemTypeId = probeSource !== null ? 'pairs-delayed' : types[index % types.length]!;
+  const ladderDifficulty: Difficulty = heldDifficulty ?? (settings.adaptive ? cursor.difficulty : 2);
+  // A delayed probe is generated at its source's level, whatever the ladder has done since.
+  const difficulty: Difficulty = probeSource !== null ? (responses[probeSource]?.difficulty ?? ladderDifficulty) : ladderDifficulty;
 
   const item = useMemo(() => {
     if (!session) return null;
-    return generateItem(itemType, deriveSeed(session.seed, itemType, index), difficulty, locale);
-  }, [session?.seed, itemType, index, difficulty, locale]);
+    const seed =
+      probeSource !== null
+        ? deriveSeed(session.seed, 'paired-associates', probeSource)
+        : deriveSeed(session.seed, itemType, index);
+    return generateItem(itemType, seed, difficulty, locale);
+  }, [session?.seed, itemType, index, difficulty, locale, probeSource]);
 
   /**
    * Moves to the next item, adopting whatever level the ladder has reached.
@@ -442,7 +459,8 @@ export default function Quiz({
       setResponses(all);
       setChosen(choiceIndex);
       // The ladder is frozen for a sprint, and a pinned difficulty was never on it.
-      if (settings.adaptive && !heldDifficulty) {
+      // A delayed probe was set at its source's level, so it does not move the ladder either way.
+      if (settings.adaptive && !heldDifficulty && item.type !== 'pairs-delayed') {
         ladderRef.current = advanceLadder(ladderRef.current, correct);
       }
 
@@ -943,6 +961,19 @@ export default function Quiz({
             cells={item.stimulus.cells}
             presentation={item.presentation}
             reducedMotion={settings.reducedMotion}
+            locale={locale}
+            frozen={revealed}
+            onRecallStart={beginResponse}
+            onComplete={(tapped) => submit(null, tapped)}
+          />
+        ) : item.responseMode === 'tap' && item.stimulus.kind === 'pairs-delayed' ? (
+          <PairsBoard
+            key={`${item.type}:${item.seed}:${item.difficulty}`}
+            symbols={item.stimulus.symbols}
+            order={[]}
+            probe={item.stimulus.probe}
+            distractor={[]}
+            delayed
             locale={locale}
             frozen={revealed}
             onRecallStart={beginResponse}

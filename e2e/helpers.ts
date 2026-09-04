@@ -236,6 +236,7 @@ async function tapBoard(page: Page, item: ReturnType<typeof expectedItem>, wrong
     case 'pattern':
       return tapPattern(page, item.stimulus.size, item.stimulus.cells, wrong);
     case 'pairs':
+    case 'pairs-delayed':
       return tapPairs(page, item.stimulus.symbols.length, item.stimulus.probe, wrong);
     default:
       throw new Error(`no board for a tap item with stimulus ${item.stimulus.kind}`);

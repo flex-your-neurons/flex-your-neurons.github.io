@@ -619,6 +619,7 @@ function ThumbBody({ item, locale }: { item: Item; locale: Locale }) {
      * Open boxes with their symbols, and the probe above one of them marked. Shows the pairing, which
      * is the thing being learned.
      */
+    case 'pairs-delayed':
     case 'pairs':
       return (
         <div class="thumb-pairs">

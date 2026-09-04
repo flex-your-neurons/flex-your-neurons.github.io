@@ -1023,6 +1023,7 @@ function stage(item: Item): string {
     }
 
     /* Open boxes with their symbols; the probed box is ringed. */
+    case 'pairs-delayed':
     case 'pairs': {
       const box = 96;
       const gap = 24;

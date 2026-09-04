@@ -321,7 +321,11 @@ Thirty-two generators across seven CHC domains:
 > that nothing on the item is a word.
 >
 > One honest limit, stated on the format: `paired-associates` probes seconds after learning. The fuller
-> Glr measurement is the same probe minutes later, and nothing here builds it yet.
+> Glr measurement is the same probe minutes later, and a practice drill of the format now builds it:
+> after its learning items it appends one `pairs-delayed` item per set, regenerated from the source
+> item's seed and asking a different box, so the answer is retrieval from storage rather than a repeat
+> of one. The probe is *scheduled*, not offered — generatable by id and counted on the progress page,
+> but absent from the registry, since a delayed question on its own is a question about nothing.
 
 > **On the fifth response mode.** `fill` ships with `triangle-math`, and it is the first format
 > whose item genuinely has more than one answer. Two alternatives were available and both were

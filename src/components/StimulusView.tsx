@@ -73,6 +73,7 @@ export default function StimulusView({
     case 'chimp':
     case 'pattern':
     case 'pairs':
+    case 'pairs-delayed':
       return null;
 
     case 'matrix':

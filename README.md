@@ -69,6 +69,7 @@ Node 22.12+ is required (Astro 7).
 | N-back | Gwm | Match count re-derived from the finished stream |
 | Head count | Gwm | Total re-accumulated from the script; the room may never empty |
 | Add what you saw | Gwm | The sum is re-added from the stream; no term repeats and some pair must carry |
+| Delayed recall (scheduled) | Glr | A paired-associates drill appends one probe per set after the learning; regenerated from the source seed, different box |
 | Paired associates | Glr | Every box's symbol distinct by rendered signature; the probe, after a filled interval, is one of them and the box is the key |
 | Symbol search | Gs | Membership re-checked after shuffling |
 | Feature match | Gs | Panels re-compared by rendered signature; a difference is exactly one pair, one feature |
@@ -87,7 +88,7 @@ Node 22.12+ is required (Astro 7).
 | Number pyramid | Gq | Every cell re-derived from the base; the blanks are compared one by one, not as one string |
 | Table reasoning | Gq | The keyed value re-derived by parsing the printed question against the printed cells |
 
-Seven CHC domains: **Gf 9, Gv 7, Gwm 6, Glr 1, Gs 7, Gt 2, Gq 8** — and no Gc at all, which is a
+Seven CHC domains: **Gf 9, Gv 7, Gwm 6, Glr 1 (plus a scheduled delayed probe), Gs 7, Gt 2, Gq 8** — and no Gc at all, which is a
 limit of generation rather than an oversight and is the reason no Full Scale figure is even
 approximable. Glr and Gt arrived in 2026-09 with the gap analysis against *Brain Age*, Human
 Benchmark and Cambridge Brain Sciences: associative memory can be generated where vocabulary cannot,
