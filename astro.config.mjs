@@ -4,10 +4,11 @@ import preact from '@astrojs/preact';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
-// GitHub Pages project site: https://<user>.github.io/<repo>/
-// Both are overridable so a fork (or a user/organisation page) needs no code change.
-const SITE = process.env.SITE_URL ?? 'https://aureliendrouet.github.io';
-const BASE = process.env.BASE_PATH ?? '/flex-your-neurons';
+// GitHub Pages organisation site: https://flex-your-neurons.github.io/ — served at the origin root,
+// so there is no base path to carry. Both are overridable so a fork (or a project page, which does
+// need one) deploys unchanged; `BASE_PATH=''` means the root, which is why this is `||` and not `??`.
+const SITE = process.env.SITE_URL ?? 'https://flex-your-neurons.github.io';
+const BASE = process.env.BASE_PATH || '/';
 
 export default defineConfig({
   site: SITE,

@@ -7,7 +7,7 @@
  * everything mounted under the base path, directory URLs resolving to `index.html`, and
  * `404.html` for anything else.
  *
- * Usage: node scripts/serve-static.mjs [--port 4321] [--dir dist] [--base /flex-your-neurons]
+ * Usage: node scripts/serve-static.mjs [--port 4321] [--dir dist] [--base /]
  */
 import { createServer } from 'node:http';
 import { createReadStream, existsSync, statSync } from 'node:fs';
@@ -21,7 +21,8 @@ const flag = (name, fallback) => {
 
 const PORT = Number(flag('port', process.env.PORT ?? 4321));
 const ROOT = resolve(flag('dir', 'dist'));
-const BASE = (flag('base', process.env.BASE_PATH ?? '/flex-your-neurons') || '/').replace(/\/$/, '');
+// `/` — the organisation site's root — normalises to the empty string: nothing to mount under.
+const BASE = (flag('base', process.env.BASE_PATH || '/') || '/').replace(/\/$/, '');
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',

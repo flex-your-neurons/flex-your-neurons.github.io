@@ -1954,7 +1954,7 @@ const fr: Dict = {
       publisherLabel: 'Éditeur',
       publisher: 'TODO — publisher name not yet supplied (see docs/PLAN-2026-08.md §1.2)',
       contactLabel: 'Contact',
-      contact: 'https://github.com/aureliendrouet/flex-your-neurons/issues',
+      contact: 'https://github.com/flex-your-neurons/flex-your-neurons.github.io/issues',
       hostLabel: 'Hébergeur',
       host: 'GitHub, Inc., 88 Colin P. Kelly Jr Street, San Francisco, CA 94107, USA',
     },

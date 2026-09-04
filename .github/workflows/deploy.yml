@@ -28,6 +28,21 @@ jobs:
 
       - run: npm ci
 
+      # A `<owner>.github.io` repository is served at the origin root and takes no base path; any
+      # other repository is a project page under `/<name>/`. Deriving it means a fork of either
+      # shape deploys unchanged.
+      - name: Work out the site URL and base path
+        id: pages
+        run: |
+          owner=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')
+          repo=$(echo '${{ github.event.repository.name }}' | tr '[:upper:]' '[:lower:]')
+          echo "site=https://$owner.github.io" >> "$GITHUB_OUTPUT"
+          if [ "$repo" = "$owner.github.io" ]; then
+            echo 'base=' >> "$GITHUB_OUTPUT"
+          else
+            echo "base=/${{ github.event.repository.name }}" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Type-check
         run: npm run check
 
@@ -37,9 +52,8 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          # Derived from the repository so a fork deploys to its own URL unchanged.
-          SITE_URL: https://${{ github.repository_owner }}.github.io
-          BASE_PATH: /${{ github.event.repository.name }}
+          SITE_URL: ${{ steps.pages.outputs.site }}
+          BASE_PATH: ${{ steps.pages.outputs.base }}
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
@@ -47,7 +61,7 @@ jobs:
       - name: End-to-end tests
         run: npm run test:e2e
         env:
-          BASE_PATH: /${{ github.event.repository.name }}
+          BASE_PATH: ${{ steps.pages.outputs.base }}
 
       - uses: actions/upload-pages-artifact@v5
         with:

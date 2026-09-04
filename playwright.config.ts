@@ -5,7 +5,9 @@ import { defineConfig, devices } from '@playwright/test';
  * server. GitHub Pages will serve exactly these files, so this is the artefact worth
  * testing — it also catches base-path mistakes, which a dev server hides.
  */
-const BASE_PATH = process.env.BASE_PATH ?? '/flex-your-neurons';
+// Empty for the organisation site at the origin root; `/name` for a project page. Normalised
+// without a trailing slash, since every URL below adds one.
+const BASE_PATH = (process.env.BASE_PATH ?? '').replace(/\/+$/, '');
 /**
  * Deliberately NOT Astro's default 4321. A dev server left running on that port would be
  * picked up as the "existing server" and the whole suite would silently run against it —
@@ -24,7 +26,7 @@ export default defineConfig({
   expect: { timeout: 10_000 },
 
   use: {
-    // The trailing slash matters. `new URL('practice/', '…/flex-your-neurons/')` keeps the base path,
+    // The trailing slash matters. `new URL('practice/', 'http://host/')` keeps the base path,
     // whereas a leading-slash path would resolve against the origin and drop it — so
     // every test navigates with a RELATIVE path ('practice/matrix/', './' for the home
     // page). That also means these tests genuinely exercise the deployed base path.
@@ -42,7 +44,7 @@ export default defineConfig({
     // Not `astro preview`: in Astro 7 it always detaches into a background daemon, and
     // Playwright needs a process it can own and shut down. `scripts/serve-static.mjs`
     // serves dist the way GitHub Pages does.
-    command: `npm run build && node scripts/serve-static.mjs --port ${PORT} --base ${BASE_PATH}`,
+    command: `npm run build && node scripts/serve-static.mjs --port ${PORT} --base ${BASE_PATH || '/'}`,
     url: `http://localhost:${PORT}${BASE_PATH}/`,
     // Never reuse: the point of this suite is to test a *fresh build of dist*, and reuse
     // makes that conditional on whatever is already listening. The rebuild costs ~1s.

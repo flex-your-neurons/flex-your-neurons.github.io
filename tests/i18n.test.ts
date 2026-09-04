@@ -266,7 +266,14 @@ describe('locale helpers', () => {
     expect(dict(undefined)).toBe(dict(DEFAULT_LOCALE));
   });
 
+  /*
+   * Both deployment shapes: the site is served at the origin root, and a fork under a project
+   * page's `/<name>/` still has to work — which is what the `base` argument is for.
+   */
   it('reads the locale out of a path', () => {
+    expect(localeFromPath('/fr/practice/matrix/', '/')).toBe('fr');
+    expect(localeFromPath('/en/', '/')).toBe('en');
+    expect(localeFromPath('/', '/')).toBe(DEFAULT_LOCALE);
     expect(localeFromPath('/flex-your-neurons/fr/practice/matrix/', '/flex-your-neurons/')).toBe('fr');
     expect(localeFromPath('/flex-your-neurons/en/', '/flex-your-neurons/')).toBe('en');
     expect(localeFromPath('/flex-your-neurons/', '/flex-your-neurons/')).toBe(DEFAULT_LOCALE);
@@ -274,6 +281,9 @@ describe('locale helpers', () => {
   });
 
   it('swaps the locale while keeping the page', () => {
+    expect(pathForLocale('/en/practice/matrix/', 'fr', '/')).toBe('/fr/practice/matrix/');
+    expect(pathForLocale('/fr/about/', 'en', '/')).toBe('/en/about/');
+    expect(pathForLocale('/', 'fr', '/')).toBe('/fr/');
     expect(pathForLocale('/flex-your-neurons/en/practice/matrix/', 'fr', '/flex-your-neurons/')).toBe('/flex-your-neurons/fr/practice/matrix/');
     expect(pathForLocale('/flex-your-neurons/fr/about/', 'en', '/flex-your-neurons/')).toBe('/flex-your-neurons/en/about/');
     expect(pathForLocale('/flex-your-neurons/en/', 'fr', '/flex-your-neurons/')).toBe('/flex-your-neurons/fr/');

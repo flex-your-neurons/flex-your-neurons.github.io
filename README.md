@@ -16,7 +16,7 @@ It deliberately reports **no IQ score**. See [Why there is no score](#why-there-
 
 ```bash
 npm install
-npm run dev            # http://localhost:4321/flex-your-neurons/ — redirects to /flex-your-neurons/en/ or /flex-your-neurons/fr/
+npm run dev            # http://localhost:4321/ — redirects to /en/ or /fr/
 
 npm test               # unit tests (generators, solvers, rng, geometry, the leakage harness)
 npm run build          # static output in dist/
