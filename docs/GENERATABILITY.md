@@ -326,6 +326,12 @@ Thirty-two generators across seven CHC domains:
 > item's seed and asking a different box, so the answer is retrieval from storage rather than a repeat
 > of one. The probe is *scheduled*, not offered — generatable by id and counted on the progress page,
 > but absent from the registry, since a delayed question on its own is a question about nothing.
+> `block-rotation`'s ladder was built with the read-out in mind: turns per level is a fixed mapping,
+> so the progress page regresses median correct latency on turn count for a **rotation rate** in
+> milliseconds per quarter-turn — Shepard and Metzler's slope, by the same code that reads Hick's.
+> The cube count rises with the level too, so the slope is turns-plus-complexity, and the copy says
+> so rather than pretending otherwise.
+>
 > The progress page reads the two halves against each other as a **retention contrast** — immediate
 > accuracy, delayed accuracy, and the drop — the third read-out that is a difference rather than a
 > tally, after the Stroop and switch-cost ones, and the first that is a difference in *time since

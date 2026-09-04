@@ -425,6 +425,16 @@ const fr: Dict = {
       note:
         'Trois blocs sans faux départ à un niveau avant d’afficher son temps, deux niveaux de ce genre avant une pente, quatre séries avant les décomptes du go ou stop. Un bloc avec un faux départ n’est pas chronométré.',
     },
+    gv: {
+      heading: 'Tourner les choses en tête',
+      lede:
+        'Issu des items de rotation de blocs réussis. Les niveaux composent un, deux ou trois quarts de tour ; le temps à un tour sert de base et la pente est la vitesse de rotation mentale — ce que chaque quart de tour supplémentaire coûte, le résultat de Shepard et Metzler lu sur vos propres niveaux. Les niveaux élevés ajoutent aussi des cubes, la pente en porte donc une part.',
+      oneTurn: (n: number) => `Un quart de tour (${n} item${n === 1 ? '' : 's'})`,
+      slope: (n: number) => `Coût par quart de tour supplémentaire (${n} nombre${n === 1 ? '' : 's'} de tours)`,
+      perTurn: (ms: number) => `${ms > 0 ? '+' : ''}${ms} ms`,
+      notYet: 'pas encore',
+      note: 'Cinq items réussis à un nombre de tours avant d’afficher son temps, deux nombres de ce genre avant une pente. Seules les bonnes réponses sont chronométrées.',
+    },
     glr: {
       heading: 'Apprendre et oublier',
       lede:

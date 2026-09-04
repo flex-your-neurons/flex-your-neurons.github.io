@@ -20,6 +20,7 @@ import { generateItem, getMeta, ITEM_VERSION } from './generators';
 import { isCongruent } from './generators/interference';
 import { isFormB } from './generators/trail-making';
 import { FALSE_START, targetsFor } from './generators/reaction-time';
+import { planFor as rotationPlanFor } from './generators/block-rotation';
 import { decodeRun } from './generators/go-no-go';
 import { withinTolerance } from './generators/number-line';
 import { decodeCells } from './generators/pattern-recall';
@@ -672,6 +673,61 @@ function slope(points: [x: number, y: number][]): number {
   const sxy = points.reduce((a, [x, y]) => a + (x - mx) * (y - my), 0);
   const sxx = points.reduce((a, [x]) => a + (x - mx) ** 2, 0);
   return sxy / sxx;
+}
+
+// ---------------------------------------------------------------------------
+// Mental rotation — the Shepard–Metzler slope, read off the block-rotation levels
+// ---------------------------------------------------------------------------
+
+/**
+ * The rotation score: how long a block-rotation item takes at one quarter-turn, and how much each
+ * further quarter-turn adds.
+ *
+ * Shepard and Metzler's 1971 result is that the time to decide whether two block figures are the same
+ * object rises linearly with the angle between them, as though the reader were turning one in mind at
+ * a fixed rate. The block-rotation ladder composes one, two or three quarter-turns by level, so the
+ * same regression that reads Hick's law off the reaction-time levels reads a rotation rate off these:
+ * median correct latency on the number of turns, in milliseconds per quarter-turn.
+ *
+ * Two honesties. The turns per level is a fixed mapping (`planFor`), so nothing is regenerated — but
+ * the levels also add cubes, five to nine, so the slope is turns-plus-complexity rather than turns
+ * alone, and the copy says so. And only correct responses are timed, as everywhere else on the page.
+ * Untimed, current-generation sessions only, since the mapping belongs to this generation's ladder.
+ */
+export interface RotationScore {
+  /** Median correct latency at one quarter-turn, or null below `MIN_ROTATION_ITEMS`. */
+  oneTurnMs: number | null;
+  oneTurnItems: number;
+  /** Milliseconds per additional quarter-turn, or null below two qualifying turn counts. */
+  slopeMsPerTurn: number | null;
+  /** Turn counts that contributed to the slope. */
+  turnLevels: number;
+}
+
+/** Fewest correct items at a turn count before its median is worth reporting. */
+export const MIN_ROTATION_ITEMS = 5;
+
+export function rotationScore(sessions: Session[]): RotationScore | null {
+  const byTurns = new Map<number, number[]>();
+  for (const session of untimedSessions(sessions)) {
+    if (session.itemVersion !== ITEM_VERSION) continue;
+    for (const response of session.responses) {
+      if (response.type !== 'block-rotation' || !response.correct) continue;
+      const turns = rotationPlanFor(response.difficulty).turns;
+      byTurns.set(turns, [...(byTurns.get(turns) ?? []), response.latencyMs]);
+    }
+  }
+
+  const levels = [...byTurns.entries()]
+    .filter(([, ms]) => ms.length >= MIN_ROTATION_ITEMS)
+    .map(([turns, ms]) => ({ turns, ms: median(ms)! }))
+    .sort((a, b) => a.turns - b.turns);
+  const one = byTurns.get(1) ?? [];
+  const oneTurnMs = one.length >= MIN_ROTATION_ITEMS ? median(one)! : null;
+  const slopeMsPerTurn = levels.length >= 2 ? slope(levels.map((l) => [l.turns, l.ms])) : null;
+
+  if (oneTurnMs === null && slopeMsPerTurn === null) return null;
+  return { oneTurnMs, oneTurnItems: one.length, slopeMsPerTurn, turnLevels: levels.length };
 }
 
 // ---------------------------------------------------------------------------

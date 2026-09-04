@@ -5,7 +5,7 @@
  * rotation right and the mirror image wrong, naming it a mirror.
  */
 import { expect, test } from '@playwright/test';
-import { expectedItem, practiceUrl } from './helpers';
+import { answerCorrectly, clearAppStorage, expectedItem, practiceUrl } from './helpers';
 
 const SEED = 'BLOCKE2E';
 
@@ -36,5 +36,27 @@ test.describe('block rotation', () => {
     await page.getByTestId(`option-${mirror}`).click();
     await expect(page.getByTestId('verdict')).not.toHaveText(/^Correct$/);
     await expect(page.getByTestId('feedback')).toContainText(/mirror|miroir/i);
+  });
+
+  test('the progress page reads a rotation baseline and slope off the levels', async ({ page }) => {
+    test.setTimeout(180_000);
+    await page.goto('en/progress/');
+    await clearAppStorage(page);
+    await page.reload();
+    await expect(page.getByTestId('gv-section')).toHaveCount(0);
+    for (const difficulty of [1, 5] as const) {
+      const opts = { seed: `BLOCKSLOPE${difficulty}`, difficulty, length: 5 };
+      await page.goto(practiceUrl('block-rotation', opts));
+      await expect(page.getByTestId('quiz')).toHaveAttribute('data-hydrated', 'true');
+      for (let i = 0; i < 5; i++) {
+        await answerCorrectly(page, 'block-rotation', opts, i);
+        await page.getByTestId('next').click();
+      }
+      await expect(page.getByTestId('results')).toBeVisible();
+    }
+    await page.goto('en/progress/');
+    await expect(page.getByTestId('gv-section')).toBeVisible();
+    await expect(page.getByTestId('stat-rotation-base')).toContainText(/\d/);
+    await expect(page.getByTestId('stat-rotation-slope')).toContainText(/ms/);
   });
 });

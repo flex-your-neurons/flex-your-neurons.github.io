@@ -30,6 +30,7 @@ import {
   interferenceScore,
   MIN_GONOGO_RUNS,
   retentionScore,
+  rotationScore,
   speedScore,
   switchCostScore,
   tallyErrorTypes,
@@ -232,6 +233,7 @@ export default function ProgressDashboard({ locale }: { locale: Locale }) {
       <InterferenceCard locale={locale} sessions={sessions} />
       <SwitchCostCard locale={locale} sessions={sessions} />
       <SpeedCard locale={locale} sessions={sessions} />
+      <RotationCard locale={locale} sessions={sessions} />
       <RetentionCard locale={locale} sessions={sessions} />
       {hasData && <MistakeProfile locale={locale} sessions={sessions} />}
 
@@ -610,6 +612,36 @@ function SpeedCard({ locale, sessions }: { locale: Locale; sessions: Session[] }
           label={s.omissions(score.goNoGoRuns)}
           value={enoughRuns ? String(score.omissions) : s.notYet}
           testid="stat-omissions"
+        />
+      </div>
+      <p class="muted">{s.note}</p>
+    </section>
+  );
+}
+
+/**
+ * The Gv read-out: time at one quarter-turn and the cost of each further turn, from block rotation.
+ */
+function RotationCard({ locale, sessions }: { locale: Locale; sessions: Session[] }) {
+  const t = dict(locale);
+  const score = rotationScore(sessions);
+  if (!score) return null;
+  const s = t.dashboard.gv;
+
+  return (
+    <section data-testid="gv-section">
+      <h3 class="section-heading section-heading--sm">{s.heading}</h3>
+      <p class="muted dashboard-lede">{s.lede}</p>
+      <div class="card-grid card-grid--fit stat-grid">
+        <Stat
+          label={s.oneTurn(score.oneTurnItems)}
+          value={score.oneTurnMs === null ? s.notYet : formatDuration(score.oneTurnMs, locale)}
+          testid="stat-rotation-base"
+        />
+        <Stat
+          label={s.slope(score.turnLevels)}
+          value={score.slopeMsPerTurn === null ? s.notYet : s.perTurn(Math.round(score.slopeMsPerTurn))}
+          testid="stat-rotation-slope"
         />
       </div>
       <p class="muted">{s.note}</p>

@@ -157,6 +157,11 @@ of those medians as simple reaction time, plus Hick's slope in milliseconds per 
 own levels. Beside it, go / no-go is counted by kind of failure — commissions apart from omissions —
 because pressing on a crossed signal and missing a plain one do not come from the same place.
 
+Block rotation gives the same regression a second reading. Its levels compose one, two or three
+quarter-turns, so the median correct time at one turn is a baseline and the slope over turn counts
+is a rate of mental rotation, the Shepard–Metzler finding read off your own levels. The higher
+levels also add cubes, and the page says so.
+
 ### The one measurement that is a gap in time
 
 Delayed recall gives the progress page its second contrast: recall of paired-associates sets at

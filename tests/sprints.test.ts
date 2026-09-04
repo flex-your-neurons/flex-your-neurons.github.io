@@ -12,6 +12,7 @@ import { describe, expect, it } from 'vitest';
 import {
   interferenceScore,
   retentionScore,
+  rotationScore,
   speedScore,
   sprintSummary,
   summarise,
@@ -511,5 +512,39 @@ describe('retentionScore', () => {
     const b = session('practice', [...learned(2, 2), ...later(2, 0)]);
     expect(retentionScore([a, b])?.delayed).toBe(0.5);
     expect(retentionScore([session('sprint', [...learned(4, 4), ...later(4, 4)])])).toBeNull();
+  });
+});
+
+/**
+ * The Gv read-out. Turns per level is a fixed mapping, so the score bins correct latencies by it and
+ * regresses the medians.
+ */
+describe('rotationScore', () => {
+  function item(difficulty: Difficulty, latencyMs: number, correct = true): Response {
+    return { ...response(correct, latencyMs, difficulty), type: 'block-rotation' };
+  }
+
+  it('says nothing until a turn count has five correct items', () => {
+    expect(rotationScore([session('practice', [1, 2, 3, 4].map(() => item(1, 3000)))])).toBeNull();
+  });
+
+  it('reports the one-turn median and the slope per quarter-turn', () => {
+    // Levels 1 and 2 are one turn, 3 and 4 two, 5 three: 3 s, 4 s, 5 s should read as +1000 ms a turn.
+    const score = rotationScore([
+      session('practice', [
+        ...[3000, 3000, 2800].map((ms) => item(1, ms)),
+        ...[3200, 3000, 9000].map((ms) => item(2, ms, ms !== 9000)),
+        ...[4000, 4000, 4000, 4000, 4000].map((ms) => item(3, ms)),
+        ...[5000, 5000, 5000, 5000, 5000].map((ms) => item(5, ms)),
+      ]),
+    ]);
+    expect(score).toEqual({ oneTurnMs: 3000, oneTurnItems: 5, slopeMsPerTurn: 1000, turnLevels: 3 });
+  });
+
+  it('ignores sprints and older generations', () => {
+    const items = [1, 2, 3, 4, 5].map(() => item(1, 3000));
+    expect(rotationScore([session('sprint', items)])).toBeNull();
+    expect(rotationScore([session('practice', items, { itemVersion: ITEM_VERSION - 1 })])).toBeNull();
+    expect(rotationScore([session('practice', items)])?.oneTurnMs).toBe(3000);
   });
 });

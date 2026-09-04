@@ -536,6 +536,16 @@ const en = {
       note:
         'Three clean blocks at a level before its time is shown, two such levels before a slope, four runs before the go / no-go counts. A block with a false start is not timed.',
     },
+    gv: {
+      heading: 'Turning things in mind',
+      lede:
+        'From the block-rotation items answered correctly. The levels compose one, two or three quarter-turns, so the time at one turn is a baseline and the slope is the rate of mental rotation — how much each further quarter-turn costs, the Shepard–Metzler finding read off your own levels. The higher levels also add cubes, so the slope carries some of that too.',
+      oneTurn: (n: number) => `One quarter-turn (${n} item${n === 1 ? '' : 's'})`,
+      slope: (n: number) => `Cost per further quarter-turn (${n} turn count${n === 1 ? '' : 's'})`,
+      perTurn: (ms: number) => `${ms > 0 ? '+' : ''}${ms} ms`,
+      notYet: 'not yet',
+      note: 'Five correct items at a turn count before its time is shown, two such counts before a slope. Only correct answers are timed.',
+    },
     glr: {
       heading: 'Learning and forgetting',
       lede:
