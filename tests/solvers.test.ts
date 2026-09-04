@@ -2173,6 +2173,3 @@ describe('block rotation', () => {
   });
 });
 
-/**
- * Gear train: direction by counting reversals, speed by the telescoping product, both re-derived
- * here from the 
