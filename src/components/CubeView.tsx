@@ -6,14 +6,7 @@
  * by lightness alone; nothing here carries information in hue.
  */
 import { dict, type Locale } from '../lib/i18n';
-import {
-  affineString,
-  cubeBox,
-  cubeFaces,
-  FACE_SHADE,
-  markPath,
-  type CubeMark,
-} from '../lib/cube-geometry';
+import { cubeBox, cubeFaces, FACE_SHADE, isOrientedMark, markPath, markTransform, type CubeMark } from '../lib/cube-geometry';
 
 const EDGE = 40;
 
@@ -33,10 +26,13 @@ function Mark({ mark, transform }: { mark: CubeMark; transform: string }) {
 /** A cube showing its top, left and right faces. */
 export default function CubeView({
   faces,
+  turns,
   label,
   className,
 }: {
   faces: readonly [CubeMark, CubeMark, CubeMark];
+  /** Quarter turns clockwise of each mark from upright; absent means upright. */
+  turns?: readonly [number, number, number];
   label?: string;
   className?: string;
 }) {
@@ -51,6 +47,7 @@ export default function CubeView({
       aria-label={label}
       aria-hidden={label ? undefined : 'true'}
       data-cube={faces.join('/')}
+      data-turns={turns ? turns.join('') : undefined}
     >
       {drawn.map((face, i) => (
         <g key={i} data-face={['top', 'left', 'right'][i]}>
@@ -62,7 +59,7 @@ export default function CubeView({
             stroke-width={1.2}
             stroke-linejoin="round"
           />
-          <Mark mark={faces[i]!} transform={affineString(face.transform)} />
+          <Mark mark={faces[i]!} transform={markTransform(face.transform, turns?.[i] ?? 0)} />
         </g>
       ))}
     </svg>
@@ -121,8 +118,18 @@ export function NetView({
   );
 }
 
-/** How a cube option reads aloud. */
-export function describeCube(faces: readonly [CubeMark, CubeMark, CubeMark], locale: Locale): string {
-  const t = dict(locale).gen.cubeNet;
-  return t.cube(t.marks[faces[0]], t.marks[faces[1]], t.marks[faces[2]]);
+/** How a cube option reads aloud. Oriented marks say which way they are turned. */
+export function describeCube(
+  faces: readonly [CubeMark, CubeMark, CubeMark],
+  locale: Locale,
+  turns?: readonly [number, number, number],
+): string {
+  const g = dict(locale).gen;
+  if (!turns && !faces.some(isOrientedMark)) {
+    const t = g.cubeNet;
+    return t.cube(t.marks[faces[0]], t.marks[faces[1]], t.marks[faces[2]]);
+  }
+  const t = g.cubeNetOriented;
+  const face = (i: 0 | 1 | 2) => t.turned(t.marks[faces[i]], turns?.[i] ?? 0);
+  return t.cube(face(0), face(1), face(2));
 }

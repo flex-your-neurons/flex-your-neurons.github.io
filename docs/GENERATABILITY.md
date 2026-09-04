@@ -83,6 +83,7 @@ Legend: ✅ pass · ⚠️ passes with engineering · ❌ fails
 | 45 | **Logic grid** (relational constraints over shapes in a row) | Gf | ✅ | ✅ | ✅ | **SHIP** — exhaustive search proves one occupant; clue set pruned to necessary |
 | 46 | **Feature match** (are two symbol panels identical) | Gs | ✅ | ✅ | ✅ | **SHIP** — one pair, one feature; same/different balanced |
 | 47 | **Cube net** (DAT Space Relations; which cube folds from the net) | Gv | ✅ | ✅ | ✅ | **SHIP** — folded by rolling; distractors are opposite-face pairs or the mirror-handed corner |
+| 51 | **Oriented cube net** (DAT Space Relations as set: patterned faces) | Gv | ✅ | ✅ | ✅ | **SHIP** — the same roll tracks each face's up; a `wrong-turn` distractor shares the answer's faces and handedness |
 | 48 | **Number-line estimation** (Siegler & Opfer) | Gq | ✅ | ✅ | ✅ | **SHIP** — graded by distance within a tolerance; the estimate itself is the response |
 | 49 | **Block rotation** (Shepard–Metzler polycubes) | Gv | ✅ | ✅ | ✅ | **SHIP** — chirality over 24 rotations; distractors match count and extents |
 | 50 | **Gear train** (Bennett / DAT mechanical reasoning, the generatable corner of it) | Gv | ✅ | ✅ | ✅ | **SHIP** — direction and speed both computed; the three misreadings are the distractors |
@@ -169,6 +170,7 @@ Thirty-two generators across seven CHC domains:
 | `gear-train` | wheels joined by teeth or belts, the first turning clockwise; which way and how fast does the last turn | wheels (2–5); belts enter at 3, crossed belts at 4 |
 | `block-rotation` | a polycube and four more; which is the same object turned | blocks (5–9) and quarter-turns composed (1–3) |
 | `cube-net` | six marked squares laid flat; which of five cubes folds from them | the cross net, then any of the eleven; distractors go from opposite-face pairs (4) to mirror-handed corners (4) |
+| `cube-net-oriented` | six squares whose marks have a top; which of six cubes folds from them with every mark the right way up | cross net and half-turns, then any net, quarter-turns, two mirror pairs, and mirrors whose marks are turned as the true cube's |
 | `pattern-recall` | a 4×4 grid flashes a set of cells; tap the set back | cells to hold (3–7), and nothing else |
 | `paired-associates` | boxes open on symbols one by one; a filled 7 s interval; which box held this one? | pairings to learn (3–7) |
 
@@ -331,6 +333,16 @@ Thirty-two generators across seven CHC domains:
 > milliseconds per quarter-turn — Shepard and Metzler's slope, by the same code that reads Hick's.
 > The cube count rises with the level too, so the slope is turns-plus-complexity, and the copy says
 > so rather than pretending otherwise.
+>
+> Row 51, `cube-net-oriented`, is row 47 with the constraint its notes said they had dropped on
+> purpose: oriented marks. The rolling fold already carried the cube's whole orientation, so each
+> square's up-direction came out of the same walk (`foldNetOriented`), and `faceTurns` reads a mark's
+> quarter-turn off the drawn corner. Two things had to change under it. The top face's drawing frame
+> was a reflection — harmless for symmetric marks, wrong for an L — and is now orientation-preserving
+> like the other two. And the turned distractor necessarily shares the answer's face set, which a
+> blind count of sets would have spotted; so the format deals six options in three pairs by face set,
+> and the count is uniform. Level 5's mirrors carry the true cube's turns on the faces they share, so
+> face-by-face checking clears them and only handedness convicts.
 >
 > The six Gwm ladders are spans, and the progress page now says so in each format's unit — the
 > **span profile** (`src/lib/spans.ts`) maps peak level back through each generator's own `planFor`,

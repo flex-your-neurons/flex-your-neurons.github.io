@@ -425,6 +425,7 @@ const en = {
       commission: 'pressed on stop',
       omission: 'missed a go',
       'opposite-faces': 'opposite faces',
+      'wrong-turn': 'mark turned',
       overshoot: 'too far right',
       undershoot: 'too far left',
       plausible: 'near miss',
@@ -454,6 +455,8 @@ const en = {
         'You left a plain signal unpressed. Not a failure of control but a lapse: the run went on and, for one signal, attention did not. On a go/no-go task this is the opposite error to the one it is looking for, and if it recurs it means the pace has been set too cautious — press sooner and let the crossed signals do the stopping.',
       'opposite-faces':
         'Two of the faces shown are opposite each other on the folded cube, so they can never be seen together. This is the first thing to settle on a net: squares separated by exactly one square in a straight line always end up opposite, and each such pair rules out every cube that shows both.',
+      'wrong-turn':
+        'The three faces are right and so is the way they go round the corner; one of the marks is turned. You followed which squares of the net meet and not which edges meet. On a net, the edge a square shares with its neighbour is the edge that stays put when it folds — so a mark’s top ends up pointing wherever the edge it pointed at has gone. Pick one face, find the edge its mark points to, and follow that edge round.',
       overshoot:
         'The mark landed past the target. On a long line this is the classic compression: the small numbers feel further along than they are, because the sense of magnitude grows more slowly than the numbers do. Anchor first — find the midpoint, then the quarter — and place the mark from the nearest anchor rather than from the left end.',
       undershoot:
@@ -921,6 +924,13 @@ const en = {
       description:
         'A net of six squares, each carrying a mark, and several cubes seen corner-on. Only one of the cubes can be folded from the net. The others show either two faces that would be opposite on the finished cube, or the right three faces arranged the wrong way round — a mirror image no folding can make. This is the other half of paper folding: the sheet closing up rather than opening out, and the item that spatial aptitude batteries have carried since the Differential Aptitude Tests. The marks are all symmetric, so which way up a face lands does not matter; the corner’s handedness is the whole task.',
       seenIn: 'DAT Space Relations, ASVAB Assembling Objects (cousin), many entrance and apprenticeship exams',
+    },
+    'cube-net-oriented': {
+      name: 'Oriented cube net',
+      blurb: 'Six squares whose marks have a top. Which cube do they fold into?',
+      description:
+        'The cube net with the constraint the plain one leaves out. Each square carries a mark that has a top — an arrow, an L, a half-disc — so which way up a face lands is part of the answer, and a cube showing the right three faces, the right way round, with one mark a quarter-turn off is wrong. That is the Differential Aptitude Tests item as actually set: following not just which squares of the net meet but which edges meet. Six options in three pairs: the answer and the answer with one mark turned, a mirror-image corner and its turned twin, and a corner showing two opposite faces, twice. At the top level the mirrors’ marks are turned exactly as the true cube’s would be, so only the handedness gives them away.',
+      seenIn: 'DAT Space Relations (with patterned faces), Bennett-style spatial batteries, many apprenticeship and engineering entrance tests',
     },
     'block-rotation': {
       name: 'Block rotation',
@@ -1465,6 +1475,35 @@ const en = {
       ruleMirror:
         'A cube showing the right three faces the other way round is the mirror image, which no folding of the net can produce. Pick a corner of the net where three squares meet and follow them round.',
     },
+    cubeNetOriented: {
+      prompt: 'Which cube can be folded from this net, marks the right way up?',
+      marks: {
+        disc: 'a dot',
+        ring: 'a ring',
+        square: 'a filled square',
+        frame: 'a hollow square',
+        plus: 'a plus',
+        cross: 'a cross',
+        arrow: 'an arrow',
+        ell: 'an L',
+        half: 'a half-disc',
+        wedge: 'a corner triangle',
+        tee: 'a T',
+        flag: 'a flag',
+      } as Record<import('../cube-geometry').CubeMark, string>,
+      /** A mark and how far it is turned from upright, clockwise, in quarter turns. */
+      turned: (mark: string, turns: number) =>
+        turns === 0 ? `${mark}, upright` : turns === 1 ? `${mark}, turned a quarter clockwise` : turns === 2 ? `${mark}, upside down` : `${mark}, turned a quarter anticlockwise`,
+      cube: (top: string, left: string, right: string) => `a cube with ${top} on top; ${left} on the left; ${right} on the right`,
+      pair: (a: string, b: string) => `${a} and ${b}`,
+      summary: (option: number) => `Option ${option}: those three faces meet at one corner of the folded cube, in that order, with every mark pointing the way the fold sends it.`,
+      ruleOpposite: (pairs: string[]) =>
+        `Squares separated by one square in a straight line of the net end up opposite each other, and opposite faces are never seen together. Here the opposite pairs are ${pairs.join('; ')}.`,
+      ruleEdges:
+        'The edge a square shares with its neighbour stays put when it folds, so a mark’s top ends up pointing wherever the edge it pointed at has gone. Two cubes can show the same three faces the same way round and differ only in how one mark is turned; only one of them folds from the net.',
+      ruleMirror:
+        'A cube showing the right three faces the other way round is the mirror image, which no folding of the net can produce — however its marks are turned. Pick a corner of the net where three squares meet and follow them round.',
+    },
     blockRotation: {
       prompt: 'Which of these is the shape above, turned?',
       summary: (option: number, turns: number) =>
@@ -1934,7 +1973,7 @@ const en = {
         },
       ],
       notMeasuredClose:
-        'That applies recursively to this site. High accuracy on these forty formats is evidence about these forty formats, and about nothing else.',
+        'That applies recursively to this site. High accuracy on these forty-one formats is evidence about these forty-one formats, and about nothing else.',
 
       difficultyP3:
         'What that does not amount to is calibration. The bands are *designed* from published cognitive operators — a defensible ordering — but no item here carries a difficulty parameter fitted to real response data, which is what item-response theory means by difficulty. So the adaptive ladder is a staircase that keeps you near your own success rate, not an estimate of your ability.',

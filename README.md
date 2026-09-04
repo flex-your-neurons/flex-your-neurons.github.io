@@ -42,7 +42,7 @@ Node 22.12+ is required (Astro 7).
 | `tests/` | Property-style unit tests, swept over hundreds of seeds |
 | `e2e/` | Playwright tests against the built static site |
 
-## The forty formats
+## The forty-one formats
 
 | Format | CHC | Verification |
 |--------|-----|--------------|
@@ -59,6 +59,7 @@ Node 22.12+ is required (Astro 7).
 | Block rotation | Gv | Shepard–Metzler in 3-D: chirality proved over all 24 rotations; the mirror and two one-block moves share count and extents with the answer |
 | Paper folding | Gv | The unfolding is simulated, not asserted |
 | Cube net | Gv | The net is folded by rolling; the eleven nets are found, not typed; one option is right-handed |
+| Oriented cube net | Gv | The same fold tracks each face's up-direction; marks are turned on the drawn cube; six options in three pairs by face set, so counting sets says nothing |
 | Turned clock | Gv | The time is recovered by undoing the rotation on the drawn hand angles |
 | Pattern recall | Gv | Tapped set compared as a fixed-width bitmask; nameable patterns (full row, filled block) rejected |
 | Figure weights | Gf | Every candidate group weighed; exactly one may balance — decidable |
@@ -88,7 +89,7 @@ Node 22.12+ is required (Astro 7).
 | Number pyramid | Gq | Every cell re-derived from the base; the blanks are compared one by one, not as one string |
 | Table reasoning | Gq | The keyed value re-derived by parsing the printed question against the printed cells |
 
-Seven CHC domains: **Gf 9, Gv 7, Gwm 6, Glr 1 (plus a scheduled delayed probe), Gs 7, Gt 2, Gq 8** — and no Gc at all, which is a
+Seven CHC domains: **Gf 9, Gv 8, Gwm 6, Glr 1 (plus a scheduled delayed probe), Gs 7, Gt 2, Gq 8** — and no Gc at all, which is a
 limit of generation rather than an oversight and is the reason no Full Scale figure is even
 approximable. Glr and Gt arrived in 2026-09 with the gap analysis against *Brain Age*, Human
 Benchmark and Cambridge Brain Sciences: associative memory can be generated where vocabulary cannot,

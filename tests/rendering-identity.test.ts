@@ -166,15 +166,17 @@ describe('no item shows the same drawing twice where it must not', () => {
   });
 
   it('every cube option list is distinguishable without seeing it', () => {
-    for (const d of DIFFICULTIES) {
-      for (const seed of SEEDS) {
-        const item = generateItem('cube-net', seed, d);
-        const described = item.options.map((o) =>
-          o.kind === 'cube' ? describeCube(o.faces, DEFAULT_LOCALE) : '',
-        );
-        expect(new Set(described).size, `cube-net/${seed}/d${d}: two options describe identically`).toBe(
-          described.length,
-        );
+    for (const type of ['cube-net', 'cube-net-oriented'] as const) {
+      for (const d of DIFFICULTIES) {
+        for (const seed of SEEDS) {
+          const item = generateItem(type, seed, d);
+          const described = item.options.map((o) =>
+            o.kind === 'cube' ? describeCube(o.faces, DEFAULT_LOCALE, o.turns) : '',
+          );
+          expect(new Set(described).size, `${type}/${seed}/d${d}: two options describe identically`).toBe(
+            described.length,
+          );
+        }
       }
     }
   });

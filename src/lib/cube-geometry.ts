@@ -25,10 +25,26 @@
  * that cannot be dismissed without imagining the fold.
  */
 
-/** The six markings a face can carry. All are unchanged by a quarter turn and by reflection, so
- *  the picture of a face does not depend on which way up the face landed. */
+/** The six markings a face can carry in the plain cube-net format. All are unchanged by a quarter
+ *  turn and by reflection, so the picture of a face does not depend on which way up the face landed. */
 export const CUBE_MARKS = ['disc', 'ring', 'square', 'frame', 'plus', 'cross'] as const;
-export type CubeMark = (typeof CUBE_MARKS)[number];
+export type SymmetricMark = (typeof CUBE_MARKS)[number];
+
+/**
+ * The six *oriented* markings of the oriented cube-net format. Each looks different under every
+ * quarter turn, so which way up a face landed is part of the answer — the DAT constraint the plain
+ * format deliberately dropped. None is symmetric under any rotation, and the drawing never reflects
+ * a face, so a mark's handedness is not a thing a reader can be wrong about.
+ */
+export const ORIENTED_MARKS = ['arrow', 'ell', 'half', 'wedge', 'tee', 'flag'] as const;
+export type OrientedMark = (typeof ORIENTED_MARKS)[number];
+
+export type CubeMark = SymmetricMark | OrientedMark;
+export const ALL_CUBE_MARKS: readonly CubeMark[] = [...CUBE_MARKS, ...ORIENTED_MARKS];
+
+export function isOrientedMark(mark: CubeMark): mark is OrientedMark {
+  return (ORIENTED_MARKS as readonly string[]).includes(mark);
+}
 
 /** Cube directions, indexed so that `i ^ 1` is the opposite face and `i >> 1` the axis. */
 export const DIRECTIONS = ['+x', '-x', '+y', '-y', '+z', '-z'] as const;
@@ -110,6 +126,25 @@ function roll(orient: readonly number[], dr: number, dc: number): number[] {
  * reached along two paths that disagree.
  */
 export function foldNet(cells: readonly NetCell[]): number[] | null {
+  return foldNetOriented(cells)?.map((cell) => cell.face) ?? null;
+}
+
+/** One square of a folded net: the cube direction its face points, and the cube direction its
+ *  page-up edge points — both in the cube's own frame, with cell 0 face-down and upright. */
+export interface FoldedCell {
+  face: number;
+  up: number;
+}
+
+/**
+ * Folds a net, keeping each face's orientation as well as its direction.
+ *
+ * The rolling walk tracks the whole orientation of the cube, so this comes free: when the cube sits
+ * on a square, the square's page-up edge points world −y, and `orient[NY]` names which of the cube's
+ * own directions is pointing that way. That is the direction the mark's top points on the finished
+ * cube. Checked by hand on the cross in the test suite: the roof's mark points towards the back.
+ */
+export function foldNetOriented(cells: readonly NetCell[]): FoldedCell[] | null {
   if (cells.length !== 6) return null;
   const index = new Map<string, number>();
   cells.forEach((cell, i) => index.set(`${cell.r},${cell.c}`, i));
@@ -145,8 +180,40 @@ export function foldNet(cells: readonly NetCell[]): number[] | null {
   }
   if (faceOf.some((f) => f < 0)) return null;
   if (new Set(faceOf).size !== 6) return null;
-  return faceOf;
+  return cells.map((_, i) => ({ face: faceOf[i]!, up: orientAt[i]![NY]! }));
 }
+
+/**
+ * Quarter turns clockwise for each drawn face's mark, given which cube directions are shown at
+ * top, left and right and which cube direction each face's mark points.
+ *
+ * The drawn cube is the cube rotated so that `shown[0]` faces +z, `shown[1]` −y and `shown[2]` +x;
+ * a mark's up-direction goes through the same rotation and lands on one of the four in-plane
+ * directions of its face, and each face's drawing has a fixed frame (see `cubeFaces`): on top, up
+ * is +y and right is +x; on the left face up is +z and right is +x; on the right face up is +z and
+ * right is +y. The mark is drawn upright and then turned to match.
+ *
+ * For a right-handed `shown` this is the picture of a real cube. For a mirror-handed one the same
+ * lookup still yields four in-plane directions, so a mirror option draws as a physically possible
+ * cube — just not this net's — which is what a mirror distractor has to be.
+ */
+export function faceTurns(shown: readonly [number, number, number], upOf: readonly number[]): [number, number, number] {
+  const [a, b, c] = shown;
+  const world = (u: number): number => (u === a ? PZ : u === (a ^ 1) ? NZ : u === b ? NY : u === (b ^ 1) ? PY : u === c ? PX : NX);
+  // [up, right, down, left] world directions, per drawn face.
+  const frames: [number, number, number, number][] = [
+    [PY, PX, NY, NX],
+    [PZ, PX, NZ, NX],
+    [PZ, PY, NZ, NY],
+  ];
+  return shown.map((face, i) => {
+    const w = world(upOf[face]!);
+    const turn = frames[i]!.indexOf(w);
+    if (turn < 0) throw new Error(`faceTurns: mark on face ${face} points along its own normal`);
+    return turn;
+  }) as [number, number, number];
+}
+
 
 /**
  * Every fixed hexomino that folds into a cube, as cells normalised to the top-left. There are
@@ -237,6 +304,19 @@ export function markPath(mark: CubeMark): { d: string; evenOdd: boolean } {
       return { d: rect(0.24, 0.24, 0.52, 0.52) + rect(0.33, 0.33, 0.34, 0.34), evenOdd: true };
     case 'plus':
       return { d: rect(0.44, 0.18, 0.12, 0.64) + rect(0.18, 0.44, 0.64, 0.12), evenOdd: false };
+    // The oriented marks, drawn upright: their top points to y = 0 of the unit square.
+    case 'arrow':
+      return { d: 'M0.5,0.16 L0.8,0.48 L0.61,0.48 L0.61,0.84 L0.39,0.84 L0.39,0.48 L0.2,0.48 Z ', evenOdd: false };
+    case 'ell':
+      return { d: rect(0.3, 0.18, 0.14, 0.64) + rect(0.3, 0.68, 0.42, 0.14), evenOdd: false };
+    case 'half':
+      return { d: `M0.22,0.52 A0.28,0.28 0 0,1 0.78,0.52 Z `, evenOdd: false };
+    case 'wedge':
+      return { d: 'M0.2,0.2 L0.8,0.2 L0.2,0.8 Z ', evenOdd: false };
+    case 'tee':
+      return { d: rect(0.18, 0.18, 0.64, 0.14) + rect(0.43, 0.18, 0.14, 0.64), evenOdd: false };
+    case 'flag':
+      return { d: rect(0.3, 0.16, 0.1, 0.68) + 'M0.4,0.16 L0.78,0.32 L0.4,0.48 Z ', evenOdd: false };
     case 'cross': {
       // The plus turned 45° about the centre, as explicit coordinates.
       const arm = (angle: number) => {
@@ -278,6 +358,37 @@ export function affineString(m: Affine): string {
   return `matrix(${m.map(f).join(' ')})`;
 }
 
+/** `m ∘ n`: apply `n`, then `m`. */
+export function composeAffine(m: Affine, n: Affine): Affine {
+  return [
+    m[0] * n[0] + m[2] * n[1],
+    m[1] * n[0] + m[3] * n[1],
+    m[0] * n[2] + m[2] * n[3],
+    m[1] * n[2] + m[3] * n[3],
+    m[0] * n[4] + m[2] * n[5] + m[4],
+    m[1] * n[4] + m[3] * n[5] + m[5],
+  ];
+}
+
+/** The unit square turned `turns` quarter turns clockwise about its centre. */
+export function unitTurn(turns: number): Affine {
+  switch (((turns % 4) + 4) % 4) {
+    case 0:
+      return [1, 0, 0, 1, 0, 0];
+    case 1:
+      return [0, 1, -1, 0, 1, 0];
+    case 2:
+      return [-1, 0, 0, -1, 1, 1];
+    default:
+      return [0, -1, 1, 0, 0, 1];
+  }
+}
+
+/** A face's mark transform: the face's affine map, with the mark turned first. */
+export function markTransform(face: Affine, turns = 0): string {
+  return affineString(turns === 0 ? face : composeAffine(face, unitTurn(turns)));
+}
+
 /** The isometric axes, for a cube of edge `s`, drawn in a box `cubeBox(s)` wide and high. */
 const COS30 = Math.sqrt(3) / 2;
 
@@ -307,9 +418,16 @@ export function cubeFaces(s: number): { transform: Affine; points: string }[] {
     origin[0],
     origin[1],
   ];
+  /*
+   * Every face's frame is orientation-preserving — the unit square's right and down map to the
+   * face's right and down as the viewer sees them — so an oriented mark is never drawn reflected.
+   * The top face's frame runs u along x and v along −y (its origin at the back-left corner) for
+   * that reason; with v along +y the frame was a reflection, harmless for the symmetric marks and
+   * wrong for an L.
+   */
   return [
-    // Top (+z): u along x, v along y.
-    { transform: map(X, Y, at(0, 0, 1)), points: poly([at(0, 0, 1), at(1, 0, 1), at(1, 1, 1), at(0, 1, 1)]) },
+    // Top (+z): u along x, v along −y; up on this face is +y.
+    { transform: map(X, [-Y[0], -Y[1]], at(0, 1, 1)), points: poly([at(0, 0, 1), at(1, 0, 1), at(1, 1, 1), at(0, 1, 1)]) },
     // Left (-y): u along x, v down.
     { transform: map(X, [-Z[0], -Z[1]], at(0, 0, 1)), points: poly([at(0, 0, 0), at(1, 0, 0), at(1, 0, 1), at(0, 0, 1)]) },
     // Right (+x): u along y, v down.

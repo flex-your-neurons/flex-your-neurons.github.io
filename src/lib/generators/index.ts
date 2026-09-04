@@ -16,6 +16,7 @@ import { rotationGenerator } from './rotation';
 import { blockRotationGenerator } from './block-rotation';
 import { paperFoldingGenerator } from './paper-folding';
 import { cubeNetGenerator } from './cube-net';
+import { cubeNetOrientedGenerator } from './cube-net-oriented';
 import { spanGenerator } from './span';
 import { symbolSearchGenerator } from './symbol-search';
 import { codingGenerator } from './coding';
@@ -66,6 +67,7 @@ export const GENERATORS: Generator[] = [
   blockRotationGenerator,
   paperFoldingGenerator,
   cubeNetGenerator,
+  cubeNetOrientedGenerator,
   clockSpinGenerator,
   gearTrainGenerator,
   patternRecallGenerator,

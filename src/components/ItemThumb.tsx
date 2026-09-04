@@ -220,7 +220,7 @@ function ThumbBody({ item, locale }: { item: Item; locale: Locale }) {
             →
           </span>
           <div class="thumb-slot thumb-slot--wide">
-            {answer?.kind === 'cube' ? <CubeView faces={answer.faces} className="thumb-svg" /> : null}
+            {answer?.kind === 'cube' ? <CubeView faces={answer.faces} turns={answer.turns} className="thumb-svg" /> : null}
           </div>
         </div>
       );

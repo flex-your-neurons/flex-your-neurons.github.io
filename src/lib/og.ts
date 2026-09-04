@@ -31,7 +31,7 @@ import { TYPE_CHROMA, TYPE_LIGHTNESS } from './identity';
 import { handAngles, pointAt, tickAngles } from './clock';
 import { HAND_DRAWINGS } from './hands';
 import { BASE_Y, BEAD, beadPath, PEG_X, TOWER_BOX } from './tower-geometry';
-import { affineString, cubeBox, cubeFaces, FACE_SHADE, markPath, type CubeMark } from './cube-geometry';
+import { cubeBox, cubeFaces, FACE_SHADE, markPath, markTransform, type CubeMark } from './cube-geometry';
 import { drawPolycube, POLYCUBE_SHADE, type Cube } from './polycube-geometry';
 import { layoutTrain, toothDash } from './gear-geometry';
 import { ANTICLOCKWISE, CLOCKWISE } from './generators/gear-train';
@@ -130,14 +130,20 @@ function shapeSvg(shape: Shape, layout: Figure['layout']): string {
  * so nothing has to be rescaled by hand.
  */
 /** A cube seen corner-on, for the cube-net card. Same geometry as the on-page `CubeView`. */
-export function cubeTile(faces: readonly [CubeMark, CubeMark, CubeMark], x: number, y: number, size: number): string {
+export function cubeTile(
+  faces: readonly [CubeMark, CubeMark, CubeMark],
+  x: number,
+  y: number,
+  size: number,
+  turns?: readonly [number, number, number],
+): string {
   const edge = 40;
   const { w, h } = cubeBox(edge);
   const parts = cubeFaces(edge).map((face, i) => {
     const mark = markPath(faces[i]!);
     return (
       `<polygon points="${face.points}" fill="${INK}" fill-opacity="${FACE_SHADE[i]}" stroke="${INK}" stroke-width="1.2" stroke-linejoin="round"/>` +
-      `<path d="${mark.d}" transform="${affineString(face.transform)}" fill="${INK}" fill-rule="${mark.evenOdd ? 'evenodd' : 'nonzero'}"/>`
+      `<path d="${mark.d}" transform="${markTransform(face.transform, turns?.[i] ?? 0)}" fill="${INK}" fill-rule="${mark.evenOdd ? 'evenodd' : 'nonzero'}"/>`
     );
   });
   return `<svg x="${x}" y="${y}" width="${size}" height="${size}" viewBox="-2 -2 ${w + 4} ${h + 4}" preserveAspectRatio="xMidYMid meet" data-cube="">${parts.join('')}</svg>`;
@@ -722,7 +728,7 @@ function stage(item: Item): string {
       return [
         netTile(s, at[0]!.x, at[0]!.y, box),
         `<text x="${(at[0]!.x + box + at[1]!.x) / 2}" y="${mid}" text-anchor="middle" dominant-baseline="central" font-size="34" fill="${ACCENT}">→</text>`,
-        answer?.kind === 'cube' ? cubeTile(answer.faces, at[1]!.x, at[1]!.y, box) : '',
+        answer?.kind === 'cube' ? cubeTile(answer.faces, at[1]!.x, at[1]!.y, box, answer.turns) : '',
       ].join('');
     }
 

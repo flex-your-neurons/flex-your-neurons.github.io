@@ -40,6 +40,7 @@ export const PREVIEW_PINS: Record<ItemTypeId, Pin> = {
   rotation: { seed: 'PRVROTAT', difficulty: 2 },
   'paper-folding': { seed: 'PRVFOLDS', difficulty: 1 },
   'cube-net': { seed: 'PRVCUBES', difficulty: 3 },
+  'cube-net-oriented': { seed: 'PRVCUBET', difficulty: 3 },
   'block-rotation': { seed: 'PRVBLOCK', difficulty: 2 },
   // Scheduled, not offered; pinned so a share card for it still renders should one ever be asked for.
   'pairs-delayed': { seed: 'PRVPAIRS', difficulty: 2 },

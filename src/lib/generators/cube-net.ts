@@ -89,7 +89,7 @@ export type CubeFaces = [top: CubeMark, left: CubeMark, right: CubeMark];
 const MAX_ATTEMPTS = 100;
 
 /** The eight corners, each as its three directions in a drawable order. */
-function corners(): [number, number, number][] {
+export function corners(): [number, number, number][] {
   const out: [number, number, number][] = [];
   for (const x of [0, 1]) {
     for (const y of [2, 3]) {
@@ -108,7 +108,7 @@ function corners(): [number, number, number][] {
 }
 
 /** The three rotations of a drawable ordering, all drawable. */
-function rotations([a, b, c]: [number, number, number]): [number, number, number][] {
+export function rotations([a, b, c]: [number, number, number]): [number, number, number][] {
   return [
     [a, b, c],
     [b, c, a],

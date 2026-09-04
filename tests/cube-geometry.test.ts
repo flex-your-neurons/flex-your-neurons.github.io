@@ -5,8 +5,12 @@
  */
 import { describe, expect, it } from 'vitest';
 import {
+  faceTurns,
   FIXED_NETS,
   foldNet,
+  foldNetOriented,
+  ORIENTED_MARKS,
+  markPath,
   isCrossNet,
   isDrawableCorner,
   netSymmetryClass,
@@ -58,5 +62,44 @@ describe('cube geometry', () => {
     let drawable = 0;
     for (const a of [0, 1, 2, 3, 4, 5]) for (const b of [0, 1, 2, 3, 4, 5]) for (const c of [0, 1, 2, 3, 4, 5]) if (isDrawableCorner(a, b, c)) drawable++;
     expect(drawable).toBe(8 * 3);
+  });
+
+  /**
+   * The cross folded by hand, with orientation. Cells (r, c): A(0,1) B(1,0) C(1,1) D(1,2) E(2,1)
+   * F(3,1), C first so it is the base. Fold the flaps up with the printed side out: A stands at −y
+   * with its top pointing up (+z); D stands at +x and its top, along the hinge, still points −y; E
+   * stands at +y with its top pointing down at the hinge (−z); F folds over E onto the roof and its
+   * top, which pointed at E's hinge, now points back towards +y.
+   */
+  it('folds the cross with each face the right way up', () => {
+    const cells = [
+      { r: 1, c: 1 },
+      { r: 0, c: 1 },
+      { r: 1, c: 0 },
+      { r: 1, c: 2 },
+      { r: 2, c: 1 },
+      { r: 3, c: 1 },
+    ];
+    const folded = foldNetOriented(cells)!;
+    expect(folded).not.toBeNull();
+    expect(folded.map((f) => f.face)).toEqual([NZ, NY, NX, PX, PY, PZ]);
+    expect(folded.map((f) => f.up)).toEqual([NY, PZ, NY, NY, NZ, PY]);
+  });
+
+  it('turns a mark on the drawn cube to match where its top points', () => {
+    // Show the cross's +z on top, −y left, +x right — the cube as it sits on its own base.
+    const upOf = new Array<number>(6);
+    upOf[NZ] = NY; upOf[NY] = PZ; upOf[NX] = NY; upOf[PX] = NY; upOf[PY] = NZ; upOf[PZ] = PY;
+    // Top face F points +y = up on the top face; left face A points +z = up; right face D points −y = left.
+    expect(faceTurns([PZ, NY, PX], upOf)).toEqual([0, 0, 3]);
+    // The same cube rolled so that +x is on top: D's top (−y) now reads as the top face's down.
+    expect(faceTurns([PX, NY, NZ], upOf)[0]).toBe(2);
+  });
+
+  it('gives every oriented mark a drawing, and none of them a symmetric one', () => {
+    for (const mark of ORIENTED_MARKS) {
+      const { d } = markPath(mark);
+      expect(d.length).toBeGreaterThan(10);
+    }
   });
 });

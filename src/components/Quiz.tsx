@@ -1280,7 +1280,7 @@ function OptionBody({ option }: { option: Option }) {
     case 'cube':
       return (
         <span class="option-figure option-figure--cube">
-          <CubeView faces={option.faces} />
+          <CubeView faces={option.faces} turns={option.turns} />
         </span>
       );
     case 'polycube':
@@ -1302,7 +1302,7 @@ function optionLabel(option: Option, i: number, locale: Locale): string {
     case 'grid':
       return t.quiz.optionLabel(i + 1, describeGrid(option.grid, locale));
     case 'cube':
-      return t.quiz.optionLabel(i + 1, describeCube(option.faces, locale));
+      return t.quiz.optionLabel(i + 1, describeCube(option.faces, locale, option.turns));
     case 'polycube':
       return t.quiz.optionLabel(i + 1, describePolycube(option.cubes, locale));
   }

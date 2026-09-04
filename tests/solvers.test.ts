@@ -37,6 +37,7 @@ import { handAngles, twelveHour } from '@/lib/clock';
 import { dict } from '@/lib/i18n';
 import { DIFFICULTIES, HANDS, type Difficulty, type Figure, type Hand } from '@/lib/types';
 import { marksByDirection, planFor } from '@/lib/generators/cube-net';
+import { OPTION_COUNT as ORIENTED_OPTIONS, orientationByDirection, planFor as orientedPlanFor } from '@/lib/generators/cube-net-oriented';
 import { LINE_UNITS, positionOf, toleranceFor } from '@/lib/generators/number-line';
 import { planFor as blockPlanFor } from '@/lib/generators/block-rotation';
 import { ANTICLOCKWISE, CLOCKWISE, planFor as gearPlanFor, solveTrain, speedLabel } from '@/lib/generators/gear-train';
@@ -49,7 +50,7 @@ import {
   mirror as mirror3,
   sortedExtents,
 } from '@/lib/polycube-geometry';
-import { isCrossNet, isDrawableCorner } from '@/lib/cube-geometry';
+import { faceTurns, isCrossNet, isDrawableCorner } from '@/lib/cube-geometry';
 import { isUnambiguous, solveSeries } from '@/lib/solvers/series';
 import { predict, solveAttribute, type Rule } from '@/lib/rules';
 import { createRng, deriveSeed, hashSeed, normaliseSeed } from '@/lib/rng';
@@ -2100,6 +2101,49 @@ describe('cube net', () => {
         });
         expect(item.options).toHaveLength(5);
         expect(item.errorTypes.filter((e) => e === 'mirror')).toHaveLength(planFor(d).mirrors);
+        if (d === 1) expect(isCrossNet(item.stimulus.cells)).toBe(true);
+      }
+    }
+  });
+});
+
+/**
+ * Oriented cube net: the answer is the one option that is both a drawable corner and has every mark
+ * turned as the fold turns it, checked by folding the net again with orientation. The turned
+ * distractor shares the answer's faces and differs in exactly one turn; mirrors are mirror-handed
+ * whatever their turns; and every face set is shared by exactly two options.
+ */
+describe('oriented cube net', () => {
+  it('offers exactly one drawable, correctly turned cube, in three pairs by face set', () => {
+    for (const d of DIFFICULTIES) {
+      for (let i = 0; i < 60; i++) {
+        const item = generateItem('cube-net-oriented', `OCUBE${i}`, d);
+        if (item.stimulus.kind !== 'cube-net') throw new Error('expected a cube-net stimulus');
+        const folded = orientationByDirection(item.stimulus.cells);
+        expect(folded).not.toBeNull();
+        const dirOf = (mark: string) => folded!.markAt.indexOf(mark as never);
+        const answer = item.options[item.answerIndex]!;
+        if (answer.kind !== 'cube') throw new Error('expected cube options');
+        const sets = new Map<string, number>();
+        item.options.forEach((option, k) => {
+          if (option.kind !== 'cube') throw new Error('expected cube options');
+          const dirs = option.faces.map(dirOf) as [number, number, number];
+          const drawable = isDrawableCorner(...dirs);
+          const turnedRight = drawable && faceTurns(dirs, folded!.upOf).join('') === option.turns!.join('');
+          expect(turnedRight, `${d}/${i}/${k}`).toBe(k === item.answerIndex);
+          const errorType = item.errorTypes[k];
+          if (errorType === 'wrong-turn') {
+            expect(option.faces).toEqual(answer.faces);
+            expect(option.turns!.filter((t, f) => t !== answer.turns![f]).length).toBe(1);
+          }
+          if (errorType === 'mirror') expect(isDrawableCorner(dirs[0], dirs[2], dirs[1])).toBe(true);
+          if (errorType === 'opposite-faces') expect(new Set(dirs.map((x) => x >> 1)).size).toBe(2);
+          const setKey = [...option.faces].sort().join('/');
+          sets.set(setKey, (sets.get(setKey) ?? 0) + 1);
+        });
+        expect(item.options).toHaveLength(ORIENTED_OPTIONS);
+        expect([...sets.values()]).toEqual([2, 2, 2]);
+        expect(item.errorTypes.filter((e) => e === 'mirror')).toHaveLength(orientedPlanFor(d).mirrorPairs * 2);
         if (d === 1) expect(isCrossNet(item.stimulus.cells)).toBe(true);
       }
     }

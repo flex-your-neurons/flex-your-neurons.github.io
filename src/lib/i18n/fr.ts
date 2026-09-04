@@ -318,6 +318,7 @@ const fr: Dict = {
       commission: 'appui sur stop',
       omission: 'signal manqué',
       'opposite-faces': 'faces opposées',
+      'wrong-turn': 'marque tournée',
       overshoot: 'trop à droite',
       undershoot: 'trop à gauche',
       plausible: 'presque juste',
@@ -347,6 +348,8 @@ const fr: Dict = {
         'Vous avez laissé passer un signal plein sans appuyer. Pas un défaut de contrôle mais un relâchement : la suite a continué et, pour un signal, l’attention non. Dans une tâche go/no-go c’est l’erreur opposée à celle qu’on cherche, et si elle se répète c’est que le rythme est trop prudent : appuyez plus tôt et laissez les signaux barrés faire l’arrêt.',
       'opposite-faces':
         'Deux des faces montrées sont opposées sur le cube plié, si bien qu’on ne peut jamais les voir ensemble. C’est la première chose à établir sur un patron : deux carrés séparés par exactement un carré sur une ligne droite finissent toujours opposés, et chaque paire de ce genre élimine tout cube qui montre les deux.',
+      'wrong-turn':
+        'Les trois faces sont les bonnes, et leur ordre autour du coin aussi ; l’une des marques est tournée. Vous avez suivi quels carrés du patron se rejoignent, pas quelles arêtes. Sur un patron, l’arête qu’un carré partage avec son voisin est celle qui ne bouge pas au pliage — le haut d’une marque finit donc par pointer là où est partie l’arête qu’il visait. Choisissez une face, trouvez l’arête que sa marque désigne, et suivez cette arête.',
       overshoot:
         'La marque a dépassé la cible. Sur une longue droite, c’est la compression classique : les petits nombres semblent plus loin qu’ils ne sont, parce que le sens des grandeurs croît moins vite que les nombres. Ancrez-vous d’abord — trouvez le milieu, puis le quart — et placez la marque depuis l’ancre la plus proche plutôt que depuis l’extrémité gauche.',
       undershoot:
@@ -804,6 +807,13 @@ const fr: Dict = {
       description:
         'Un patron de six carrés, chacun portant une marque, et plusieurs cubes vus par un coin. Un seul de ces cubes peut être plié à partir du patron. Les autres montrent soit deux faces qui seraient opposées sur le cube fini, soit les trois bonnes faces disposées à l’envers — une image miroir qu’aucun pliage ne peut produire. C’est l’autre moitié du pliage de papier : la feuille qui se referme au lieu de s’ouvrir, et l’item que les batteries d’aptitude spatiale proposent depuis les Differential Aptitude Tests. Les marques sont toutes symétriques, si bien que l’orientation de chaque face n’a pas d’importance ; tout repose sur le sens du coin.',
       seenIn: 'DAT Space Relations, ASVAB Assembling Objects (cousin), nombre de concours d’entrée et d’apprentissage',
+    },
+    'cube-net-oriented': {
+      name: 'Patron de cube orienté',
+      blurb: 'Six carrés dont les marques ont un haut. Quel cube en résulte ?',
+      description:
+        'Le patron de cube avec la contrainte que le format simple laisse de côté. Chaque carré porte une marque qui a un haut — une flèche, un L, un demi-disque — si bien que l’orientation de chaque face fait partie de la réponse, et qu’un cube montrant les trois bonnes faces, dans le bon sens, avec une marque tournée d’un quart de tour est faux. C’est l’item des Differential Aptitude Tests tel qu’il est réellement posé : suivre non seulement quels carrés du patron se rejoignent, mais quelles arêtes. Six options en trois paires : la réponse et la réponse avec une marque tournée, un coin en miroir et son jumeau tourné, et un coin montrant deux faces opposées, deux fois. Au dernier niveau, les marques des miroirs sont tournées exactement comme le seraient celles du vrai cube, et seul le sens du coin les trahit.',
+      seenIn: 'DAT Space Relations (avec faces à motifs), batteries spatiales de type Bennett, nombre de concours d’apprentissage et d’écoles d’ingénieurs',
     },
     'block-rotation': {
       name: 'Rotation de blocs',
@@ -1349,6 +1359,34 @@ const fr: Dict = {
       ruleMirror:
         'Un cube qui montre les trois bonnes faces dans l’autre sens est l’image miroir, qu’aucun pliage du patron ne peut produire. Choisissez un coin du patron où trois carrés se touchent et suivez-les autour.',
     },
+    cubeNetOriented: {
+      prompt: 'Quel cube peut-on plier à partir de ce patron, marques dans le bon sens ?',
+      marks: {
+        disc: 'un point',
+        ring: 'un anneau',
+        square: 'un carré plein',
+        frame: 'un carré vide',
+        plus: 'un plus',
+        cross: 'une croix',
+        arrow: 'une flèche',
+        ell: 'un L',
+        half: 'un demi-disque',
+        wedge: 'un triangle de coin',
+        tee: 'un T',
+        flag: 'un drapeau',
+      } as Record<import('../cube-geometry').CubeMark, string>,
+      turned: (mark: string, turns: number) =>
+        turns === 0 ? `${mark}, à l’endroit` : turns === 1 ? `${mark}, tourné d’un quart dans le sens horaire` : turns === 2 ? `${mark}, à l’envers` : `${mark}, tourné d’un quart dans le sens antihoraire`,
+      cube: (top: string, left: string, right: string) => `un cube avec ${top} dessus ; ${left} à gauche ; ${right} à droite`,
+      pair: (a: string, b: string) => `${a} et ${b}`,
+      summary: (option: number) => `Option ${option} : ces trois faces se rejoignent à un coin du cube plié, dans cet ordre, chaque marque pointant là où le pliage l’envoie.`,
+      ruleOpposite: (pairs: string[]) =>
+        `Deux carrés séparés par un seul carré sur une ligne droite du patron finissent opposés, et deux faces opposées ne se voient jamais ensemble. Ici les paires opposées sont ${pairs.join(' ; ')}.`,
+      ruleEdges:
+        'L’arête qu’un carré partage avec son voisin ne bouge pas au pliage, si bien que le haut d’une marque finit par pointer là où est partie l’arête qu’il visait. Deux cubes peuvent montrer les mêmes trois faces dans le même sens et ne différer que par la rotation d’une marque ; un seul se plie à partir du patron.',
+      ruleMirror:
+        'Un cube qui montre les trois bonnes faces dans l’autre sens est l’image miroir, qu’aucun pliage du patron ne peut produire — quelle que soit la rotation de ses marques. Choisissez un coin du patron où trois carrés se touchent et suivez-les autour.',
+    },
     blockRotation: {
       prompt: 'Laquelle est la forme ci-dessus, tournée ?',
       summary: (option: number, turns: number) =>
@@ -1800,7 +1838,7 @@ const fr: Dict = {
         },
       ],
       notMeasuredClose:
-        'Cela s’applique récursivement à ce site. Une précision élevée sur ces quarante formats est une information sur ces quarante formats, et sur rien d’autre.',
+        'Cela s’applique récursivement à ce site. Une précision élevée sur ces quarante et un formats est une information sur ces quarante et un formats, et sur rien d’autre.',
 
       difficultyP3:
         'Ce qui ne revient pas à un étalonnage. Les paliers sont conçus à partir d’opérateurs cognitifs publiés — un ordonnancement défendable — mais aucun item ne porte ici de paramètre de difficulté estimé sur des données de réponse réelles, ce qu’entend la théorie de réponse à l’item par « difficulté ». L’échelle adaptative est donc un escalier qui vous maintient près de votre propre taux de réussite, pas une estimation de votre aptitude.',

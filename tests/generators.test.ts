@@ -16,7 +16,7 @@ import type { Difficulty, Item, Option } from '@/lib/types';
 const SEEDS = Array.from({ length: 80 }, (_, i) => `SEED${i}`);
 
 /** How many formats ship. See the registry test below before changing this. */
-const EXPECTED_TYPES = 40;
+const EXPECTED_TYPES = 41;
 
 function optionKey(o: Option): string {
   switch (o.kind) {
@@ -33,7 +33,7 @@ function optionKey(o: Option): string {
        */
       return `f:${figureSignature(o.figure)}`;
     case 'cube':
-      return `c:${o.faces.join('/')}`;
+      return `c:${o.faces.join('/')}#${(o.turns ?? []).join('')}`;
     case 'polycube':
       return `p:${cubesKey(o.cubes)}`;
   }

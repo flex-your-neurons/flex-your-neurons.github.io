@@ -55,6 +55,7 @@ export type ItemTypeId =
   | 'logic-grid'
   | 'feature-match'
   | 'cube-net'
+  | 'cube-net-oriented'
   | 'number-line'
   | 'block-rotation'
   | 'gear-train'
@@ -348,7 +349,12 @@ export type Option =
   /** `variant` picks the drawing style: filled blocks, or a sheet with punched holes. */
   | { kind: 'grid'; grid: CellGrid; variant?: 'solid' | 'holes' }
   /** A cube seen corner-on: the marks on its top, left and right faces. */
-  | { kind: 'cube'; faces: [top: CubeMark, left: CubeMark, right: CubeMark] }
+  | {
+      kind: 'cube';
+      faces: [top: CubeMark, left: CubeMark, right: CubeMark];
+      /** Quarter turns clockwise of each face's mark from upright, for the oriented format. Absent means upright. */
+      turns?: [top: number, left: number, right: number];
+    }
   /** A polycube in isometric projection. */
   | { kind: 'polycube'; cubes: Cube[] };
 
@@ -407,6 +413,12 @@ export type ErrorType =
    * mistake of one who has but has the corner the wrong way round.
    */
   | 'opposite-faces'
+  /*
+   * The right three faces, the right way round, and one mark turned. The oriented cube-net mistake of
+   * a reader who has the corner and its handedness but has not followed which edge of a square meets
+   * which — the DAT's own constraint, and the one the plain format leaves out.
+   */
+  | 'wrong-turn'
   /*
    * An estimate past the target, or short of it. The number line is the one format whose miss has a
    * direction, and the direction is the diagnosis: a reader who overshoots small numbers on a long
