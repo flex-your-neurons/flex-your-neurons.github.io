@@ -334,6 +334,16 @@ Thirty-two generators across seven CHC domains:
 > The cube count rises with the level too, so the slope is turns-plus-complexity, and the copy says
 > so rather than pretending otherwise.
 >
+> **The Gc question, re-asked at forty-one formats (September 2026).** With every other domain now
+> carrying several formats, the absence of Gc was looked at again rather than inherited. The answer
+> is unchanged, and the reasons are the ones in §2: every verbal candidate fails **V** because its
+> ground truth is a fact about a language, not a computation. Three near-misses were considered and
+> rejected. Anagrams and word ladders need a dictionary to know that the target is a word and that no
+> *other* arrangement is, which is a content database. Syllogisms and logic grids already ship, and
+> use words only as labels — the reasoning is Gf, and the words could be glyphs, which is why they pass.
+> "Verbal" span (letters rather than digits) is Gwm with a different alphabet, not Gc. So the profile
+> stays at seven domains, the about page keeps saying so, and a Full Scale IQ stays unapproximable.
+>
 > Row 51, `cube-net-oriented`, is row 47 with the constraint its notes said they had dropped on
 > purpose: oriented marks. The rolling fold already carried the cube's whole orientation, so each
 > square's up-direction came out of the same walk (`foldNetOriented`), and `faceTurns` reads a mark's
