@@ -11,6 +11,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   interferenceScore,
+  retentionScore,
   speedScore,
   sprintSummary,
   summarise,
@@ -473,5 +474,42 @@ describe('speedScore', () => {
     expect(speedScore([session('practice', blocks, { itemVersion: ITEM_VERSION - 1 })])).toBeNull();
     const runs = [run(), run(), run(), run('omission')];
     expect(speedScore([session('practice', runs, { itemVersion: ITEM_VERSION - 1 })])?.omissions).toBe(1);
+  });
+});
+
+/**
+ * The Glr read-out. Both halves are measured accuracies, so the score only pools them by type and
+ * refuses to speak until each has four probes.
+ */
+describe('retentionScore', () => {
+  function probe(type: 'paired-associates' | 'pairs-delayed', correct: boolean): Response {
+    return { ...response(correct, 4000, 1), type };
+  }
+  const learned = (n: number, right: number) =>
+    Array.from({ length: n }, (_, i) => probe('paired-associates', i < right));
+  const later = (n: number, right: number) => Array.from({ length: n }, (_, i) => probe('pairs-delayed', i < right));
+
+  it('says nothing until both kinds of probe have four behind them', () => {
+    expect(retentionScore([session('practice', [...learned(4, 4), ...later(3, 3)])])).toBeNull();
+    expect(retentionScore([session('practice', [...learned(3, 3), ...later(4, 4)])])).toBeNull();
+    expect(retentionScore([session('practice', learned(8, 8))])).toBeNull();
+  });
+
+  it('reports both accuracies and the drop between them', () => {
+    const score = retentionScore([session('practice', [...learned(5, 4), ...later(5, 2)])]);
+    expect(score).toEqual({
+      immediate: 0.8,
+      delayed: 0.4,
+      forgetting: 0.8 - 0.4,
+      immediateTrials: 5,
+      delayedTrials: 5,
+    });
+  });
+
+  it('pools across sessions and generations, but never from a sprint', () => {
+    const a = session('practice', [...learned(2, 2), ...later(2, 2)], { itemVersion: ITEM_VERSION - 1 });
+    const b = session('practice', [...learned(2, 2), ...later(2, 0)]);
+    expect(retentionScore([a, b])?.delayed).toBe(0.5);
+    expect(retentionScore([session('sprint', [...learned(4, 4), ...later(4, 4)])])).toBeNull();
   });
 });

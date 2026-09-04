@@ -675,6 +675,69 @@ function slope(points: [x: number, y: number][]): number {
 }
 
 // ---------------------------------------------------------------------------
+// Retention — the Glr contrast the delayed probe exists to make
+// ---------------------------------------------------------------------------
+
+/**
+ * The retention score: how much of what was learned in a paired-associates set is still there
+ * minutes later.
+ *
+ * Two accuracies and the gap between them. The immediate figure is the paired-associates items
+ * themselves — a probe seconds after learning, across a filled interval — and the delayed figure is
+ * the `pairs-delayed` probes a practice drill appends after all its sets, each asking a box the
+ * immediate probe did not. The difference is forgetting, in the plain sense: the share of pairings
+ * that were retrievable at once and were not retrievable later. Like the interference and switch-cost
+ * contrasts, neither half means much alone — a reader who never learned the pairings scores low on
+ * both — but the gap isolates storage from encoding, which is the distinction Glr draws.
+ *
+ * Nothing is regenerated here: `correct` was measured, so any generation counts, and the delayed
+ * probes carry their own type. Untimed sessions only, by the site-wide rule, though neither format
+ * is sprintable.
+ */
+export interface RetentionScore {
+  /** Share of immediate probes answered correctly, 0–1. */
+  immediate: number;
+  /** Share of delayed probes answered correctly, 0–1. */
+  delayed: number;
+  /** Immediate minus delayed. Positive is the expected direction. */
+  forgetting: number;
+  immediateTrials: number;
+  delayedTrials: number;
+}
+
+/**
+ * Fewest probes of *each* kind before the contrast is shown. Lower than the Stroop threshold for the
+ * reason the trail threshold is: each probe is the end of a whole set, so four of each is already a
+ * drill of four sets played to its delayed half.
+ */
+export const MIN_RETENTION_PROBES = 4;
+
+export function retentionScore(sessions: Session[]): RetentionScore | null {
+  let immediateTrials = 0;
+  let immediateCorrect = 0;
+  let delayedTrials = 0;
+  let delayedCorrect = 0;
+
+  for (const session of untimedSessions(sessions)) {
+    for (const response of session.responses) {
+      if (response.type === 'paired-associates') {
+        immediateTrials++;
+        if (response.correct) immediateCorrect++;
+      } else if (response.type === 'pairs-delayed') {
+        delayedTrials++;
+        if (response.correct) delayedCorrect++;
+      }
+    }
+  }
+
+  if (immediateTrials < MIN_RETENTION_PROBES || delayedTrials < MIN_RETENTION_PROBES) return null;
+
+  const immediate = immediateCorrect / immediateTrials;
+  const delayed = delayedCorrect / delayedTrials;
+  return { immediate, delayed, forgetting: immediate - delayed, immediateTrials, delayedTrials };
+}
+
+// ---------------------------------------------------------------------------
 // Sprints — the continuous timed block, scored in its own units
 // ---------------------------------------------------------------------------
 

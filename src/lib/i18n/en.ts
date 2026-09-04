@@ -536,6 +536,17 @@ const en = {
       note:
         'Three clean blocks at a level before its time is shown, two such levels before a slope, four runs before the go / no-go counts. A block with a false start is not timed.',
     },
+    glr: {
+      heading: 'Learning and forgetting',
+      lede:
+        'From the paired-associates drills that ran to their delayed half. The first figure is the probe seconds after each set was learned; the second is the probe minutes later, after every other set, on a box the first probe did not ask. The gap between them is forgetting — what was retrievable at once and was not retrievable later. Neither half means much alone; the difference is the part that is storage rather than learning.',
+      immediate: (n: number) => `Recalled at once (${n} probe${n === 1 ? '' : 's'})`,
+      delayed: (n: number) => `Recalled minutes later (${n} probe${n === 1 ? '' : 's'})`,
+      forgetting: 'Forgetting',
+      points: (pts: number) => `${pts > 0 ? '−' : pts < 0 ? '+' : ''}${Math.abs(pts)} pts`,
+      note:
+        'Four probes of each kind before anything is shown. A delayed probe only exists in a practice drill of the paired-associates format; a test asks each set once.',
+    },
     sprintHeading: 'Sprints',
     sprintLede:
       'Timed blocks are kept apart from everything above, because they measure a different thing: output inside a fixed window, at a level pinned for the whole block. None of the accuracy or speed figures on the rest of this page contain a timed response.',

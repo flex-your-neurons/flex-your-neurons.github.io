@@ -29,6 +29,7 @@ import {
   formatPercent,
   interferenceScore,
   MIN_GONOGO_RUNS,
+  retentionScore,
   speedScore,
   switchCostScore,
   tallyErrorTypes,
@@ -231,6 +232,7 @@ export default function ProgressDashboard({ locale }: { locale: Locale }) {
       <InterferenceCard locale={locale} sessions={sessions} />
       <SwitchCostCard locale={locale} sessions={sessions} />
       <SpeedCard locale={locale} sessions={sessions} />
+      <RetentionCard locale={locale} sessions={sessions} />
       {hasData && <MistakeProfile locale={locale} sessions={sessions} />}
 
       {hasData && (
@@ -609,6 +611,31 @@ function SpeedCard({ locale, sessions }: { locale: Locale; sessions: Session[] }
           value={enoughRuns ? String(score.omissions) : s.notYet}
           testid="stat-omissions"
         />
+      </div>
+      <p class="muted">{s.note}</p>
+    </section>
+  );
+}
+
+/**
+ * The Glr read-out: immediate against delayed recall of the same paired-associates sets, and the gap.
+ *
+ * Only shown once both halves have enough probes behind them, since the point is the difference.
+ */
+function RetentionCard({ locale, sessions }: { locale: Locale; sessions: Session[] }) {
+  const t = dict(locale);
+  const score = retentionScore(sessions);
+  if (!score) return null;
+  const s = t.dashboard.glr;
+
+  return (
+    <section data-testid="glr-section">
+      <h3 class="section-heading section-heading--sm">{s.heading}</h3>
+      <p class="muted dashboard-lede">{s.lede}</p>
+      <div class="card-grid card-grid--fit stat-grid">
+        <Stat label={s.immediate(score.immediateTrials)} value={formatPercent(score.immediate, locale)} testid="stat-immediate-recall" />
+        <Stat label={s.delayed(score.delayedTrials)} value={formatPercent(score.delayed, locale)} testid="stat-delayed-recall" />
+        <Stat label={s.forgetting} value={s.points(Math.round(score.forgetting * 100))} testid="stat-forgetting" />
       </div>
       <p class="muted">{s.note}</p>
     </section>

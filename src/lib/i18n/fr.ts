@@ -425,6 +425,17 @@ const fr: Dict = {
       note:
         'Trois blocs sans faux départ à un niveau avant d’afficher son temps, deux niveaux de ce genre avant une pente, quatre séries avant les décomptes du go ou stop. Un bloc avec un faux départ n’est pas chronométré.',
     },
+    glr: {
+      heading: 'Apprendre et oublier',
+      lede:
+        'Issu des séries de paires associées jouées jusqu’à leur seconde moitié. Le premier chiffre est la question posée quelques secondes après l’apprentissage de chaque ensemble ; le second, la question posée quelques minutes plus tard, après tous les autres ensembles, sur une boîte que la première n’avait pas demandée. L’écart entre les deux est l’oubli — ce qui était récupérable tout de suite et ne l’était plus ensuite. Aucune des deux moitiés ne dit grand-chose seule ; la différence est la part qui relève du stockage plutôt que de l’apprentissage.',
+      immediate: (n: number) => `Rappel immédiat (${n} question${n === 1 ? '' : 's'})`,
+      delayed: (n: number) => `Rappel différé (${n} question${n === 1 ? '' : 's'})`,
+      forgetting: 'Oubli',
+      points: (pts: number) => `${pts > 0 ? '−' : pts < 0 ? '+' : ''}${Math.abs(pts)} pts`,
+      note:
+        'Quatre questions de chaque sorte avant d’afficher quoi que ce soit. Une question différée n’existe que dans un entraînement au format des paires associées ; un test interroge chaque ensemble une seule fois.',
+    },
     sprintHeading: 'Contre-la-montre',
     sprintLede:
       'Les blocs chronométrés restent à l’écart de tout ce qui précède, car ils mesurent autre chose : le débit dans une fenêtre fixe, à un niveau figé pour tout le bloc. Aucun des chiffres de précision ou de vitesse du reste de cette page ne contient de réponse chronométrée.',

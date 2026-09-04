@@ -157,6 +157,13 @@ of those medians as simple reaction time, plus Hick's slope in milliseconds per 
 own levels. Beside it, go / no-go is counted by kind of failure — commissions apart from omissions —
 because pressing on a crossed signal and missing a plain one do not come from the same place.
 
+### The one measurement that is a gap in time
+
+Delayed recall gives the progress page its second contrast: recall of paired-associates sets at
+once, against recall of the same sets minutes later on a box the first probe did not ask. The
+difference is forgetting in the plain sense, and it is the part of Glr that is storage rather than
+learning. It needs four probes of each kind before it says anything.
+
 ## How an item is made safe
 
 Three guards, described in full in [`docs/GENERATABILITY.md`](docs/GENERATABILITY.md) §4:

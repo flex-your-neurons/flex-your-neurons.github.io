@@ -6,7 +6,7 @@
 import { expect, test } from '@playwright/test';
 import { deriveSeed } from '../src/lib/rng';
 import { generateItem } from '../src/lib/generators';
-import { expectedItem, practiceUrl, answerCorrectly } from './helpers';
+import { answerCorrectly, clearAppStorage, expectedItem, practiceUrl } from './helpers';
 
 const SEED = 'PDE2E001';
 const OPTS = { seed: SEED, difficulty: 1 as const, length: 2 };
@@ -42,6 +42,39 @@ test.describe('delayed recall', () => {
     }
     await page.getByTestId('next').click();
     await expect(page.getByTestId('results')).toBeVisible();
+  });
+
+  test('the progress page contrasts immediate and delayed recall after four sets', async ({ page }) => {
+    test.setTimeout(300_000);
+    const opts = { seed: 'PDE2E002', difficulty: 1 as const, length: 4 };
+    await page.goto('en/progress/');
+    await clearAppStorage(page);
+    await page.reload();
+    await expect(page.getByTestId('glr-section')).toHaveCount(0);
+
+    await page.goto(practiceUrl('paired-associates', opts));
+    await expect(page.getByTestId('quiz')).toHaveAttribute('data-hydrated', 'true');
+    for (let i = 0; i < 4; i++) {
+      await answerCorrectly(page, 'paired-associates', opts, i);
+      await page.getByTestId('next').click();
+    }
+    for (let k = 0; k < 4; k++) {
+      await expect(page.getByTestId('quiz')).toHaveAttribute('data-item-type', 'pairs-delayed');
+      const probe = generateItem('pairs-delayed', deriveSeed(opts.seed, 'paired-associates', k), 1);
+      if (probe.stimulus.kind !== 'pairs-delayed') throw new Error('unexpected stimulus');
+      // Two right, two deliberately wrong: the card should read 100% at once, 50% later, −50 pts.
+      const box = k < 2 ? probe.stimulus.probe : (probe.stimulus.probe + 1) % probe.stimulus.symbols.length;
+      await page.getByTestId(`pairs-box-${box + 1}`).click();
+      await expect(page.getByTestId('feedback')).toBeVisible();
+      await page.getByTestId('next').click();
+    }
+    await expect(page.getByTestId('results')).toBeVisible();
+
+    await page.goto('en/progress/');
+    await expect(page.getByTestId('glr-section')).toBeVisible();
+    await expect(page.getByTestId('stat-immediate-recall')).toContainText('100%');
+    await expect(page.getByTestId('stat-delayed-recall')).toContainText('50%');
+    await expect(page.getByTestId('stat-forgetting')).toContainText('−50 pts');
   });
 
   test('a test never schedules delayed probes', async ({ page }) => {
