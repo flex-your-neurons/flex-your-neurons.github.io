@@ -38,6 +38,16 @@ import { dict } from '@/lib/i18n';
 import { DIFFICULTIES, HANDS, type Difficulty, type Figure, type Hand } from '@/lib/types';
 import { marksByDirection, planFor } from '@/lib/generators/cube-net';
 import { LINE_UNITS, positionOf, toleranceFor } from '@/lib/generators/number-line';
+import { planFor as blockPlanFor } from '@/lib/generators/block-rotation';
+import {
+  canonical as canonical3,
+  cubesKey as cubesKey3,
+  hasHiddenCube,
+  isChiral as isChiral3,
+  isRotationOf as isRotationOf3,
+  mirror as mirror3,
+  sortedExtents,
+} from '@/lib/polycube-geometry';
 import { isCrossNet, isDrawableCorner } from '@/lib/cube-geometry';
 import { isUnambiguous, solveSeries } from '@/lib/solvers/series';
 import { predict, solveAttribute, type Rule } from '@/lib/rules';
@@ -2127,3 +2137,42 @@ describe('number line', () => {
     }
   });
 });
+
+/**
+ * Block rotation: exactly one option is a rotation of the object, the mirror option is a rotation of
+ * its reflection, every option is a distinct object up to rotation, and nothing a count or a box could
+ * see separates them.
+ */
+describe('block rotation', () => {
+  it('offers one rotation, one reflection and two moved blocks, all alike in count and extents', () => {
+    for (const d of DIFFICULTIES) {
+      for (let i = 0; i < 40; i++) {
+        const item = generateItem('block-rotation', `BLOCK${i}`, d);
+        if (item.stimulus.kind !== 'polycube') throw new Error('expected a polycube stimulus');
+        const object = item.stimulus.cubes;
+        expect(object).toHaveLength(blockPlanFor(d).cubes);
+        expect(isChiral3(object)).toBe(true);
+        expect(hasHiddenCube(object)).toBe(false);
+        const ext = sortedExtents(object).join('x');
+        const classes = new Set<string>();
+        item.options.forEach((option, k) => {
+          if (option.kind !== 'polycube') throw new Error('expected polycube options');
+          expect(option.cubes).toHaveLength(object.length);
+          expect(hasHiddenCube(option.cubes)).toBe(false);
+          expect(sortedExtents(option.cubes).join('x')).toBe(ext);
+          expect(isRotationOf3(option.cubes, object), `${d}/${i}/${k}`).toBe(k === item.answerIndex);
+          if (item.errorTypes[k] === 'mirror') expect(isRotationOf3(option.cubes, mirror3(object))).toBe(true);
+          classes.add(canonical3(option.cubes));
+        });
+        expect(classes.size).toBe(item.options.length);
+        // The answer is shown turned, not as drawn.
+        const answer = item.options[item.answerIndex];
+        if (answer?.kind === 'polycube') expect(cubesKey3(answer.cubes)).not.toBe(cubesKey3(object));
+      }
+    }
+  });
+});
+
+/**
+ * Gear train: direction by counting reversals, speed by the telescoping product, both re-derived
+ * here from the 

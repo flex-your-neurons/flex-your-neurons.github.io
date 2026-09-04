@@ -21,6 +21,7 @@
 import FigureView from './FigureView';
 import GridView from './GridView';
 import CubeView, { NetView } from './CubeView';
+import PolycubeView from './PolycubeView';
 import ClockFaceView from './ClockFaceView';
 import HandView from './HandView';
 import TowerView from './TowerView';
@@ -175,6 +176,24 @@ function ThumbBody({ item, locale }: { item: Item; locale: Locale }) {
             {answer?.kind === 'grid' ? (
               <GridView grid={answer.grid} variant={answer.variant ?? 'solid'} className="thumb-svg" />
             ) : null}
+          </div>
+        </div>
+      );
+    }
+
+    /* The object, then the same object turned. */
+    case 'polycube': {
+      const answer = item.options[item.answerIndex];
+      return (
+        <div class="thumb-row">
+          <div class="thumb-slot thumb-slot--wide">
+            <PolycubeView cubes={s.cubes} className="thumb-svg" />
+          </div>
+          <span class="thumb-op" aria-hidden="true">
+            ↻
+          </span>
+          <div class="thumb-slot thumb-slot--wide">
+            {answer?.kind === 'polycube' ? <PolycubeView cubes={answer.cubes} className="thumb-svg" /> : null}
           </div>
         </div>
       );

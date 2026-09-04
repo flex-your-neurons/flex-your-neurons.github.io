@@ -32,6 +32,7 @@ import { handAngles, pointAt, tickAngles } from './clock';
 import { HAND_DRAWINGS } from './hands';
 import { BASE_Y, BEAD, beadPath, PEG_X, TOWER_BOX } from './tower-geometry';
 import { affineString, cubeBox, cubeFaces, FACE_SHADE, markPath, type CubeMark } from './cube-geometry';
+import { drawPolycube, POLYCUBE_SHADE, type Cube } from './polycube-geometry';
 import type { CellGrid, ClockFace, Figure, Hand, Item, Shape } from './types';
 
 export const OG_WIDTH = 1200;
@@ -138,6 +139,16 @@ export function cubeTile(faces: readonly [CubeMark, CubeMark, CubeMark], x: numb
     );
   });
   return `<svg x="${x}" y="${y}" width="${size}" height="${size}" viewBox="-2 -2 ${w + 4} ${h + 4}" preserveAspectRatio="xMidYMid meet" data-cube="">${parts.join('')}</svg>`;
+}
+
+/** A polycube in isometric projection, fitted to a square box. */
+export function polycubeTile(cubes: readonly Cube[], x: number, y: number, size: number): string {
+  const d = drawPolycube(cubes, 18);
+  const parts = d.faces.map(
+    (face) =>
+      `<polygon points="${face.points}" fill="${INK}" fill-opacity="${POLYCUBE_SHADE[face.shade]}" stroke="${INK}" stroke-width="1" stroke-linejoin="round"/>`,
+  );
+  return `<svg x="${x}" y="${y}" width="${size}" height="${size}" viewBox="0 0 ${round(d.width)} ${round(d.height)}" preserveAspectRatio="xMidYMid meet" data-polycube="">${parts.join('')}</svg>`;
 }
 
 /** The net laid flat. */
@@ -658,6 +669,19 @@ function stage(item: Item): string {
         gridTile(s.grid, at[0]!.x, at[0]!.y, box),
         `<text x="${(at[0]!.x + box + at[1]!.x) / 2}" y="${mid}" text-anchor="middle" dominant-baseline="central" font-size="34" fill="${ACCENT}">↻</text>`,
         answer?.kind === 'grid' ? gridTile(answer.grid, at[1]!.x, at[1]!.y, box, answer.variant ?? 'solid') : '',
+      ].join('');
+    }
+
+    /* The object, then the same object turned. */
+    case 'polycube': {
+      const answer = item.options[item.answerIndex];
+      const box = 180;
+      const at = row(2, box, 56);
+      const mid = at[0]!.y + box / 2;
+      return [
+        polycubeTile(s.cubes, at[0]!.x, at[0]!.y, box),
+        `<text x="${(at[0]!.x + box + at[1]!.x) / 2}" y="${mid}" text-anchor="middle" dominant-baseline="central" font-size="34" fill="${ACCENT}">↻</text>`,
+        answer?.kind === 'polycube' ? polycubeTile(answer.cubes, at[1]!.x, at[1]!.y, box) : '',
       ].join('');
     }
 

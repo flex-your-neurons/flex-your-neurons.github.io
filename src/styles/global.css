@@ -5115,3 +5115,21 @@ table.data th.num {
 .thumb-numline-end--max {
   right: 0;
 }
+
+/* --- Block rotation ------------------------------------------------------- */
+
+.polycube-stage {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem 0;
+}
+
+.polycube-svg--stage {
+  width: min(100%, 16rem);
+  height: auto;
+}
+
+.option-figure--polycube {
+  max-width: 8rem;
+  margin-inline: auto;
+}

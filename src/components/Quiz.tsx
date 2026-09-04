@@ -24,6 +24,7 @@ import FigureView, { describeFigure } from './FigureView';
 import GridView, { describeGrid } from './GridView';
 import CubeView, { describeCube } from './CubeView';
 import NumberLineBoard from './NumberLineBoard';
+import PolycubeView, { describePolycube } from './PolycubeView';
 import { generateItem, getItemText, getMeta } from '../lib/generators';
 import { deriveSeed, normaliseSeed, randomSeed } from '../lib/rng';
 import { dict, type Locale } from '../lib/i18n';
@@ -1242,6 +1243,12 @@ function OptionBody({ option }: { option: Option }) {
           <CubeView faces={option.faces} />
         </span>
       );
+    case 'polycube':
+      return (
+        <span class="option-figure option-figure--polycube">
+          <PolycubeView cubes={option.cubes} />
+        </span>
+      );
   }
 }
 
@@ -1256,6 +1263,8 @@ function optionLabel(option: Option, i: number, locale: Locale): string {
       return t.quiz.optionLabel(i + 1, describeGrid(option.grid, locale));
     case 'cube':
       return t.quiz.optionLabel(i + 1, describeCube(option.faces, locale));
+    case 'polycube':
+      return t.quiz.optionLabel(i + 1, describePolycube(option.cubes, locale));
   }
 }
 

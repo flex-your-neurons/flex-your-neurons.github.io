@@ -483,7 +483,7 @@ const fr: Dict = {
 
     wall: {
       heading: 'Chaque format, dans le temps',
-      lede: 'Une courbe par format, les tentatives les plus anciennes à gauche. De petits graphiques côte à côte plutôt que trente-huit courbes sur un même axe : trente-huit couleurs sur un seul tracé seraient illisibles, et ceux-ci se parcourent du regard, ils ne se lisent pas au chiffre près.',
+      lede: 'Une courbe par format, les tentatives les plus anciennes à gauche. De petits graphiques côte à côte plutôt que trente-neuf courbes sur un même axe : trente-neuf couleurs sur un seul tracé seraient illisibles, et ceux-ci se parcourent du regard, ils ne se lisent pas au chiffre près.',
       never: 'pas encore tenté',
     },
     byItemType: 'Par type d’item',
@@ -767,6 +767,13 @@ const fr: Dict = {
       description:
         'Un patron de six carrés, chacun portant une marque, et plusieurs cubes vus par un coin. Un seul de ces cubes peut être plié à partir du patron. Les autres montrent soit deux faces qui seraient opposées sur le cube fini, soit les trois bonnes faces disposées à l’envers — une image miroir qu’aucun pliage ne peut produire. C’est l’autre moitié du pliage de papier : la feuille qui se referme au lieu de s’ouvrir, et l’item que les batteries d’aptitude spatiale proposent depuis les Differential Aptitude Tests. Les marques sont toutes symétriques, si bien que l’orientation de chaque face n’a pas d’importance ; tout repose sur le sens du coin.',
       seenIn: 'DAT Space Relations, ASVAB Assembling Objects (cousin), nombre de concours d’entrée et d’apprentissage',
+    },
+    'block-rotation': {
+      name: 'Rotation de blocs',
+      blurb: 'Une forme en blocs. Laquelle est la même forme, tournée ?',
+      description:
+        'Un objet fait de cubes, dessiné en trois dimensions, et quatre autres objets. L’un est le même objet tourné dans l’espace ; l’un est son image miroir ; deux ont un seul bloc déplacé. Trouvez celui qui est seulement tourné. C’est l’expérience de Shepard et Metzler de 1971, celle qui a donné son nom à la rotation mentale et montré que le temps de réponse croît avec l’angle de la rotation — l’objet est donc réellement tourné en pensée. Le format de rotation à plat de ce site est le même construit sur papier ; dans l’espace, l’image miroir ne se reconnaît pas en retournant la feuille, il faut la trouver fausse en tournant l’objet jusqu’à ce qu’il coïncide ou non. Les niveaux ajoutent des blocs et des rotations.',
+      seenIn: 'Shepard & Metzler (1971), Mental Rotations Test de Vandenberg & Kuse, Purdue Spatial Visualization Test',
     },
     'logic-grid': {
       name: 'Grille logique',
@@ -1291,6 +1298,20 @@ const fr: Dict = {
       ruleMirror:
         'Un cube qui montre les trois bonnes faces dans l’autre sens est l’image miroir, qu’aucun pliage du patron ne peut produire. Choisissez un coin du patron où trois carrés se touchent et suivez-les autour.',
     },
+    blockRotation: {
+      prompt: 'Laquelle est la forme ci-dessus, tournée ?',
+      summary: (option: number, turns: number) =>
+        `L’option ${option} est la même forme tournée d’${turns === 1 ? 'un quart de tour' : `${turns} quarts de tour`}. Les autres sont son image miroir ou ont un bloc déplacé.`,
+      ruleTurn:
+        'Seule la rotation est permise : autour de n’importe quel axe, ou plusieurs à la suite. Choisissez une partie distinctive — un bras, une marche — et suivez où elle va.',
+      ruleMirror:
+        'Une image miroir a chaque bloc à la place correspondante et reste fausse : aucune rotation ne porte un objet sur son reflet. Chaque objet ici est vérifié différent de son image miroir, sans quoi l’item aurait deux réponses.',
+      ruleCount: (cubes: number) =>
+        `Chaque option compte ${cubes} blocs et remplit une boîte de même taille, si bien que compter et mesurer ne les distinguent pas. Seul l’agencement le fait.`,
+      describe: (blocks: number, layers: string[]) => `une forme de ${blocks} blocs : ${layers.join(' ; ')}`,
+      describeLayer: (layer: number, rows: string[]) => `couche ${layer}, ${rows.join(', ')}`,
+      describeRow: (row: number, columns: number[]) => `rangée ${row} colonnes ${columns.join(' ')}`,
+    },
     logicGrid: {
       prompt: (place: number) => `Quelle forme est à la place ${place} ?`,
       summary: (place: number, shape: string) => `La place ${place} contient le ${shape}.`,
@@ -1690,7 +1711,7 @@ const fr: Dict = {
         },
       ],
       notMeasuredClose:
-        'Cela s’applique récursivement à ce site. Une précision élevée sur ces trente-huit formats est une information sur ces trente-huit formats, et sur rien d’autre.',
+        'Cela s’applique récursivement à ce site. Une précision élevée sur ces trente-neuf formats est une information sur ces trente-neuf formats, et sur rien d’autre.',
 
       difficultyP3:
         'Ce qui ne revient pas à un étalonnage. Les paliers sont conçus à partir d’opérateurs cognitifs publiés — un ordonnancement défendable — mais aucun item ne porte ici de paramètre de difficulté estimé sur des données de réponse réelles, ce qu’entend la théorie de réponse à l’item par « difficulté ». L’échelle adaptative est donc un escalier qui vous maintient près de votre propre taux de réussite, pas une estimation de votre aptitude.',

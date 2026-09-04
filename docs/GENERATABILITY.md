@@ -55,7 +55,7 @@ Legend: ✅ pass · ⚠️ passes with engineering · ❌ fails
 | 17 | **Trail making** A/B | Gs/Gf | ✅ | ✅ | ✅ | **SHIP** |
 | 18 | **Number analogies / number matrices** | Gq | ✅ | ✅ | ⚠️ | *v2 — subsumed by #2/#1* |
 | 19 | **Cube-net folding** | Gv | ✅ | ✅ | ✅ | **SHIP** — see row 47 |
-| 20 | **3-D block rotation** (Shepard–Metzler) | Gv | ✅ | ✅ | ✅ | *v2 — needs 3-D rendering; #7 covers the construct* |
+| 20 | **3-D block rotation** (Shepard–Metzler) | Gv | ✅ | ✅ | ✅ | **SHIP** — see row 49 |
 | 21 | **Visual puzzles** (assemble the target) | Gv | ✅ | ✅ | ⚠️ | *v2 — hard to guarantee a unique decomposition* |
 | 22 | **Corsi block-tapping** / block span | Gwm | ✅ | ✅ | ✅ | **SHIP** |
 | 23 | **Verbal analogies** | Gc | ⚠️ | ⚠️ | ❌ | **REJECT** |
@@ -84,6 +84,7 @@ Legend: ✅ pass · ⚠️ passes with engineering · ❌ fails
 | 46 | **Feature match** (are two symbol panels identical) | Gs | ✅ | ✅ | ✅ | **SHIP** — one pair, one feature; same/different balanced |
 | 47 | **Cube net** (DAT Space Relations; which cube folds from the net) | Gv | ✅ | ✅ | ✅ | **SHIP** — folded by rolling; distractors are opposite-face pairs or the mirror-handed corner |
 | 48 | **Number-line estimation** (Siegler & Opfer) | Gq | ✅ | ✅ | ✅ | **SHIP** — graded by distance within a tolerance; the estimate itself is the response |
+| 49 | **Block rotation** (Shepard–Metzler polycubes) | Gv | ✅ | ✅ | ✅ | **SHIP** — chirality over 24 rotations; distractors match count and extents |
 
 Rows 29–37 are the batch drawn from *Brain Age* / *Dr Kawashima's Brain Training* (see the note in
 §3). Their ⚠️s are all the same ⚠️ and all in **U**, never in G or V: a numeric answer with a small
@@ -164,6 +165,7 @@ Thirty-two generators across seven CHC domains:
 | `logic-grid` | shapes in a row of places, 2–5 clues, which shape is in the marked place; 4 options | clue kinds withdrawn (placements, then eliminations), then a fifth shape |
 | `feature-match` | two panels of symbols in the same layout; same or different | symbols per panel (3–7) |
 | `number-line` | a line with labelled ends; place the number (a `tap` board, graded by distance) | the line: 0–100-ish, 0–1000, off-zero start, fraction or decimal on the unit line, spanning zero; tolerance 6→4% |
+| `block-rotation` | a polycube and four more; which is the same object turned | blocks (5–9) and quarter-turns composed (1–3) |
 | `cube-net` | six marked squares laid flat; which of five cubes folds from them | the cross net, then any of the eleven; distractors go from opposite-face pairs (4) to mirror-handed corners (4) |
 | `pattern-recall` | a 4×4 grid flashes a set of cells; tap the set back | cells to hold (3–7), and nothing else |
 | `paired-associates` | boxes open on symbols one by one; a filled 7 s interval; which box held this one? | pairings to learn (3–7) |
@@ -290,7 +292,13 @@ Thirty-two generators across seven CHC domains:
 > response mode — a board that owns its surface and hands back a string — with one branch in
 > `isCorrect` for the tolerance, rather than a sixth mode. Targets are kept further than the tolerance
 > from the ends and the midpoint, the three places a reader can hit without estimating.
->
+> Row 49, `block-rotation`, is Shepard and Metzler's task itself, and the second item off the v2 list
+> (row 20). The 24 rotations of the cube are generated from two quarter-turns and counted by a test;
+> chirality is exhaustive comparison against the mirror image under all of them; the drawing is the
+> isometric projection from `cube-geometry` painted back to front. Two constraints came from the blind
+> solver's point of view before it was run: every option is a distinct object up to rotation (so no
+> two can be paired off as the same shape), and the one-block-moved distractors keep the answer's
+> cube count and sorted bounding-box extents (so no count or measurement separates them).
 > Three of the five are `tap` boards that own their own presentation, like `block-span`, and each has a
 > **computed** diagnosis of its own: a press before the signal is `premature` (a new error type, the
 > only one that names anticipation rather than a wrong answer); a tapped cell adjacent to a missed one

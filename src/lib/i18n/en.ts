@@ -601,7 +601,7 @@ const en = {
     /** Small multiples: one trend per format. */
     wall: {
       heading: 'Every format, over time',
-      lede: 'One trace per format, oldest attempts on the left. Small charts side by side rather than thirty-eight lines on one axis — thirty-eight colours on one plot would be unreadable, and these are meant to be scanned for shape, not read for values.',
+      lede: 'One trace per format, oldest attempts on the left. Small charts side by side rather than thirty-nine lines on one axis — thirty-nine colours on one plot would be unreadable, and these are meant to be scanned for shape, not read for values.',
       never: 'not attempted yet',
     },
     byItemType: 'By item type',
@@ -884,6 +884,13 @@ const en = {
       description:
         'A net of six squares, each carrying a mark, and several cubes seen corner-on. Only one of the cubes can be folded from the net. The others show either two faces that would be opposite on the finished cube, or the right three faces arranged the wrong way round — a mirror image no folding can make. This is the other half of paper folding: the sheet closing up rather than opening out, and the item that spatial aptitude batteries have carried since the Differential Aptitude Tests. The marks are all symmetric, so which way up a face lands does not matter; the corner’s handedness is the whole task.',
       seenIn: 'DAT Space Relations, ASVAB Assembling Objects (cousin), many entrance and apprenticeship exams',
+    },
+    'block-rotation': {
+      name: 'Block rotation',
+      blurb: 'A shape of blocks. Which of these is the same shape, turned?',
+      description:
+        'An object built from cubes, drawn in three dimensions, and four more objects. One is the same object turned in space; one is its mirror image; two have a single block moved. Find the one that is only turned. This is Shepard and Metzler’s experiment of 1971, the one that gave mental rotation its name and showed that the time to answer rises with the angle of the turn — so the object really is being turned in mind. The flat rotation format here is the same construct on paper; in space the mirror image cannot be told by turning the sheet over, and has to be found wrong by rotating the object until it does or does not fit. The levels add blocks and add turns.',
+      seenIn: 'Shepard & Metzler (1971), Vandenberg & Kuse Mental Rotations Test, Purdue Spatial Visualization Test',
     },
     'logic-grid': {
       name: 'Logic grid',
@@ -1407,6 +1414,21 @@ const en = {
       ruleMirror:
         'A cube showing the right three faces the other way round is the mirror image, which no folding of the net can produce. Pick a corner of the net where three squares meet and follow them round.',
     },
+    blockRotation: {
+      prompt: 'Which of these is the shape above, turned?',
+      summary: (option: number, turns: number) =>
+        `Option ${option} is the same shape turned through ${turns === 1 ? 'one quarter-turn' : `${turns} quarter-turns`}. The rest are its mirror image or have a block moved.`,
+      ruleTurn:
+        'Only turning is allowed: any rotation about any axis, or several in a row. Pick a distinctive part — an arm, a step — and follow where it goes.',
+      ruleMirror:
+        'A mirror image has every block in the corresponding place and is still wrong: no rotation carries an object onto its reflection. Every object here is checked to be different from its mirror image, or the item would have two answers.',
+      ruleCount: (cubes: number) =>
+        `Every option has ${cubes} blocks and fills the same size of box, so counting and measuring cannot separate them. Only the arrangement does.`,
+      /** Screen-reader description of a polycube, layer by layer from the bottom. */
+      describe: (blocks: number, layers: string[]) => `a shape of ${blocks} blocks: ${layers.join('; ')}`,
+      describeLayer: (layer: number, rows: string[]) => `layer ${layer}, ${rows.join(', ')}`,
+      describeRow: (row: number, columns: number[]) => `row ${row} columns ${columns.join(' ')}`,
+    },
     logicGrid: {
       prompt: (place: number) => `Which shape is in place ${place}?`,
       summary: (place: number, shape: string) => `Place ${place} holds the ${shape}.`,
@@ -1822,7 +1844,7 @@ const en = {
         },
       ],
       notMeasuredClose:
-        'That applies recursively to this site. High accuracy on these thirty-eight formats is evidence about these thirty-eight formats, and about nothing else.',
+        'That applies recursively to this site. High accuracy on these thirty-nine formats is evidence about these thirty-nine formats, and about nothing else.',
 
       difficultyP3:
         'What that does not amount to is calibration. The bands are *designed* from published cognitive operators — a defensible ordering — but no item here carries a difficulty parameter fitted to real response data, which is what item-response theory means by difficulty. So the adaptive ladder is a staircase that keeps you near your own success rate, not an estimate of your ability.',

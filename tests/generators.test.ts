@@ -10,12 +10,13 @@ import { GENERATORS, generateItem, getGenerator, getItemText, ITEM_TYPE_IDS } fr
 import { LOCALES } from '@/lib/i18n';
 import { figureSignature } from '@/lib/geometry';
 import { DIFFICULTIES } from '@/lib/types';
+import { cubesKey } from '@/lib/polycube-geometry';
 import type { Difficulty, Item, Option } from '@/lib/types';
 
 const SEEDS = Array.from({ length: 80 }, (_, i) => `SEED${i}`);
 
 /** How many formats ship. See the registry test below before changing this. */
-const EXPECTED_TYPES = 38;
+const EXPECTED_TYPES = 39;
 
 function optionKey(o: Option): string {
   switch (o.kind) {
@@ -33,6 +34,8 @@ function optionKey(o: Option): string {
       return `f:${figureSignature(o.figure)}`;
     case 'cube':
       return `c:${o.faces.join('/')}`;
+    case 'polycube':
+      return `p:${cubesKey(o.cubes)}`;
   }
 }
 

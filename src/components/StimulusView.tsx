@@ -7,6 +7,7 @@ import { useEffect, useState } from 'preact/hooks';
 import FigureView, { describeFigure } from './FigureView';
 import GridView from './GridView';
 import { NetView } from './CubeView';
+import PolycubeView, { describePolycube } from './PolycubeView';
 import ClockFaceView from './ClockFaceView';
 import HandView from './HandView';
 import TowerView from './TowerView';
@@ -198,6 +199,13 @@ export default function StimulusView({
           size={stimulus.size}
           locale={locale}
         />
+      );
+
+    case 'polycube':
+      return (
+        <div data-stimulus="polycube" class="polycube-stage">
+          <PolycubeView cubes={stimulus.cubes} label={describePolycube(stimulus.cubes, locale)} className="figure-svg polycube-svg polycube-svg--stage" />
+        </div>
       );
 
     case 'number-line':

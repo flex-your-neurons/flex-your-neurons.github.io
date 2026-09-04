@@ -24,6 +24,7 @@ import { describe, expect, it } from 'vitest';
 import { generateItem, getGenerator, ITEM_TYPE_IDS } from '@/lib/generators';
 import { canonicalRotation, shapeSignature } from '@/lib/geometry';
 import { CUBE_MARKS } from '@/lib/cube-geometry';
+import { canonical, normalise, sortedExtents } from '@/lib/polycube-geometry';
 import { DIFFICULTIES } from '@/lib/types';
 import type { Difficulty, Item, ItemTypeId, Option } from '@/lib/types';
 
@@ -121,6 +122,14 @@ function features(o: Option): number[] {
       const idx = o.faces.map((m) => CUBE_MARKS.indexOf(m));
       return [idx[0]!, idx[1]!, idx[2]!, idx.reduce((a, b) => a + b, 0)];
     }
+    case 'polycube': {
+      // What a glance at a drawing gives: how many blocks, how big a box they fill, how tall as drawn.
+      const ext = sortedExtents(o.cubes);
+      const n = normalise(o.cubes);
+      const height = Math.max(...n.map((c) => c[2])) + 1;
+      const footprint = new Set(n.map((c) => `${c[0]},${c[1]}`)).size;
+      return [o.cubes.length, ext[0], ext[1], ext[2], height, footprint];
+    }
   }
 }
 
@@ -136,6 +145,9 @@ function classKey(o: Option): string {
     case 'cube':
       // The face *set*, unordered: "which option shows a set of faces no other option shows?"
       return `c:${[...o.faces].sort().join('/')}`;
+    case 'polycube':
+      // The object up to rotation: "which option is a shape no other option is a turn of?"
+      return `p:${canonical(o.cubes)}`;
   }
 }
 

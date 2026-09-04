@@ -14,6 +14,7 @@ export const DIFFICULTIES: readonly Difficulty[] = [1, 2, 3, 4, 5];
 
 import type { LogicClue } from './generators/logic-grid';
 import type { CubeMark } from './cube-geometry';
+import type { Cube } from './polycube-geometry';
 
 export type ItemTypeId =
   | 'matrix'
@@ -53,7 +54,8 @@ export type ItemTypeId =
   | 'logic-grid'
   | 'feature-match'
   | 'cube-net'
-  | 'number-line';
+  | 'number-line'
+  | 'block-rotation';
 
 /**
  * CHC broad ability. See docs/IQ-TESTS.md §2.
@@ -157,6 +159,8 @@ export type Stimulus =
   | { kind: 'feature-match'; left: Figure[]; right: Figure[]; changed: number }
   /** A line from `min` to `max`; place `value` on it. `tolerance` is a fraction of the line. */
   | { kind: 'number-line'; min: number; max: number; label: string; value: number; tolerance: number }
+  /** A face-connected set of unit cubes, to be matched against rotations and reflections. */
+  | { kind: 'polycube'; cubes: Cube[] }
   /** Six marked squares laid flat; the options are cubes. */
   | { kind: 'cube-net'; rows: number; cols: number; cells: { r: number; c: number; mark: CubeMark }[] }
   /**
@@ -336,7 +340,9 @@ export type Option =
   /** `variant` picks the drawing style: filled blocks, or a sheet with punched holes. */
   | { kind: 'grid'; grid: CellGrid; variant?: 'solid' | 'holes' }
   /** A cube seen corner-on: the marks on its top, left and right faces. */
-  | { kind: 'cube'; faces: [top: CubeMark, left: CubeMark, right: CubeMark] };
+  | { kind: 'cube'; faces: [top: CubeMark, left: CubeMark, right: CubeMark] }
+  /** A polycube in isometric projection. */
+  | { kind: 'polycube'; cubes: Cube[] };
 
 /**
  * Why a distractor is wrong, drawn from the Wang & Su error-type taxonomy

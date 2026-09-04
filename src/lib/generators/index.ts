@@ -12,6 +12,7 @@ import { oddOneOutGenerator } from './odd-one-out';
 import { figuralAnalogyGenerator } from './analogy-figural';
 import { syllogismGenerator } from './syllogism';
 import { rotationGenerator } from './rotation';
+import { blockRotationGenerator } from './block-rotation';
 import { paperFoldingGenerator } from './paper-folding';
 import { cubeNetGenerator } from './cube-net';
 import { spanGenerator } from './span';
@@ -59,6 +60,7 @@ export const GENERATORS: Generator[] = [
   logicGridGenerator,
   towerGenerator,
   rotationGenerator,
+  blockRotationGenerator,
   paperFoldingGenerator,
   cubeNetGenerator,
   clockSpinGenerator,
