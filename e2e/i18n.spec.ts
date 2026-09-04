@@ -81,7 +81,7 @@ test.describe('language routing', () => {
 
   test('every page exists in both languages', async ({ page }) => {
     for (const locale of LOCALES) {
-      for (const path of ['', 'practice/', 'test/', 'progress/', 'about/']) {
+      for (const path of ['', 'practice/', 'test/', 'test/short/', 'progress/', 'about/']) {
         const response = await page.goto(`${locale}/${path}`);
         expect(response?.status(), `${locale}/${path}`).toBe(200);
         await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);

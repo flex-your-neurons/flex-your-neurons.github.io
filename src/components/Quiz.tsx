@@ -25,7 +25,7 @@ import GridView, { describeGrid } from './GridView';
 import CubeView, { describeCube } from './CubeView';
 import NumberLineBoard from './NumberLineBoard';
 import PolycubeView, { describePolycube } from './PolycubeView';
-import { generateItem, getItemText, getMeta } from '../lib/generators';
+import { generateItem, getItemText, getMeta, onePerDomain } from '../lib/generators';
 import { deriveSeed, normaliseSeed, randomSeed } from '../lib/rng';
 import { dict, type Locale } from '../lib/i18n';
 import { localeHref } from '../lib/links';
@@ -77,6 +77,11 @@ function formatClock(ms: number): string {
 interface Props {
   mode: SessionMode;
   types: ItemTypeId[];
+  /**
+   * `one-per-domain` draws the run's formats from the session seed instead of using `types` as
+   * given: the short test. The draw happens where the seed is known, so `types` here is the pool.
+   */
+  draw?: 'one-per-domain';
   locale: Locale;
   /** Item count. Practice defaults to the user's setting; tests use a fixed length. */
   length?: number;
@@ -142,7 +147,8 @@ function readUrlOverrides(): {
 
 export default function Quiz({
   mode,
-  types,
+  types: pool,
+  draw,
   locale,
   length,
   seed: fixedSeed,
@@ -160,6 +166,8 @@ export default function Quiz({
   const pinnedDifficulty = overrides.difficulty ?? fixedDifficulty;
 
   const [session, setSession] = useState<Session | null>(null);
+  /** The formats this run deals, in order: the pool as given, or the short test's draw from the seed. */
+  const [types, setTypes] = useState<ItemTypeId[]>(pool);
   /**
    * Index and difficulty move together, as one atomic cursor.
    *
@@ -277,11 +285,12 @@ export default function Quiz({
 
   // Start the session on the client, where a random seed and localStorage are available.
   useEffect(() => {
-    setSession(
-      newSession(mode, types, pinnedSeed || randomSeed(), isSprint ? windowMs : undefined),
-    );
-    const stats = summary?.byType.find((x) => x.type === types[0]);
-    const start = types.length === 1 ? suggestedStart(stats) : 2;
+    const seed = pinnedSeed || randomSeed();
+    const dealt = draw === 'one-per-domain' ? onePerDomain(seed) : pool;
+    setTypes(dealt);
+    setSession(newSession(mode, dealt, seed, isSprint ? windowMs : undefined));
+    const stats = summary?.byType.find((x) => x.type === dealt[0]);
+    const start = dealt.length === 1 ? suggestedStart(stats) : 2;
     if (isSprint) {
       /*
        * Seeded from the untimed history, which is the only evidence available — `summarise`

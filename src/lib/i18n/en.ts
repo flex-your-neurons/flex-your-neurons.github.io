@@ -1746,6 +1746,7 @@ const en = {
         `A mixed run across all ${items} reasoning-test formats, one item each, with no feedback until the end.`,
       lede: (items: number) =>
         `${items} items — one from every format, in a fixed rotation, with no feedback until you finish. Closer to how a real battery feels than the practice drills are.`,
+      shortLink: 'Short on time? The short test is seven items — one per domain, drawn from the seed.',
       differsHeading: 'How this differs from a real battery',
       differs: (items: number) => [
         'A real battery is administered one-to-one by a trained examiner with fixed instructions, timing and stop rules. This is you, alone, in a browser tab.',
@@ -1753,6 +1754,18 @@ const en = {
         'A real battery includes verbal comprehension, which cannot be procedurally generated with verifiable answers. Nothing here measures it.',
         `One item per format is a single observation per format: enough to say whether you have met a format, not enough to say how good you are at it. The domain figures pool several formats each and are the only part of this worth reading — and ${items} items is still far too few for a stable estimate of anything. Published batteries use ten to fifteen subtests for a reason.`,
       ],
+    },
+
+    testShort: {
+      title: 'Short test',
+      description: (items: number) =>
+        `A mixed run of ${items} items — one per cognitive domain, the format drawn from the seed — with no feedback until the end.`,
+      lede: (items: number) =>
+        `${items} items — one from each of the seven domains, with the format for each drawn from the seed, and no feedback until you finish. A quarter of an hour at most.`,
+      whyHeading: 'Why seven',
+      why: (formats: number) =>
+        `The full test asks one item from every one of the ${formats} formats, and reaching every format is what it is for. This one keeps the property that matters most for the profile — every domain is reached — and gives up the other: which format stands for a domain is drawn from the seed, so repeating the test on a new seed samples the domains differently rather than asking the same seven questions again. Seven items is one observation per domain, which is enough to fill the profile in and far too few to read anything into.`,
+      fullLink: (formats: number) => `The full test: one item from each of the ${formats} formats.`,
     },
 
     progress: {

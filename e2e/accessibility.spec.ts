@@ -102,7 +102,7 @@ test.describe('keyboard operation', () => {
 
 test.describe('semantics for assistive technology', () => {
   test('the page has one h1 and a labelled main landmark', async ({ page }) => {
-    for (const path of ['en/', 'en/practice/', 'en/test/', 'en/progress/', 'en/about/', 'en/terms/', 'fr/', 'fr/about/', 'fr/terms/']) {
+    for (const path of ['en/', 'en/practice/', 'en/test/', 'en/test/short/', 'en/progress/', 'en/about/', 'en/terms/', 'fr/', 'fr/about/', 'fr/terms/']) {
       await page.goto(path);
       await expect(page.getByRole('heading', { level: 1 }), path).toHaveCount(1);
       await expect(page.locator('main#main'), path).toHaveCount(1);

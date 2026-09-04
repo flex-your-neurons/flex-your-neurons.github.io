@@ -70,7 +70,7 @@ test.describe('site navigation', () => {
     });
     page.on('pageerror', (err) => errors.push(err.message));
 
-    for (const path of ['./', 'en/', 'en/practice/', 'en/test/', 'en/progress/', 'en/about/', 'en/terms/', 'fr/', 'fr/terms/', 'fr/practice/matrix/']) {
+    for (const path of ['./', 'en/', 'en/practice/', 'en/test/', 'en/test/short/', 'en/progress/', 'en/about/', 'en/terms/', 'fr/', 'fr/terms/', 'fr/practice/matrix/']) {
       await page.goto(path);
       await page.waitForLoadState('networkidle');
     }

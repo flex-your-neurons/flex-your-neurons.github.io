@@ -6,7 +6,7 @@
  * little. Each property below corresponds to a guard in docs/GENERATABILITY.md §4.
  */
 import { describe, expect, it } from 'vitest';
-import { GENERATORS, generateItem, getGenerator, getItemText, ITEM_TYPE_IDS } from '@/lib/generators';
+import { DOMAIN_ORDER, generateItem, GENERATORS, getGenerator, getItemText, getMeta, ITEM_TYPE_IDS, onePerDomain } from '@/lib/generators';
 import { LOCALES } from '@/lib/i18n';
 import { figureSignature } from '@/lib/geometry';
 import { DIFFICULTIES } from '@/lib/types';
@@ -378,5 +378,23 @@ describe('cross-generator properties', () => {
   it('produces every item type without exhausting retries at any difficulty', () => {
     const items = allItems();
     expect(items.length).toBe(ITEM_TYPE_IDS.length * DIFFICULTIES.length * SEEDS.length);
+  });
+});
+
+/** The short test's draw: one offered format per domain, in domain order, from the seed alone. */
+describe('onePerDomain', () => {
+  it('deals one format from every domain, in the site order, and never a scheduled one', () => {
+    for (const seed of ['A', 'B', 'SHORT001']) {
+      const types = onePerDomain(seed);
+      expect(types).toHaveLength(DOMAIN_ORDER.length);
+      expect(types.map((t) => getMeta(t).domain)).toEqual(DOMAIN_ORDER);
+      for (const t of types) expect(ITEM_TYPE_IDS).toContain(t);
+    }
+  });
+
+  it('is a function of the seed, and varies with it', () => {
+    expect(onePerDomain('SAME')).toEqual(onePerDomain('SAME'));
+    const draws = new Set(Array.from({ length: 20 }, (_, i) => onePerDomain(`S${i}`).join()));
+    expect(draws.size).toBeGreaterThan(10);
   });
 });

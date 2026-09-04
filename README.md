@@ -128,6 +128,7 @@ subtracting throughout is one wrong idea, not five careless slips.
 |------|-----------|-----------|------------|
 | Practice | a set number of items | accuracy, with an explanation after each answer | adapts as you go |
 | Full test | every format has been seen once | accuracy by format, no feedback until the end | adapts as you go |
+| Short test | every domain has been seen once (seven items, the format for each drawn from the seed) | accuracy by domain, no feedback until the end | adapts as you go |
 | Sprint | the clock runs out | correct answers per minute | pinned for the whole block |
 
 A sprint is the continuous timed block: one format, a fixed window, items back to back with no

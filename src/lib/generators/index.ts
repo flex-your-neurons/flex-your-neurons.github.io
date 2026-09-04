@@ -3,7 +3,8 @@
  * tuple reproduces one exactly, which is what lets a whole session be persisted in a few
  * bytes and replayed later for review, in whichever language the reader prefers.
  */
-import type { Difficulty, Generator, Item, ItemTypeId, ItemTypeMeta } from '../types';
+import { createRng } from '../rng';
+import type { ChcDomain, Difficulty, Generator, Item, ItemTypeId, ItemTypeMeta } from '../types';
 import { DEFAULT_LOCALE, dict, type Locale } from '../i18n';
 import { matrixGenerator } from './matrix';
 import { numberSeriesGenerator } from './series-number';
@@ -183,4 +184,21 @@ export const SCHEDULED_META: ItemTypeMeta[] = SCHEDULED_GENERATORS.map((g) => g.
 /** Every item type paired with its translated text, in presentation order. */
 export function allItemTypes(locale: Locale): (ItemTypeMeta & ItemTypeText)[] {
   return ALL_META.map((meta) => ({ ...meta, ...getItemText(meta.id, locale) }));
+}
+
+/** The seven CHC broad abilities, in the order the site lists them. */
+export const DOMAIN_ORDER: ChcDomain[] = ['Gf', 'Gv', 'Gwm', 'Glr', 'Gs', 'Gt', 'Gq'];
+
+/**
+ * The short test's draw: one offered format per domain, chosen from the session seed.
+ *
+ * The full test is one item per format, and at forty formats that is a long sitting. The short test
+ * keeps the one property that made the full test worth having — every domain is reached — and gives
+ * up the other: which format stands for a domain is drawn, not fixed, so two short tests on different
+ * seeds sample the domains differently and a reader who repeats it is not repeating the same seven
+ * formats. The draw is from the seed, so a shared link is the same seven items in either language.
+ */
+export function onePerDomain(seed: string): ItemTypeId[] {
+  const rng = createRng(`short-test:${seed}`);
+  return DOMAIN_ORDER.map((domain) => rng.pick(ALL_META.filter((m) => m.domain === domain)).id);
 }

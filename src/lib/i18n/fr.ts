@@ -1618,6 +1618,7 @@ const fr: Dict = {
         `Une série mixte sur les ${items} formats, un item chacun, sans retour avant la fin.`,
       lede: (items: number) =>
         `${items} items — un par format, dans un ordre fixe et sans aucun retour avant la fin. Plus proche du ressenti d’une vraie batterie que les séries d’entraînement.`,
+      shortLink: 'Peu de temps ? Le test court fait sept items — un par domaine, tirés de la graine.',
       differsHeading: 'En quoi cela diffère d’une vraie batterie',
       differs: (items: number) => [
         'Une vraie batterie est administrée en tête-à-tête par un examinateur formé, avec des consignes, un chronométrage et des règles d’arrêt fixés. Ici, c’est vous, seul, dans un onglet.',
@@ -1625,6 +1626,18 @@ const fr: Dict = {
         'Une vraie batterie comporte de la compréhension verbale, qui ne peut pas être générée par procédure avec des réponses vérifiables. Rien ici ne la mesure.',
         `Un item par format, c’est une seule observation par format : assez pour savoir si vous avez rencontré un format, pas pour dire ce que vous y valez. Les chiffres par domaine regroupent plusieurs formats chacun et sont la seule partie qui mérite d’être lue — et ${items} items restent de toute façon bien trop peu pour estimer quoi que ce soit de stable. Ce n’est pas pour rien que les batteries publiées comptent dix à quinze subtests.`,
       ],
+    },
+
+    testShort: {
+      title: 'Test court',
+      description: (items: number) =>
+        `Une série mixte de ${items} items — un par domaine cognitif, le format tiré de la graine — sans retour avant la fin.`,
+      lede: (items: number) =>
+        `${items} items — un dans chacun des sept domaines, le format de chacun tiré de la graine, et aucun retour avant la fin. Un quart d’heure au plus.`,
+      whyHeading: 'Pourquoi sept',
+      why: (formats: number) =>
+        `Le test complet pose un item de chacun des ${formats} formats, et atteindre chaque format est sa raison d’être. Celui-ci garde la propriété qui compte le plus pour le profil — chaque domaine est atteint — et renonce à l’autre : le format qui représente un domaine est tiré de la graine, si bien que refaire le test sur une nouvelle graine échantillonne les domaines autrement au lieu de reposer les mêmes sept questions. Sept items, c’est une observation par domaine : assez pour remplir le profil, bien trop peu pour en tirer quoi que ce soit.`,
+      fullLink: (formats: number) => `Le test complet : un item de chacun des ${formats} formats.`,
     },
 
     progress: {

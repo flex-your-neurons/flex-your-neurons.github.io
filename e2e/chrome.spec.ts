@@ -54,7 +54,7 @@ test.describe('the live hero', () => {
 
   test('only the home page has one', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
-    for (const path of ['en/practice/', 'en/test/', 'en/about/', 'en/terms/', 'en/progress/']) {
+    for (const path of ['en/practice/', 'en/test/', 'en/test/short/', 'en/about/', 'en/terms/', 'en/progress/']) {
       await page.goto(path);
       await expect(page.locator('.page-hero'), path).toHaveCount(0);
     }

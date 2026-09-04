@@ -332,6 +332,11 @@ Thirty-two generators across seven CHC domains:
 > The cube count rises with the level too, so the slope is turns-plus-complexity, and the copy says
 > so rather than pretending otherwise.
 >
+> At forty formats the full test is a long sitting, so a **short test** now sits beside it: seven
+> items, one per domain, the format standing for each drawn from the session seed (`onePerDomain`).
+> It keeps the property the full test was derived-length to guarantee — every domain reached — and
+> trades exhaustive coverage for a run a reader will actually repeat, on a new draw each time.
+>
 > The progress page reads the two halves against each other as a **retention contrast** — immediate
 > accuracy, delayed accuracy, and the drop — the third read-out that is a difference rather than a
 > tally, after the Stroop and switch-cost ones, and the first that is a difference in *time since
