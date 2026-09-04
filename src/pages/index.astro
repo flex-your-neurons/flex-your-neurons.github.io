@@ -14,6 +14,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const languages = localeOptions();
 const en = dict('en').pages.redirect;
 const fr = dict('fr').pages.redirect;
+// Both names, since this page belongs to neither language — and it is the site's entry now that
+// there is no base path in front of it, so the tab it opens should say what the site is called.
+const title = `${dict('en').nav.brand} · ${dict('fr').nav.brand}`;
 ---
 
 <!doctype html>
@@ -21,7 +24,7 @@ const fr = dict('fr').pages.redirect;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Reason — reasoning-test training</title>
+    <title>{title}</title>
     <meta name="description" content="Training on reasoning-test item formats. Entraînement aux formats des tests de raisonnement." />
     <meta name="color-scheme" content="light dark" />
     <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
