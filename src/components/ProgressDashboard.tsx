@@ -28,6 +28,8 @@ import {
   formatDuration,
   formatPercent,
   interferenceScore,
+  MIN_GONOGO_RUNS,
+  speedScore,
   switchCostScore,
   tallyErrorTypes,
 } from '../lib/scoring';
@@ -228,6 +230,7 @@ export default function ProgressDashboard({ locale }: { locale: Locale }) {
       {sprints.length > 0 && <SprintBoard locale={locale} sprints={sprints} />}
       <InterferenceCard locale={locale} sessions={sessions} />
       <SwitchCostCard locale={locale} sessions={sessions} />
+      <SpeedCard locale={locale} sessions={sessions} />
       {hasData && <MistakeProfile locale={locale} sessions={sessions} />}
 
       {hasData && (
@@ -563,6 +566,50 @@ function SwitchCostCard({ locale, sessions }: { locale: Locale; sessions: Sessio
           testid="stat-form-b"
         />
       </div>
+    </section>
+  );
+}
+
+/**
+ * The Gt read-out: simple reaction time, the Hick slope, and go/no-go failures by kind.
+ *
+ * Shown as soon as any one of the three has enough behind it; the others read as "not yet" rather
+ * than as a number that a single more block would move.
+ */
+function SpeedCard({ locale, sessions }: { locale: Locale; sessions: Session[] }) {
+  const t = dict(locale);
+  const score = speedScore(sessions);
+  if (!score) return null;
+  const s = t.dashboard.gt;
+  const enoughRuns = score.goNoGoRuns >= MIN_GONOGO_RUNS;
+
+  return (
+    <section data-testid="gt-section">
+      <h3 class="section-heading section-heading--sm">{s.heading}</h3>
+      <p class="muted dashboard-lede">{s.lede}</p>
+      <div class="card-grid card-grid--fit stat-grid">
+        <Stat
+          label={s.simple(score.simpleBlocks)}
+          value={score.simpleMs === null ? s.notYet : formatDuration(score.simpleMs, locale)}
+          testid="stat-simple-rt"
+        />
+        <Stat
+          label={s.slope(score.hickLevels)}
+          value={score.hickSlopeMsPerBit === null ? s.notYet : s.perBit(Math.round(score.hickSlopeMsPerBit))}
+          testid="stat-hick-slope"
+        />
+        <Stat
+          label={s.commissions(score.goNoGoRuns)}
+          value={enoughRuns ? String(score.commissions) : s.notYet}
+          testid="stat-commissions"
+        />
+        <Stat
+          label={s.omissions(score.goNoGoRuns)}
+          value={enoughRuns ? String(score.omissions) : s.notYet}
+          testid="stat-omissions"
+        />
+      </div>
+      <p class="muted">{s.note}</p>
     </section>
   );
 }

@@ -144,6 +144,14 @@ It also came for free. Congruency was never stored on a response; it is a proper
 every item regenerates exactly from its seed — so the partition is re-derived when the page is read,
 out of history written before the read-out existed.
 
+### The one measurement that is a time
+
+The reaction-time block is the one format whose latency is the measurement rather than a by-product
+of it: the board hands the quiz the block's median trial, and the progress page reports the median
+of those medians as simple reaction time, plus Hick's slope in milliseconds per bit read off your
+own levels. Beside it, go / no-go is counted by kind of failure — commissions apart from omissions —
+because pressing on a crossed signal and missing a plain one do not come from the same place.
+
 ## How an item is made safe
 
 Three guards, described in full in [`docs/GENERATABILITY.md`](docs/GENERATABILITY.md) §4:

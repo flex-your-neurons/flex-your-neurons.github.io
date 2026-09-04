@@ -402,6 +402,20 @@ const fr: Dict = {
       'Un écart positif est le résultat ordinaire, et un écart important n’est pas un défaut : l’effet est robuste chez presque tout le monde, ce qui explique qu’on l’étudie depuis 1935.',
     interferenceUnexpected:
       'Un écart nul ou négatif signale le plus souvent un nombre d’essais insuffisant plutôt qu’une absence d’interférence. Il devrait redevenir positif à mesure qu’ils s’accumulent.',
+    /** La lecture Gt : les deux formats de vitesse dans leurs propres unités. */
+    gt: {
+      heading: 'Réaction et contrôle',
+      lede:
+        'Issu des blocs de réaction et des séries go ou stop. Le temps de réaction est le seul chiffre de cette page qui soit un temps en lui-même plutôt que la durée d’un item : la médiane des essais de chaque bloc, puis la médiane de celles-ci. La pente est la loi de Hick lue sur vos propres niveaux — ce que chaque doublement des cibles ajoute. Le go ou stop se compte par type d’échec, car appuyer sur un signal barré et manquer un signal plein ne viennent pas du même endroit.',
+      simple: (n: number) => `Temps de réaction simple (${n} bloc${n === 1 ? '' : 's'})`,
+      slope: (n: number) => `Coût par doublement des cibles (${n} niveau${n === 1 ? '' : 'x'})`,
+      perBit: (ms: number) => `${ms > 0 ? '+' : ''}${ms} ms`,
+      commissions: (n: number) => `Appui sur un signal barré (${n} série${n === 1 ? '' : 's'})`,
+      omissions: (n: number) => `Signal plein manqué (${n} série${n === 1 ? '' : 's'})`,
+      notYet: 'pas encore',
+      note:
+        'Trois blocs sans faux départ à un niveau avant d’afficher son temps, deux niveaux de ce genre avant une pente, quatre séries avant les décomptes du go ou stop. Un bloc avec un faux départ n’est pas chronométré.',
+    },
     sprintHeading: 'Contre-la-montre',
     sprintLede:
       'Les blocs chronométrés restent à l’écart de tout ce qui précède, car ils mesurent autre chose : le débit dans une fenêtre fixe, à un niveau figé pour tout le bloc. Aucun des chiffres de précision ou de vitesse du reste de cette page ne contient de réponse chronométrée.',

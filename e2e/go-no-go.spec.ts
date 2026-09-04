@@ -7,7 +7,7 @@
  * the run is a secret until it plays.
  */
 import { expect, test } from '@playwright/test';
-import { expectedItem, practiceUrl } from './helpers';
+import { clearAppStorage, expectedItem, practiceUrl } from './helpers';
 import type { Difficulty } from '../src/lib/types';
 
 const SEED = 'GNGE2E01';
@@ -76,5 +76,35 @@ test.describe('go / no-go', () => {
     await play(page, signals, (i) => i !== 0 && signals[i]!);
     await expect(page.getByTestId('verdict')).not.toHaveText(/^Correct$/);
     await expect(page.getByTestId('gonogo-result')).toContainText(/plain|plein/);
+  });
+
+  /**
+   * The read-out end to end: four runs, one of them a commission and one an omission, and the
+   * progress page counts each by kind.
+   */
+  test('the progress page counts commissions and omissions by kind after four runs', async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.goto(url(1));
+    await clearAppStorage(page);
+    await page.goto('en/progress/');
+    await expect(page.getByTestId('gt-section')).toHaveCount(0);
+    await page.goto(practiceUrl('go-no-go', { seed: SEED, difficulty: 1, length: 4 }));
+    await expect(page.getByTestId('quiz')).toHaveAttribute('data-hydrated', 'true');
+    for (let i = 0; i < 4; i++) {
+      const item = expectedItem('go-no-go', SEED, i, 1);
+      if (item.stimulus.kind !== 'gonogo') throw new Error('unexpected stimulus');
+      const signals = item.stimulus.signals;
+      const firstStop = signals.indexOf(false);
+      const pressOn =
+        i === 1 ? (k: number) => k === firstStop || signals[k]! : i === 2 ? (k: number) => k !== 0 && signals[k]! : (k: number) => signals[k]!;
+      await play(page, signals, pressOn);
+      const next = page.getByTestId('next');
+      if ((await next.count()) > 0) await next.click();
+    }
+    await page.goto('en/progress/');
+    await expect(page.getByTestId('gt-section')).toBeVisible();
+    await expect(page.getByTestId('stat-commissions')).toContainText('1');
+    await expect(page.getByTestId('stat-omissions')).toContainText('1');
+    await expect(page.getByTestId('stat-simple-rt')).toContainText('not yet');
   });
 });

@@ -19,7 +19,7 @@ import type {
 import { generateItem, getMeta, ITEM_VERSION } from './generators';
 import { isCongruent } from './generators/interference';
 import { isFormB } from './generators/trail-making';
-import { FALSE_START } from './generators/reaction-time';
+import { FALSE_START, targetsFor } from './generators/reaction-time';
 import { decodeRun } from './generators/go-no-go';
 import { decodeCells } from './generators/pattern-recall';
 import { dict, DEFAULT_LOCALE, type Locale } from './i18n';
@@ -564,6 +564,98 @@ export function switchCostScore(sessions: Session[]): SwitchCostScore | null {
     formATrials: formA.length,
     formBTrials: formB.length,
   };
+}
+
+/**
+ * The speed read-out: what the two Gt formats measure, reported in their own units.
+ *
+ * Reaction-time blocks already store the thing itself — the response's `latencyMs` is the block's
+ * median trial time, handed up by the board rather than clocked by the quiz — so the baseline is
+ * a median of medians over the clean blocks. The target count is recovered from the level through
+ * `targetsFor`, which is a fixed mapping rather than a regenerated item, so the partition is safe
+ * without the version filter. The version filter is applied anyway: before generation 3 a
+ * reaction-time item was one trial, and one trial's latency and five trials' median are not the
+ * same measurement.
+ *
+ * The slope is Hick's law read off the reader's own levels: median time regressed on log2 of the
+ * target count, in milliseconds per bit. It is only reported when at least two levels have enough
+ * clean blocks behind them, since a slope through one point is a guess.
+ *
+ * Go/no-go is scored by *which* failure, not by how many. A commission (pressing on a crossed
+ * signal) and an omission (missing a plain one) come from different places — one is a failure to
+ * withhold, the other a lapse — and pooling them into an accuracy would lose the distinction the
+ * format exists to make. The error type is read from the response, where the board recorded it,
+ * so any generation counts.
+ */
+export interface SpeedScore {
+  /** Median block time with one target, or null below `MIN_REACTION_BLOCKS`. */
+  simpleMs: number | null;
+  simpleBlocks: number;
+  /** Milliseconds per bit of choice, or null below two qualifying levels. */
+  hickSlopeMsPerBit: number | null;
+  /** Levels that contributed to the slope. */
+  hickLevels: number;
+  goNoGoRuns: number;
+  commissions: number;
+  omissions: number;
+}
+
+/** Fewest clean blocks needed at a target count before its median is worth reporting. */
+export const MIN_REACTION_BLOCKS = 3;
+/** Fewest go/no-go runs before a commission or omission count says anything. */
+export const MIN_GONOGO_RUNS = 4;
+
+export function speedScore(sessions: Session[]): SpeedScore | null {
+  const byTargets = new Map<number, number[]>();
+  let goNoGoRuns = 0;
+  let commissions = 0;
+  let omissions = 0;
+
+  for (const session of untimedSessions(sessions)) {
+    const rederivable = session.itemVersion === ITEM_VERSION;
+    for (const response of session.responses) {
+      if (response.type === 'reaction-time') {
+        if (!rederivable || !response.correct) continue;
+        const targets = targetsFor(response.difficulty);
+        byTargets.set(targets, [...(byTargets.get(targets) ?? []), response.latencyMs]);
+      } else if (response.type === 'go-no-go') {
+        goNoGoRuns++;
+        if (response.errorType === 'commission') commissions++;
+        else if (response.errorType === 'omission') omissions++;
+      }
+    }
+  }
+
+  const levels = [...byTargets.entries()]
+    .filter(([, ms]) => ms.length >= MIN_REACTION_BLOCKS)
+    .map(([targets, ms]) => ({ bits: Math.log2(targets), ms: median(ms)! }))
+    .sort((a, b) => a.bits - b.bits);
+
+  const simple = byTargets.get(1) ?? [];
+  const simpleMs = simple.length >= MIN_REACTION_BLOCKS ? median(simple)! : null;
+  const hickSlopeMsPerBit = levels.length >= 2 ? slope(levels.map((l) => [l.bits, l.ms])) : null;
+
+  if (simpleMs === null && hickSlopeMsPerBit === null && goNoGoRuns < MIN_GONOGO_RUNS) return null;
+
+  return {
+    simpleMs,
+    simpleBlocks: simple.length,
+    hickSlopeMsPerBit,
+    hickLevels: levels.length,
+    goNoGoRuns,
+    commissions,
+    omissions,
+  };
+}
+
+/** Least-squares slope of y on x. Callers guarantee at least two distinct x. */
+function slope(points: [x: number, y: number][]): number {
+  const n = points.length;
+  const mx = points.reduce((a, [x]) => a + x, 0) / n;
+  const my = points.reduce((a, [, y]) => a + y, 0) / n;
+  const sxy = points.reduce((a, [x, y]) => a + (x - mx) * (y - my), 0);
+  const sxx = points.reduce((a, [x]) => a + (x - mx) ** 2, 0);
+  return sxy / sxx;
 }
 
 // ---------------------------------------------------------------------------

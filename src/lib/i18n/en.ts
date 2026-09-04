@@ -513,6 +513,20 @@ const en = {
       'A positive gap is the ordinary result, and a large one is not a fault: the effect is robust in almost everyone, which is why it has been studied since 1935.',
     interferenceUnexpected:
       'A gap at or below zero usually means too few trials rather than an absence of interference. It should settle into the positive as more accumulate.',
+    /** The Gt read-out: the two speed formats in their own units. */
+    gt: {
+      heading: 'Reaction and control',
+      lede:
+        'From the reaction blocks and the go / no-go runs. Reaction time is the one figure on this page that is a time in its own right rather than how long an item took: each block’s median trial, and the median of those. The slope is Hick’s law read off your own levels — how much each doubling of the targets adds. Go / no-go is counted by kind of failure, because pressing on a crossed signal and missing a plain one come from different places.',
+      simple: (n: number) => `Simple reaction time (${n} block${n === 1 ? '' : 's'})`,
+      slope: (n: number) => `Cost per doubling of targets (${n} level${n === 1 ? '' : 's'})`,
+      perBit: (ms: number) => `${ms > 0 ? '+' : ''}${ms} ms`,
+      commissions: (n: number) => `Pressed on a crossed signal (${n} run${n === 1 ? '' : 's'})`,
+      omissions: (n: number) => `Missed a plain signal (${n} run${n === 1 ? '' : 's'})`,
+      notYet: 'not yet',
+      note:
+        'Three clean blocks at a level before its time is shown, two such levels before a slope, four runs before the go / no-go counts. A block with a false start is not timed.',
+    },
     sprintHeading: 'Sprints',
     sprintLede:
       'Timed blocks are kept apart from everything above, because they measure a different thing: output inside a fixed window, at a level pinned for the whole block. None of the accuracy or speed figures on the rest of this page contain a timed response.',

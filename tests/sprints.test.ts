@@ -11,6 +11,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   interferenceScore,
+  speedScore,
   sprintSummary,
   summarise,
   switchCostScore,
@@ -404,5 +405,73 @@ describe('re-derived contrasts only read the generation they were played at', ()
     const summary = summarise([stale]);
     expect(summary.overall.attempts).toBe(trails.length);
     expect(untimedSessions([stale])).toHaveLength(1);
+  });
+});
+
+/**
+ * The Gt read-out. Reaction-time latencies are the board's medians, stored as any other latency, so
+ * the score only has to sort them by target count and refuse to speak too early. Go/no-go failures
+ * are read from the recorded error type.
+ */
+describe('speedScore', () => {
+  function block(difficulty: Difficulty, latencyMs: number, correct = true): Response {
+    return { ...response(correct, latencyMs, difficulty), type: 'reaction-time' };
+  }
+  function run(errorType?: 'commission' | 'omission'): Response {
+    return {
+      ...response(errorType === undefined, 9000, 2),
+      type: 'go-no-go',
+      ...(errorType === undefined ? {} : { errorType }),
+    };
+  }
+
+  it('says nothing until one of the three figures has enough behind it', () => {
+    expect(speedScore([session('practice', [block(1, 300), block(1, 310)])])).toBeNull();
+    expect(speedScore([session('practice', [run(), run(), run()])])).toBeNull();
+  });
+
+  it('reports simple reaction time as the median of clean one-target blocks', () => {
+    const score = speedScore([
+      session('practice', [block(1, 300), block(1, 280), block(1, 400), block(1, 250, false)]),
+    ]);
+    expect(score).not.toBeNull();
+    expect(score!.simpleMs).toBe(300);
+    expect(score!.simpleBlocks).toBe(3);
+    expect(score!.hickSlopeMsPerBit).toBeNull();
+  });
+
+  it('reads the Hick slope in milliseconds per bit off the levels', () => {
+    // Levels 1, 2 and 4 show one, two and four targets: 0, 1 and 2 bits. Times that rise 100 ms per
+    // bit exactly should read back as a slope of 100.
+    const score = speedScore([
+      session('practice', [
+        ...[300, 300, 300].map((ms) => block(1, ms)),
+        ...[400, 400, 400].map((ms) => block(2, ms)),
+        ...[500, 500, 500].map((ms) => block(4, ms)),
+      ]),
+    ]);
+    expect(score!.hickLevels).toBe(3);
+    expect(score!.hickSlopeMsPerBit).toBeCloseTo(100, 6);
+  });
+
+  it('counts go/no-go failures by kind, not as an accuracy', () => {
+    const score = speedScore([session('practice', [run(), run('commission'), run('omission'), run('commission')])]);
+    expect(score).toEqual({
+      simpleMs: null,
+      simpleBlocks: 0,
+      hickSlopeMsPerBit: null,
+      hickLevels: 0,
+      goNoGoRuns: 4,
+      commissions: 2,
+      omissions: 1,
+    });
+  });
+
+  it('ignores sprint sessions and older-generation reaction blocks, but not older go/no-go runs', () => {
+    const blocks = [block(1, 300), block(1, 300), block(1, 300)];
+    expect(speedScore([session('sprint', blocks)])).toBeNull();
+    expect(speedScore([session('practice', blocks, { itemVersion: ITEM_VERSION - 1 })])).toBeNull();
+    const runs = [run(), run(), run(), run('omission')];
+    expect(speedScore([session('practice', runs, { itemVersion: ITEM_VERSION - 1 })])?.omissions).toBe(1);
   });
 });
