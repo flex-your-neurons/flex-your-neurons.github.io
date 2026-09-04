@@ -1452,6 +1452,7 @@ const fr: Dict = {
       reveal: 'Les chiffres sont revenus ; un nombre rouge marque un toucher qui a dévié.',
       cellLabel: (position: number) => `Case ${position}`,
       cellNumbered: (numeral: number | undefined) => `Nombre ${numeral}`,
+      cellTapped: (position: number, ordinal: number) => `Case ${position}, votre toucher ${ordinal}`,
       cellReveal: (position: number, numeral: number | undefined, tapped: number | undefined) =>
         numeral === undefined
           ? tapped === undefined

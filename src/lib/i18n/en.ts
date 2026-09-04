@@ -1572,6 +1572,8 @@ const en = {
       reveal: 'The numerals are back; a red number marks where a tap went wrong.',
       cellLabel: (position: number) => `Cell ${position}`,
       cellNumbered: (numeral: number | undefined) => `Number ${numeral}`,
+      /** The cell that was just tapped, while its mark is showing. */
+      cellTapped: (position: number, ordinal: number) => `Cell ${position}, your tap ${ordinal}`,
       cellReveal: (position: number, numeral: number | undefined, tapped: number | undefined) =>
         numeral === undefined
           ? tapped === undefined

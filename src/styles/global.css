@@ -4774,8 +4774,9 @@ table.data.table-figures {
 }
 
 /*
- * A cell is a square. Numbered while studying; every cell looks the same once masked, tapped or not,
- * so the board gives nothing back until the item is over.
+ * A cell is a square. Numbered while studying; once masked every cell looks the same, tapped or not,
+ * apart from a fading mark on the tap that just landed, so the board gives no verdict and keeps no
+ * tally until the item is over.
  */
 .chimp-cell {
   position: relative;
@@ -4850,6 +4851,46 @@ table.data.table-figures {
 .reaction-record {
   display: flex;
   justify-content: center;
+/*
+ * The tap that just landed: its place in the sequence, over the cell, fading out. The reader's own
+ * claim rather than the cell's hidden numeral, so it cannot say whether the tap was right. Held
+ * briefly at full strength first — a mark that starts fading immediately is easy to miss on a phone,
+ * where the finger is still over the cell.
+ */
+.chimp-echo {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: inherit;
+  background: color-mix(in oklch, var(--accent) 14%, var(--bg-raised));
+  box-shadow: inset 0 0 0 2px var(--accent);
+  color: var(--accent);
+  font: inherit;
+  animation: chimp-echo 750ms var(--ease-out) forwards;
+}
+
+@keyframes chimp-echo {
+  0%,
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/*
+ * No fade under reduced motion, so the mark stays until the next tap. That is one cell held rather
+ * than a tally: the reader's last tap is the one thing they cannot have forgotten, so leaving it up
+ * narrows nothing. The block-span board's pulse degrades the same way.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .chimp-echo {
+    animation: none;
+  }
+}
+
   gap: 0.5rem;
   margin: 0;
   padding: 0;
