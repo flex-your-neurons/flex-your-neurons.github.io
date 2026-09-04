@@ -29,12 +29,18 @@
  * rotations; an object that was its own reflection would have two right answers. And every drawn
  * object, stimulus or option, shows all of its cubes: an isometric view can hide a cube exactly
  * behind another, and an object that cannot be read off its drawing is not a fair question.
+ *
+ * Objects with a pocket — an empty cell walled in by three or more cubes — are refused for the same
+ * reason. Nothing is hidden in one, but what shows through the gap is the bare face of a cube
+ * standing behind it, and that reads as a flat plate joining two cubes rather than as a third cube
+ * further back. See `hasPocket`.
  */
 import { createRng, type Rng } from '../rng';
 import { dict, type Locale } from '../i18n';
 import {
   canonical,
   hasHiddenCube,
+  hasPocket,
   isRotationOf,
   mirror,
   moveOneCube,
@@ -112,7 +118,8 @@ function generate(seed: string, difficulty: Difficulty, locale: Locale): Item {
 
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     const grown = randomChiralPolycube(plan.cubes, rng);
-    const object = grown && visibleOrientation(grown, rng);
+    if (!grown || hasPocket(grown)) continue;
+    const object = visibleOrientation(grown, rng);
     if (!object) continue;
 
     // The answer must look different from the stimulus as drawn, or the item is a matching task —
@@ -135,7 +142,7 @@ function generate(seed: string, difficulty: Difficulty, locale: Locale): Item {
     // Two near-misses: one cube moved, one of them mirrored as well. Each a new object.
     for (let tries = 0; tries < 30 && wrong.length < OPTION_COUNT - 1; tries++) {
       const moved = moveOneCube(object, rng);
-      if (!moved) continue;
+      if (!moved || hasPocket(moved)) continue;
       const shown = visibleOrientation(wrong.length === 2 ? mirror(moved) : moved, rng);
       if (!shown) continue;
       const cls = canonical(shown);
@@ -166,7 +173,7 @@ function generate(seed: string, difficulty: Difficulty, locale: Locale): Item {
       errorTypes,
       explanation: {
         summary: t.summary(answerIndex + 1, plan.turns),
-        rules: [t.ruleTurn, t.ruleMirror, t.ruleCount(plan.cubes)],
+        rules: [t.ruleTurn, t.ruleMirror, t.ruleCount(plan.cubes), t.ruleVisible],
       },
       suggestedSeconds: 20 + difficulty * 8,
     };

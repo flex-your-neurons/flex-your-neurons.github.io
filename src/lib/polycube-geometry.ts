@@ -186,6 +186,35 @@ export function isConnected(cubes: readonly Cube[]): boolean {
   return seen.size === cubes.length;
 }
 
+/**
+ * Whether some empty cell is walled in by three or more cubes: a pocket.
+ *
+ * A pocket is legal — the object is face-connected either way — but it is the one thing an isometric
+ * drawing cannot say. What you see through the gap is a face of whatever cube stands behind it, and
+ * that face arrives as a plain rhombus with no cube edge crossing it, so it reads as a flat plate
+ * bridging the cubes on either side rather than as the side of a third cube one step further back.
+ * Readers report exactly that: two cubes joined by a square. Shepard and Metzler's own objects are
+ * arms of straight segments and have no pockets, so refusing them costs nothing the construct wants.
+ *
+ * Invariant under rotation and reflection, so it need only be asked of an object once.
+ */
+export function hasPocket(cubes: readonly Cube[]): boolean {
+  const have = new Set(cubes.map((c) => c.join(',')));
+  const empty = new Set<string>();
+  for (const [x, y, z] of cubes) {
+    for (const [dx, dy, dz] of NEIGHBOURS) {
+      const key = `${x + dx},${y + dy},${z + dz}`;
+      if (!have.has(key)) empty.add(key);
+    }
+  }
+  for (const cell of empty) {
+    const [x, y, z] = cell.split(',').map(Number) as [number, number, number];
+    const walls = NEIGHBOURS.filter(([dx, dy, dz]) => have.has(`${x + dx},${y + dy},${z + dz}`)).length;
+    if (walls >= 3) return true;
+  }
+  return false;
+}
+
 /** Bounding-box side lengths, sorted — the same for an object and any rotation or reflection of it. */
 export function sortedExtents(cubes: readonly Cube[]): [number, number, number] {
   const n = normalise(cubes);

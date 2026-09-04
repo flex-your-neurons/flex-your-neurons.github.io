@@ -819,7 +819,7 @@ const fr: Dict = {
       name: 'Rotation de blocs',
       blurb: 'Une forme en blocs. Laquelle est la même forme, tournée ?',
       description:
-        'Un objet fait de cubes, dessiné en trois dimensions, et quatre autres objets. L’un est le même objet tourné dans l’espace ; l’un est son image miroir ; deux ont un seul bloc déplacé. Trouvez celui qui est seulement tourné. C’est l’expérience de Shepard et Metzler de 1971, celle qui a donné son nom à la rotation mentale et montré que le temps de réponse croît avec l’angle de la rotation — l’objet est donc réellement tourné en pensée. Le format de rotation à plat de ce site est le même construit sur papier ; dans l’espace, l’image miroir ne se reconnaît pas en retournant la feuille, il faut la trouver fausse en tournant l’objet jusqu’à ce qu’il coïncide ou non. Les niveaux ajoutent des blocs et des rotations.',
+        'Un objet fait de cubes, dessiné en trois dimensions, et quatre autres objets. L’un est le même objet tourné dans l’espace ; l’un est son image miroir ; deux ont un seul bloc déplacé. Trouvez celui qui est seulement tourné. C’est l’expérience de Shepard et Metzler de 1971, celle qui a donné son nom à la rotation mentale et montré que le temps de réponse croît avec l’angle de la rotation — l’objet est donc réellement tourné en pensée. Le format de rotation à plat de ce site est le même construit sur papier ; dans l’espace, l’image miroir ne se reconnaît pas en retournant la feuille, il faut la trouver fausse en tournant l’objet jusqu’à ce qu’il coïncide ou non. Chaque objet est dessiné dans une orientation qui montre tous ses blocs : ce qu’on peut compter est ce qui est là. Les niveaux ajoutent des blocs et des rotations.',
       seenIn: 'Shepard & Metzler (1971), Mental Rotations Test de Vandenberg & Kuse, Purdue Spatial Visualization Test',
     },
     'gear-train': {
@@ -1397,6 +1397,8 @@ const fr: Dict = {
         'Une image miroir a chaque bloc à la place correspondante et reste fausse : aucune rotation ne porte un objet sur son reflet. Chaque objet ici est vérifié différent de son image miroir, sans quoi l’item aurait deux réponses.',
       ruleCount: (cubes: number) =>
         `Chaque option compte ${cubes} blocs et remplit une boîte de même taille, si bien que compter et mesurer ne les distinguent pas. Seul l’agencement le fait.`,
+      ruleVisible:
+        'Chaque bloc est dessiné là où il se voit. Aucune orientation où un bloc en cache exactement un autre le long de la ligne de vue, ou se trouve dans une poche dont toutes les faces visibles sont couvertes, n’est retenue — l’objet du dessin est donc l’objet entier, et un bloc introuvable est un bloc qui n’existe pas.',
       describe: (blocks: number, layers: string[]) => `une forme de ${blocks} blocs : ${layers.join(' ; ')}`,
       describeLayer: (layer: number, rows: string[]) => `couche ${layer}, ${rows.join(', ')}`,
       describeRow: (row: number, columns: number[]) => `rangée ${row} colonnes ${columns.join(' ')}`,

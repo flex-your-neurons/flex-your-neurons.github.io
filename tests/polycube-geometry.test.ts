@@ -8,13 +8,14 @@ import {
   canonical,
   drawPolycube,
   hasHiddenCube,
+  hasPocket,
   isChiral,
   isConnected,
   isRotationOf,
   mirror,
   moveOneCube,
-  randomChiralPolycube,
   normalise,
+  randomChiralPolycube,
   ROTATIONS,
   sortedExtents,
   transform,
@@ -77,21 +78,26 @@ describe('polycube geometry', () => {
     }
   });
 
-  it('spots a cube hidden behind another along the line of sight, or boxed in', () => {
+  it('spots a pocket: an empty cell walled in by three cubes', () => {
+    expect(hasPocket(L)).toBe(false);
+    // The two objects a reader reported as "two cubes joined by a square": in both, the cell
+    // (0, 1, 1) is empty with three cubes against it, and the face seen through the gap belongs to a
+    // cube standing behind it.
+    expect(hasPocket([[0, 0, 0], [0, 1, 0], [0, 1, 2], [1, 1, 0], [1, 1, 1], [1, 1, 2]])).toBe(true);
+    expect(hasPocket([[0, 0, 0], [0, 0, 1], [0, 0, 2], [0, 1, 0], [0, 1, 2], [1, 0, 2]])).toBe(true);
+    // A gap with only two cubes against it is a corner, which reads as a corner.
+    expect(hasPocket([[0, 0, 0], [1, 0, 0], [1, 0, 1]])).toBe(false);
+    // Rotation and reflection cannot make one or unmake one.
+    const pocketed: Cube[] = [[0, 0, 0], [0, 1, 0], [0, 1, 2], [1, 1, 0], [1, 1, 1], [1, 1, 2]];
+    for (const r of ROTATIONS) expect(hasPocket(transform(pocketed, r))).toBe(true);
+    expect(hasPocket(mirror(pocketed))).toBe(true);
+  });
+
+  it('spots a cube hidden behind another along the line of sight, boxed in, or covered by a committee', () => {
     expect(hasHiddenCube(L)).toBe(false);
     expect(hasHiddenCube([[0, 0, 0], [1, -1, 1]])).toBe(true);
     expect(hasHiddenCube([[0, 0, 0], [1, 0, 0], [0, -1, 0], [0, 0, 1]])).toBe(true);
     expect(hasHiddenCube([[0, 0, 0], [1, 0, 0], [0, -1, 0]])).toBe(false);
-  });
-
-  it('draws at most three faces per cube, nearer cubes last', () => {
-    const drawing = drawPolycube(L, 20);
-    expect(drawing.faces.length).toBeGreaterThan(0);
-    expect(drawing.faces.length).toBeLessThanOrEqual(L.length * 3);
-    expect(drawing.width).toBeGreaterThan(0);
-    expect(drawing.height).toBeGreaterThan(0);
-  });
-});
     // Neither in front of the origin cube nor against a whole face of it, and between them they
     // still cover it: the case the two named ones miss.
     expect(hasHiddenCube([[0, 0, 0], [1, 0, 1], [1, -1, 0], [0, -1, 1]])).toBe(true);
@@ -135,6 +141,16 @@ describe('polycube geometry', () => {
       expect(Array.from(times).filter((n) => n > 1)).toHaveLength(0);
       expect(Array.from(drawn)).toEqual(Array.from(expected));
     }
+  });
+
+  it('draws at most three faces per cube, nearer cubes last', () => {
+    const drawing = drawPolycube(L, 20);
+    expect(drawing.faces.length).toBeGreaterThan(0);
+    expect(drawing.faces.length).toBeLessThanOrEqual(L.length * 3);
+    expect(drawing.width).toBeGreaterThan(0);
+    expect(drawing.height).toBeGreaterThan(0);
+  });
+});
 
 const EDGE = 16;
 const COS30 = Math.sqrt(3) / 2;

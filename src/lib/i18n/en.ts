@@ -936,7 +936,7 @@ const en = {
       name: 'Block rotation',
       blurb: 'A shape of blocks. Which of these is the same shape, turned?',
       description:
-        'An object built from cubes, drawn in three dimensions, and four more objects. One is the same object turned in space; one is its mirror image; two have a single block moved. Find the one that is only turned. This is Shepard and Metzler’s experiment of 1971, the one that gave mental rotation its name and showed that the time to answer rises with the angle of the turn — so the object really is being turned in mind. The flat rotation format here is the same construct on paper; in space the mirror image cannot be told by turning the sheet over, and has to be found wrong by rotating the object until it does or does not fit. The levels add blocks and add turns.',
+        'An object built from cubes, drawn in three dimensions, and four more objects. One is the same object turned in space; one is its mirror image; two have a single block moved. Find the one that is only turned. This is Shepard and Metzler’s experiment of 1971, the one that gave mental rotation its name and showed that the time to answer rises with the angle of the turn — so the object really is being turned in mind. The flat rotation format here is the same construct on paper; in space the mirror image cannot be told by turning the sheet over, and has to be found wrong by rotating the object until it does or does not fit. Every object is drawn in an orientation that shows all of its blocks, so what you can count is what is there. The levels add blocks and add turns.',
       seenIn: 'Shepard & Metzler (1971), Vandenberg & Kuse Mental Rotations Test, Purdue Spatial Visualization Test',
     },
     'gear-train': {
@@ -1514,6 +1514,8 @@ const en = {
         'A mirror image has every block in the corresponding place and is still wrong: no rotation carries an object onto its reflection. Every object here is checked to be different from its mirror image, or the item would have two answers.',
       ruleCount: (cubes: number) =>
         `Every option has ${cubes} blocks and fills the same size of box, so counting and measuring cannot separate them. Only the arrangement does.`,
+      ruleVisible:
+        'Every block is drawn where it can be seen. No orientation is used in which a block hides exactly behind another along the line of sight, or sits in a pocket with all of its visible faces covered — so the object in the drawing is the whole object, and a block you cannot find is a block that is not there.',
       /** Screen-reader description of a polycube, layer by layer from the bottom. */
       describe: (blocks: number, layers: string[]) => `a shape of ${blocks} blocks: ${layers.join('; ')}`,
       describeLayer: (layer: number, rows: string[]) => `layer ${layer}, ${rows.join(', ')}`,

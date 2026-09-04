@@ -45,6 +45,8 @@ import {
   canonical as canonical3,
   cubesKey as cubesKey3,
   hasHiddenCube,
+  hasPocket as hasPocket3,
+  isConnected as isConnected3,
   isChiral as isChiral3,
   isRotationOf as isRotationOf3,
   mirror as mirror3,
@@ -2198,12 +2200,16 @@ describe('block rotation', () => {
         expect(object).toHaveLength(blockPlanFor(d).cubes);
         expect(isChiral3(object)).toBe(true);
         expect(hasHiddenCube(object)).toBe(false);
+        expect(isConnected3(object)).toBe(true);
+        expect(hasPocket3(object)).toBe(false);
         const ext = sortedExtents(object).join('x');
         const classes = new Set<string>();
         item.options.forEach((option, k) => {
           if (option.kind !== 'polycube') throw new Error('expected polycube options');
           expect(option.cubes).toHaveLength(object.length);
           expect(hasHiddenCube(option.cubes)).toBe(false);
+          expect(isConnected3(option.cubes)).toBe(true);
+          expect(hasPocket3(option.cubes)).toBe(false);
           expect(sortedExtents(option.cubes).join('x')).toBe(ext);
           expect(isRotationOf3(option.cubes, object), `${d}/${i}/${k}`).toBe(k === item.answerIndex);
           if (item.errorTypes[k] === 'mirror') expect(isRotationOf3(option.cubes, mirror3(object))).toBe(true);
