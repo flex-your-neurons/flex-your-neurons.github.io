@@ -288,6 +288,45 @@ test.describe('format-specific rendering', () => {
     for (const option of optionSymbols) expect(keySymbols).toContain(option);
   });
 
+  /*
+   * A column's header must stand over that column's numbers.
+   *
+   * `table.data` right-aligns numeric cells and left-aligns headers, which is right for a document
+   * table and wrong for this one: stretched to the page width, "T1" sat at the left edge of a 195px
+   * column and the 59 beneath it at the right edge, nearer to T2's header than to its own. On a
+   * format whose whole task is finding the right cell, that is not a cosmetic fault — it hands the
+   * reader the wrong number. Measured on the drawn text rather than the cell box, since the cell
+   * boxes were always aligned; it was the ink inside them that was not.
+   */
+  test('table reasoning stands each column header over its own numbers', async ({ page }) => {
+    await page.goto(practiceUrl('table-reasoning', OPTS));
+    await waitForQuiz(page);
+
+    const centres = await page.locator('[data-stimulus="table"] table').evaluate((table) => {
+      const ink = (cell: Element) => {
+        const range = document.createRange();
+        range.selectNodeContents(cell);
+        const box = range.getBoundingClientRect();
+        return box.left + box.width / 2;
+      };
+      const headers = [...table.querySelectorAll('thead th.num')].map(ink);
+      const rows = [...table.querySelectorAll('tbody tr')].map((tr) =>
+        [...tr.querySelectorAll('td')].map(ink),
+      );
+      return { headers, rows };
+    });
+
+    expect(centres.headers.length).toBeGreaterThan(1);
+    for (const row of centres.rows) {
+      expect(row).toHaveLength(centres.headers.length);
+      row.forEach((value, c) => {
+        const distances = centres.headers.map((header) => Math.abs(header - value));
+        const nearest = distances.indexOf(Math.min(...distances));
+        expect(nearest, `value ${c} of a row is nearest header ${nearest}`).toBe(c);
+      });
+    }
+  });
+
   test('odd one out presents the figures as the options themselves', async ({ page }) => {
     await page.goto(practiceUrl('odd-one-out', OPTS));
     await waitForQuiz(page);

@@ -4274,7 +4274,17 @@ table.data th.num {
   width: 100%;
 }
 
-.table-figures {
+/*
+ * Sized to its numbers, not to the page.
+ *
+ * `table.data` is full-width because the tables it was written for are documents — the progress
+ * page's runs, the about page's formats. This one is a stimulus, and the task is finding the right
+ * cell: stretched across a desktop, three columns put 200px of nothing between a row label and its
+ * first number, and the eye has to travel it for every look-up. Content width, centred.
+ */
+/* `table.data` in the selector, or `width: 100%` there outranks this and nothing changes. */
+table.data.table-figures {
+  width: auto;
   margin-inline: auto;
   min-width: 0;
 }

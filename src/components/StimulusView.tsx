@@ -522,8 +522,11 @@ export default function StimulusView({
                 <th scope="col">
                   <span class="sr-only">{t.table.cornerLabel}</span>
                 </th>
+                {/* `num` so the header is right-aligned over its numbers, as `table.data` does
+                    everywhere else: left-aligned, it sat at the far edge of a wide column and read
+                    as the heading of the column to its left. */}
                 {columns.map((column) => (
-                  <th scope="col" key={column}>
+                  <th scope="col" class="num" key={column}>
                     {column}
                   </th>
                 ))}
