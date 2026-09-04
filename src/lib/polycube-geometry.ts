@@ -112,15 +112,31 @@ export function transform(cubes: readonly Cube[], m: Matrix3): Cube[] {
   return normalise(cubes.map((c) => apply(m, c)));
 }
 
-/** The smallest key over all rotations: equal for two polycubes exactly when one is the other turned. */
+/**
+ * The smallest key over all rotations: equal for two polycubes exactly when one is the other turned.
+ *
+ * Memoised on the polycube's own key. The generator asks for the class of every candidate option and
+ * the leakage test asks for it again for every option under every blind strategy, so the same few
+ * hundred shapes are canonicalised thousands of times; the twenty-four rotations are cheap once and
+ * dear at that multiplicity. The memo is bounded so that a long session in the browser cannot grow
+ * it without limit — at the bound it is emptied rather than evicted, which is enough.
+ */
 export function canonical(cubes: readonly Cube[]): string {
+  const key = cubesKey(cubes);
+  const hit = CANONICAL_MEMO.get(key);
+  if (hit !== undefined) return hit;
   let best: string | null = null;
   for (const r of ROTATIONS) {
-    const key = cubesKey(transform(cubes, r));
-    if (best === null || key < best) best = key;
+    const rotated = cubesKey(transform(cubes, r));
+    if (best === null || rotated < best) best = rotated;
   }
+  if (CANONICAL_MEMO.size >= CANONICAL_MEMO_LIMIT) CANONICAL_MEMO.clear();
+  CANONICAL_MEMO.set(key, best!);
   return best!;
 }
+
+const CANONICAL_MEMO = new Map<string, string>();
+const CANONICAL_MEMO_LIMIT = 4096;
 
 export function isRotationOf(a: readonly Cube[], b: readonly Cube[]): boolean {
   return canonical(a) === canonical(b);
