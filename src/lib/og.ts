@@ -33,6 +33,8 @@ import { HAND_DRAWINGS } from './hands';
 import { BASE_Y, BEAD, beadPath, PEG_X, TOWER_BOX } from './tower-geometry';
 import { affineString, cubeBox, cubeFaces, FACE_SHADE, markPath, type CubeMark } from './cube-geometry';
 import { drawPolycube, POLYCUBE_SHADE, type Cube } from './polycube-geometry';
+import { layoutTrain, toothDash } from './gear-geometry';
+import { ANTICLOCKWISE, CLOCKWISE } from './generators/gear-train';
 import type { CellGrid, ClockFace, Figure, Hand, Item, Shape } from './types';
 
 export const OG_WIDTH = 1200;
@@ -670,6 +672,32 @@ function stage(item: Item): string {
         `<text x="${(at[0]!.x + box + at[1]!.x) / 2}" y="${mid}" text-anchor="middle" dominant-baseline="central" font-size="34" fill="${ACCENT}">↻</text>`,
         answer?.kind === 'grid' ? gridTile(answer.grid, at[1]!.x, at[1]!.y, box, answer.variant ?? 'solid') : '',
       ].join('');
+    }
+
+    /* The train, scaled to the stage: teeth where wheels mesh, belts where they don't. */
+    case 'gears': {
+      const layout = layoutTrain(s.sizes, s.links);
+      const scale = Math.min(STAGE.w / layout.width, (STAGE.h - 40) / layout.height);
+      const x0 = STAGE.x + (STAGE.w - layout.width * scale) / 2;
+      const y0 = STAGE.y + 40 + (STAGE.h - 40 - layout.height * scale) / 2;
+      const parts: string[] = [];
+      for (const belt of layout.belts) {
+        for (const [x1, y1, x2, y2] of belt.lines) {
+          parts.push(`<line x1="${round(x1)}" y1="${round(y1)}" x2="${round(x2)}" y2="${round(y2)}" stroke="${INK}" stroke-width="1.6" stroke-linecap="round"/>`);
+        }
+      }
+      layout.wheels.forEach((w, i) => {
+        parts.push(
+          `<circle cx="${round(w.cx)}" cy="${round(w.cy)}" r="${round(w.r)}" fill="${SUNKEN}" stroke="${INK}" stroke-width="${w.toothed ? 3 : 1.6}"${w.toothed ? ` stroke-dasharray="${toothDash(w)}"` : ''}/>`,
+          `<text x="${round(w.cx)}" y="${round(w.cy + w.r * 0.55)}" text-anchor="middle" dominant-baseline="central" font-size="${round(Math.max(8, w.r * 0.42))}" font-weight="650" fill="${INK}">${w.size}</text>`,
+        );
+        if (i === 0 || i === layout.wheels.length - 1) {
+          parts.push(
+            `<text x="${round(w.cx)}" y="${round(w.cy - w.r - 10)}" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="700" fill="${ACCENT}">${i === 0 ? (s.driverClockwise ? CLOCKWISE : ANTICLOCKWISE) : '?'}</text>`,
+          );
+        }
+      });
+      return `<g transform="translate(${round(x0)} ${round(y0)}) scale(${round(scale)})">${parts.join('')}</g>`;
     }
 
     /* The object, then the same object turned. */

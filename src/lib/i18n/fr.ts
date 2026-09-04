@@ -483,7 +483,7 @@ const fr: Dict = {
 
     wall: {
       heading: 'Chaque format, dans le temps',
-      lede: 'Une courbe par format, les tentatives les plus anciennes à gauche. De petits graphiques côte à côte plutôt que trente-neuf courbes sur un même axe : trente-neuf couleurs sur un seul tracé seraient illisibles, et ceux-ci se parcourent du regard, ils ne se lisent pas au chiffre près.',
+      lede: 'Une courbe par format, les tentatives les plus anciennes à gauche. De petits graphiques côte à côte plutôt que quarante courbes sur un même axe : quarante couleurs sur un seul tracé seraient illisibles, et ceux-ci se parcourent du regard, ils ne se lisent pas au chiffre près.',
       never: 'pas encore tenté',
     },
     byItemType: 'Par type d’item',
@@ -774,6 +774,13 @@ const fr: Dict = {
       description:
         'Un objet fait de cubes, dessiné en trois dimensions, et quatre autres objets. L’un est le même objet tourné dans l’espace ; l’un est son image miroir ; deux ont un seul bloc déplacé. Trouvez celui qui est seulement tourné. C’est l’expérience de Shepard et Metzler de 1971, celle qui a donné son nom à la rotation mentale et montré que le temps de réponse croît avec l’angle de la rotation — l’objet est donc réellement tourné en pensée. Le format de rotation à plat de ce site est le même construit sur papier ; dans l’espace, l’image miroir ne se reconnaît pas en retournant la feuille, il faut la trouver fausse en tournant l’objet jusqu’à ce qu’il coïncide ou non. Les niveaux ajoutent des blocs et des rotations.',
       seenIn: 'Shepard & Metzler (1971), Mental Rotations Test de Vandenberg & Kuse, Purdue Spatial Visualization Test',
+    },
+    'gear-train': {
+      name: 'Train d’engrenages',
+      blurb: 'Des roues reliées par des dents et des courroies. La première tourne comme indiqué ; et la dernière ?',
+      description:
+        'Une rangée de roues, chacune reliée à la suivante par des dents qui s’engrènent ou par une courroie, ouverte ou croisée. Une flèche indique le sens de la première roue. Dites dans quel sens tourne la dernière, et à quelle vitesse pour chaque tour de la première. Deux règles décident : le sens s’inverse à chaque engrènement et à chaque courroie croisée, et la vitesse se multiplie à chaque liaison par le rapport de la taille de la roue menante à celle de la roue menée. C’est le seul coin du raisonnement mécanique qui puisse être généré plutôt que dessiné à la main, et celui que les tests Bennett et DAT proposent toujours. Les distracteurs sont les trois façons de se tromper — sens mal compté, rapport inversé, ou les deux — si bien qu’une erreur est nommée.',
+      seenIn: 'Test de compréhension mécanique de Bennett, DAT Raisonnement mécanique, ASVAB (compréhension mécanique)',
     },
     'logic-grid': {
       name: 'Grille logique',
@@ -1312,6 +1319,22 @@ const fr: Dict = {
       describeLayer: (layer: number, rows: string[]) => `couche ${layer}, ${rows.join(', ')}`,
       describeRow: (row: number, columns: number[]) => `rangée ${row} colonnes ${columns.join(' ')}`,
     },
+    gearTrain: {
+      prompt: 'La première roue tourne comme l’indique sa flèche. Comment tourne la dernière ?',
+      summary: (option: number, clockwise: boolean, speed: string) =>
+        `Option ${option} : la dernière roue tourne dans le sens ${clockwise ? 'horaire' : 'antihoraire'}, à ${speed} la vitesse de la première.`,
+      ruleDirection: (reversals: number) =>
+        `Le sens s’inverse à chaque engrènement et à chaque courroie croisée, et se conserve par une courroie ouverte. Cette chaîne compte ${reversals} inversion${reversals === 1 ? '' : 's'}, donc la dernière roue tourne ${reversals % 2 === 0 ? 'dans le même sens que' : 'dans le sens opposé à'} la première.`,
+      ruleSpeed: (first: number, last: number, speed: string) =>
+        `À chaque liaison la vitesse est multipliée par la taille de la roue menante sur celle de la roue menée. Sur toute la chaîne ce produit vaut ${speed} ; la première roue fait ${first} et la dernière ${last}.`,
+      ruleIdlers:
+        'Quand toutes les liaisons sont des engrènements, les roues intermédiaires disparaissent de la vitesse : le produit se réduit à la première roue sur la dernière. Elles comptent encore pour le sens, une inversion chacune.',
+      ruleBelts:
+        'Une courroie transmet le rapport des tailles comme les dents, puisque le nombre d’une roue est autant son diamètre que son nombre de dents. Ce qu’une courroie change, c’est le sens : ouverte, elle le conserve ; croisée, elle l’inverse.',
+      linkNames: { mesh: 'un engrènement', open: 'une courroie ouverte', crossed: 'une courroie croisée' },
+      describe: (sizes: string[], links: string[], clockwise: boolean) =>
+        `Un train de ${sizes.length} roues, de tailles ${sizes.join(', ')}, reliées par ${links.join(', puis ')}. La première tourne dans le sens ${clockwise ? 'horaire' : 'antihoraire'} ; on demande la dernière.`,
+    },
     logicGrid: {
       prompt: (place: number) => `Quelle forme est à la place ${place} ?`,
       summary: (place: number, shape: string) => `La place ${place} contient le ${shape}.`,
@@ -1711,7 +1734,7 @@ const fr: Dict = {
         },
       ],
       notMeasuredClose:
-        'Cela s’applique récursivement à ce site. Une précision élevée sur ces trente-neuf formats est une information sur ces trente-neuf formats, et sur rien d’autre.',
+        'Cela s’applique récursivement à ce site. Une précision élevée sur ces quarante formats est une information sur ces quarante formats, et sur rien d’autre.',
 
       difficultyP3:
         'Ce qui ne revient pas à un étalonnage. Les paliers sont conçus à partir d’opérateurs cognitifs publiés — un ordonnancement défendable — mais aucun item ne porte ici de paramètre de difficulté estimé sur des données de réponse réelles, ce qu’entend la théorie de réponse à l’item par « difficulté ». L’échelle adaptative est donc un escalier qui vous maintient près de votre propre taux de réussite, pas une estimation de votre aptitude.',

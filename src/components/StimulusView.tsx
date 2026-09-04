@@ -8,6 +8,7 @@ import FigureView, { describeFigure } from './FigureView';
 import GridView from './GridView';
 import { NetView } from './CubeView';
 import PolycubeView, { describePolycube } from './PolycubeView';
+import GearsView from './GearsView';
 import ClockFaceView from './ClockFaceView';
 import HandView from './HandView';
 import TowerView from './TowerView';
@@ -199,6 +200,13 @@ export default function StimulusView({
           size={stimulus.size}
           locale={locale}
         />
+      );
+
+    case 'gears':
+      return (
+        <div data-stimulus="gears" class="gears-stage">
+          <GearsView sizes={stimulus.sizes} links={stimulus.links} driverClockwise={stimulus.driverClockwise} locale={locale} />
+        </div>
       );
 
     case 'polycube':

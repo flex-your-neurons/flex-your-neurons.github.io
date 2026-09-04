@@ -601,7 +601,7 @@ const en = {
     /** Small multiples: one trend per format. */
     wall: {
       heading: 'Every format, over time',
-      lede: 'One trace per format, oldest attempts on the left. Small charts side by side rather than thirty-nine lines on one axis — thirty-nine colours on one plot would be unreadable, and these are meant to be scanned for shape, not read for values.',
+      lede: 'One trace per format, oldest attempts on the left. Small charts side by side rather than forty lines on one axis — forty colours on one plot would be unreadable, and these are meant to be scanned for shape, not read for values.',
       never: 'not attempted yet',
     },
     byItemType: 'By item type',
@@ -891,6 +891,13 @@ const en = {
       description:
         'An object built from cubes, drawn in three dimensions, and four more objects. One is the same object turned in space; one is its mirror image; two have a single block moved. Find the one that is only turned. This is Shepard and Metzler’s experiment of 1971, the one that gave mental rotation its name and showed that the time to answer rises with the angle of the turn — so the object really is being turned in mind. The flat rotation format here is the same construct on paper; in space the mirror image cannot be told by turning the sheet over, and has to be found wrong by rotating the object until it does or does not fit. The levels add blocks and add turns.',
       seenIn: 'Shepard & Metzler (1971), Vandenberg & Kuse Mental Rotations Test, Purdue Spatial Visualization Test',
+    },
+    'gear-train': {
+      name: 'Gear train',
+      blurb: 'Wheels joined by teeth and belts. The first turns as shown; how does the last?',
+      description:
+        'A row of wheels, each joined to the next by meshing teeth or by a belt, open or crossed. An arrow shows which way the first wheel turns. Say which way the last one turns, and how fast for every turn of the first. Two rules decide it: direction reverses at every mesh and every crossed belt, and speed multiplies at every link by the ratio of the driving wheel’s size to the driven one’s. This is the one corner of mechanical reasoning that can be generated rather than drawn by hand, and the corner the Bennett and DAT tests always include. The distractors are the three ways of getting it wrong — direction miscounted, ratio inverted, or both — so a miss is named.',
+      seenIn: 'Bennett Mechanical Comprehension Test, DAT Mechanical Reasoning, ASVAB Mechanical Comprehension',
     },
     'logic-grid': {
       name: 'Logic grid',
@@ -1429,6 +1436,23 @@ const en = {
       describeLayer: (layer: number, rows: string[]) => `layer ${layer}, ${rows.join(', ')}`,
       describeRow: (row: number, columns: number[]) => `row ${row} columns ${columns.join(' ')}`,
     },
+    gearTrain: {
+      prompt: 'The first wheel turns as its arrow shows. How does the last wheel turn?',
+      summary: (option: number, clockwise: boolean, speed: string) =>
+        `Option ${option}: the last wheel turns ${clockwise ? 'clockwise' : 'anticlockwise'}, at ${speed} the speed of the first.`,
+      ruleDirection: (reversals: number) =>
+        `Direction reverses at every mesh and at every crossed belt, and is kept by an open belt. This chain has ${reversals} reversal${reversals === 1 ? '' : 's'}, so the last wheel turns ${reversals % 2 === 0 ? 'the same way as' : 'the opposite way to'} the first.`,
+      ruleSpeed: (first: number, last: number, speed: string) =>
+        `At every link the speed is multiplied by the driving wheel’s size over the driven wheel’s. Over the whole chain that product is ${speed}; the first wheel is ${first} and the last is ${last}.`,
+      ruleIdlers:
+        'When every link is a mesh, the wheels in between cancel out of the speed: the product telescopes to the first wheel over the last. They still count for direction, one reversal each.',
+      ruleBelts:
+        'A belt carries the size ratio just as teeth do, since a wheel’s number is its diameter as much as its tooth count. What a belt changes is direction: open keeps it, crossed reverses it.',
+      linkNames: { mesh: 'meshing', open: 'an open belt', crossed: 'a crossed belt' },
+      /** Screen-reader description of the whole train. */
+      describe: (sizes: string[], links: string[], clockwise: boolean) =>
+        `A train of ${sizes.length} wheels, sizes ${sizes.join(', ')}, joined by ${links.join(', then ')}. The first turns ${clockwise ? 'clockwise' : 'anticlockwise'}; the last is asked.`,
+    },
     logicGrid: {
       prompt: (place: number) => `Which shape is in place ${place}?`,
       summary: (place: number, shape: string) => `Place ${place} holds the ${shape}.`,
@@ -1844,7 +1868,7 @@ const en = {
         },
       ],
       notMeasuredClose:
-        'That applies recursively to this site. High accuracy on these thirty-nine formats is evidence about these thirty-nine formats, and about nothing else.',
+        'That applies recursively to this site. High accuracy on these forty formats is evidence about these forty formats, and about nothing else.',
 
       difficultyP3:
         'What that does not amount to is calibration. The bands are *designed* from published cognitive operators — a defensible ordering — but no item here carries a difficulty parameter fitted to real response data, which is what item-response theory means by difficulty. So the adaptive ladder is a staircase that keeps you near your own success rate, not an estimate of your ability.',

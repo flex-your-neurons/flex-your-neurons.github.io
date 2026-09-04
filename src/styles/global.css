@@ -5133,3 +5133,21 @@ table.data th.num {
   max-width: 8rem;
   margin-inline: auto;
 }
+
+/* --- Gear train ----------------------------------------------------------- */
+
+.gears-stage {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem 0;
+}
+
+.gears-svg {
+  width: min(100%, 38rem);
+  height: auto;
+}
+
+.thumb-gears {
+  width: 100%;
+  padding: 0 0.5rem;
+}

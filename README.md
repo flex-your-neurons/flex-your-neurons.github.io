@@ -42,7 +42,7 @@ Node 22.12+ is required (Astro 7).
 | `tests/` | Property-style unit tests, swept over hundreds of seeds |
 | `e2e/` | Playwright tests against the built static site |
 
-## The thirty-nine formats
+## The forty formats
 
 | Format | CHC | Verification |
 |--------|-----|--------------|
@@ -55,6 +55,7 @@ Node 22.12+ is required (Astro 7).
 | Logic grid | Gf | Every arrangement tried against the clues; the asked place has one occupant, every clue is necessary, and none states the answer |
 | Tower (of London) | Gf | Minimum move count proved by breadth-first search over all 36 board states |
 | Mental rotation | Gv | Chirality proved; exactly one option is a rotation |
+| Gear train | Gv | Direction by counting reversals (meshes and crossed belts), speed by the product of size ratios; the ratio is never 1 |
 | Block rotation | Gv | Shepard–Metzler in 3-D: chirality proved over all 24 rotations; the mirror and two one-block moves share count and extents with the answer |
 | Paper folding | Gv | The unfolding is simulated, not asserted |
 | Cube net | Gv | The net is folded by rolling; the eleven nets are found, not typed; one option is right-handed |
@@ -86,7 +87,7 @@ Node 22.12+ is required (Astro 7).
 | Number pyramid | Gq | Every cell re-derived from the base; the blanks are compared one by one, not as one string |
 | Table reasoning | Gq | The keyed value re-derived by parsing the printed question against the printed cells |
 
-Seven CHC domains: **Gf 9, Gv 6, Gwm 6, Glr 1, Gs 7, Gt 2, Gq 8** — and no Gc at all, which is a
+Seven CHC domains: **Gf 9, Gv 7, Gwm 6, Glr 1, Gs 7, Gt 2, Gq 8** — and no Gc at all, which is a
 limit of generation rather than an oversight and is the reason no Full Scale figure is even
 approximable. Glr and Gt arrived in 2026-09 with the gap analysis against *Brain Age*, Human
 Benchmark and Cambridge Brain Sciences: associative memory can be generated where vocabulary cannot,

@@ -85,6 +85,7 @@ Legend: ✅ pass · ⚠️ passes with engineering · ❌ fails
 | 47 | **Cube net** (DAT Space Relations; which cube folds from the net) | Gv | ✅ | ✅ | ✅ | **SHIP** — folded by rolling; distractors are opposite-face pairs or the mirror-handed corner |
 | 48 | **Number-line estimation** (Siegler & Opfer) | Gq | ✅ | ✅ | ✅ | **SHIP** — graded by distance within a tolerance; the estimate itself is the response |
 | 49 | **Block rotation** (Shepard–Metzler polycubes) | Gv | ✅ | ✅ | ✅ | **SHIP** — chirality over 24 rotations; distractors match count and extents |
+| 50 | **Gear train** (Bennett / DAT mechanical reasoning, the generatable corner of it) | Gv | ✅ | ✅ | ✅ | **SHIP** — direction and speed both computed; the three misreadings are the distractors |
 
 Rows 29–37 are the batch drawn from *Brain Age* / *Dr Kawashima's Brain Training* (see the note in
 §3). Their ⚠️s are all the same ⚠️ and all in **U**, never in G or V: a numeric answer with a small
@@ -165,6 +166,7 @@ Thirty-two generators across seven CHC domains:
 | `logic-grid` | shapes in a row of places, 2–5 clues, which shape is in the marked place; 4 options | clue kinds withdrawn (placements, then eliminations), then a fifth shape |
 | `feature-match` | two panels of symbols in the same layout; same or different | symbols per panel (3–7) |
 | `number-line` | a line with labelled ends; place the number (a `tap` board, graded by distance) | the line: 0–100-ish, 0–1000, off-zero start, fraction or decimal on the unit line, spanning zero; tolerance 6→4% |
+| `gear-train` | wheels joined by teeth or belts, the first turning clockwise; which way and how fast does the last turn | wheels (2–5); belts enter at 3, crossed belts at 4 |
 | `block-rotation` | a polycube and four more; which is the same object turned | blocks (5–9) and quarter-turns composed (1–3) |
 | `cube-net` | six marked squares laid flat; which of five cubes folds from them | the cross net, then any of the eleven; distractors go from opposite-face pairs (4) to mirror-handed corners (4) |
 | `pattern-recall` | a 4×4 grid flashes a set of cells; tap the set back | cells to hold (3–7), and nothing else |
@@ -309,6 +311,14 @@ Thirty-two generators across seven CHC domains:
 > `table-reasoning` does not offer the neighbouring row's total as a distractor, however diagnostic,
 > because with a fixed ±10 carry pair beside it the solver found the answer six times in ten by looking
 > for the unique pair ten apart. The neighbouring total is named in the explanation instead.
+>
+> Row 50, `gear-train`, is the one corner of mechanical reasoning that generates. The family never
+> had a row in §2 because the Bennett and DAT items are drawings of everyday physics with a question in
+> words — neither the drawing nor the question is generatable — but a gear train is a chain with two rules, direction reversing at every mesh and crossed belt and speed
+> multiplying by the size ratio at every link, and both are computed rather than asserted. The
+> options are the answer and its three misreadings (direction miscounted, ratio inverted, both), so
+> every distractor is a diagnosis, and direction is drawn as an arrow and speed as a multiplier so
+> that nothing on the item is a word.
 >
 > One honest limit, stated on the format: `paired-associates` probes seconds after learning. The fuller
 > Glr measurement is the same probe minutes later, and nothing here builds it yet.

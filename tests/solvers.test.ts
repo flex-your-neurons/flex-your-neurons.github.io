@@ -39,6 +39,7 @@ import { DIFFICULTIES, HANDS, type Difficulty, type Figure, type Hand } from '@/
 import { marksByDirection, planFor } from '@/lib/generators/cube-net';
 import { LINE_UNITS, positionOf, toleranceFor } from '@/lib/generators/number-line';
 import { planFor as blockPlanFor } from '@/lib/generators/block-rotation';
+import { ANTICLOCKWISE, CLOCKWISE, planFor as gearPlanFor, solveTrain, speedLabel } from '@/lib/generators/gear-train';
 import {
   canonical as canonical3,
   cubesKey as cubesKey3,
@@ -2173,3 +2174,42 @@ describe('block rotation', () => {
   });
 });
 
+/**
+ * Gear train: direction by counting reversals, speed by the telescoping product, both re-derived
+ * here from the 
+
+/**
+ * Gear train: direction by counting reversals, speed by the telescoping product, both re-derived
+ * here from the stimulus; the four options are the answer and its three named misreadings.
+ */
+describe('gear train', () => {
+  it('keys direction and speed from the chain, and offers the three misreadings', () => {
+    for (const d of DIFFICULTIES) {
+      for (let i = 0; i < 60; i++) {
+        const item = generateItem('gear-train', `GEAR${i}`, d);
+        if (item.stimulus.kind !== 'gears') throw new Error('expected a gears stimulus');
+        const { sizes, links } = item.stimulus;
+        expect(sizes).toHaveLength(gearPlanFor(d).wheels);
+        // Independent solve: reversals at meshes and crossed belts; speed = first / last over meshes only
+        // when every link is a mesh, and the product of size ratios in general.
+        const reversals = links.filter((l) => l !== 'open').length;
+        let ratio = 1;
+        for (let k = 0; k < links.length; k++) ratio *= sizes[k]! / sizes[k + 1]!;
+        expect(ratio).not.toBe(1);
+        const clockwise = reversals % 2 === 0 ? item.stimulus.driverClockwise : !item.stimulus.driverClockwise;
+        const answer = item.options[item.answerIndex];
+        if (answer?.kind !== 'text') throw new Error('expected text options');
+        expect(answer.text.startsWith(clockwise ? CLOCKWISE : ANTICLOCKWISE)).toBe(true);
+        const [num, den] = solveTrain({ sizes, links }).ratio;
+        expect(num / den).toBeCloseTo(ratio, 9);
+        expect(answer.text.endsWith(speedLabel([num, den]))).toBe(true);
+        // The three misreadings, each once, and four distinct texts.
+        expect([...item.errorTypes].sort()).toEqual(['correct', 'plausible', 'wrong-direction', 'wrong-rule']);
+        expect(new Set(item.options.map((o) => (o.kind === 'text' ? o.text : '')))).toHaveProperty('size', 4);
+        // The level's belt kinds are all present.
+        for (const belt of gearPlanFor(d).belts) expect(links).toContain(belt);
+        if (d <= 2) expect(links.every((l) => l === 'mesh')).toBe(true);
+      }
+    }
+  });
+});

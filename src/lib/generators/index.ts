@@ -30,6 +30,7 @@ import { serialSubtractionGenerator } from './serial-subtraction';
 import { mathRecallGenerator } from './math-recall';
 import { timeLapseGenerator } from './time-lapse';
 import { clockSpinGenerator } from './clock-spin';
+import { gearTrainGenerator } from './gear-train';
 import { handGameGenerator } from './hand-game';
 import { calendarCountGenerator } from './calendar-count';
 import { changeMakerGenerator } from './change-maker';
@@ -64,6 +65,7 @@ export const GENERATORS: Generator[] = [
   paperFoldingGenerator,
   cubeNetGenerator,
   clockSpinGenerator,
+  gearTrainGenerator,
   patternRecallGenerator,
   spanGenerator,
   blockSpanGenerator,

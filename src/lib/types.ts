@@ -15,6 +15,7 @@ export const DIFFICULTIES: readonly Difficulty[] = [1, 2, 3, 4, 5];
 import type { LogicClue } from './generators/logic-grid';
 import type { CubeMark } from './cube-geometry';
 import type { Cube } from './polycube-geometry';
+import type { GearLink } from './generators/gear-train';
 
 export type ItemTypeId =
   | 'matrix'
@@ -55,7 +56,8 @@ export type ItemTypeId =
   | 'feature-match'
   | 'cube-net'
   | 'number-line'
-  | 'block-rotation';
+  | 'block-rotation'
+  | 'gear-train';
 
 /**
  * CHC broad ability. See docs/IQ-TESTS.md §2.
@@ -159,6 +161,8 @@ export type Stimulus =
   | { kind: 'feature-match'; left: Figure[]; right: Figure[]; changed: number }
   /** A line from `min` to `max`; place `value` on it. `tolerance` is a fraction of the line. */
   | { kind: 'number-line'; min: number; max: number; label: string; value: number; tolerance: number }
+  /** Wheels on one axis, the first turning as `driverClockwise` says; `links[i]` joins wheel i to i + 1. */
+  | { kind: 'gears'; sizes: number[]; links: GearLink[]; driverClockwise: boolean }
   /** A face-connected set of unit cubes, to be matched against rotations and reflections. */
   | { kind: 'polycube'; cubes: Cube[] }
   /** Six marked squares laid flat; the options are cubes. */
