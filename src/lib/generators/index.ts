@@ -35,6 +35,7 @@ import { changeMakerGenerator } from './change-maker';
 import { triangleMathGenerator } from './triangle-math';
 import { towerGenerator } from './tower';
 import { tableReasoningGenerator } from './table-reasoning';
+import { numberLineGenerator } from './number-line';
 import { reactionTimeGenerator } from './reaction-time';
 import { goNoGoGenerator } from './go-no-go';
 import { chimpTestGenerator } from './chimp-test';
@@ -86,6 +87,7 @@ export const GENERATORS: Generator[] = [
   changeMakerGenerator,
   triangleMathGenerator,
   tableReasoningGenerator,
+  numberLineGenerator,
 ];
 
 /**

@@ -42,7 +42,7 @@ Node 22.12+ is required (Astro 7).
 | `tests/` | Property-style unit tests, swept over hundreds of seeds |
 | `e2e/` | Playwright tests against the built static site |
 
-## The thirty-seven formats
+## The thirty-eight formats
 
 | Format | CHC | Verification |
 |--------|-----|--------------|
@@ -62,6 +62,7 @@ Node 22.12+ is required (Astro 7).
 | Figure weights | Gf | Every candidate group weighed; exactly one may balance — decidable |
 | Digit span | Gwm | Exact string match, whitespace-insensitive |
 | Block span | Gwm | The tapped sequence must match the one shown, exactly and in order |
+| Number line | Gq | Graded by distance: right within the level's tolerance of the true place; targets kept off the ends and midpoint |
 | Chimp test | Gwm | The tapped cells must be the numerals' cells in ascending order; layouts in reading order are redrawn |
 | N-back | Gwm | Match count re-derived from the finished stream |
 | Head count | Gwm | Total re-accumulated from the script; the room may never empty |
@@ -84,7 +85,7 @@ Node 22.12+ is required (Astro 7).
 | Number pyramid | Gq | Every cell re-derived from the base; the blanks are compared one by one, not as one string |
 | Table reasoning | Gq | The keyed value re-derived by parsing the printed question against the printed cells |
 
-Seven CHC domains: **Gf 9, Gv 5, Gwm 6, Glr 1, Gs 7, Gt 2, Gq 7** — and no Gc at all, which is a
+Seven CHC domains: **Gf 9, Gv 5, Gwm 6, Glr 1, Gs 7, Gt 2, Gq 8** — and no Gc at all, which is a
 limit of generation rather than an oversight and is the reason no Full Scale figure is even
 approximable. Glr and Gt arrived in 2026-09 with the gap analysis against *Brain Age*, Human
 Benchmark and Cambridge Brain Sciences: associative memory can be generated where vocabulary cannot,

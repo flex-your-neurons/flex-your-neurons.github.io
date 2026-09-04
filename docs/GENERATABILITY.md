@@ -83,6 +83,7 @@ Legend: ✅ pass · ⚠️ passes with engineering · ❌ fails
 | 45 | **Logic grid** (relational constraints over shapes in a row) | Gf | ✅ | ✅ | ✅ | **SHIP** — exhaustive search proves one occupant; clue set pruned to necessary |
 | 46 | **Feature match** (are two symbol panels identical) | Gs | ✅ | ✅ | ✅ | **SHIP** — one pair, one feature; same/different balanced |
 | 47 | **Cube net** (DAT Space Relations; which cube folds from the net) | Gv | ✅ | ✅ | ✅ | **SHIP** — folded by rolling; distractors are opposite-face pairs or the mirror-handed corner |
+| 48 | **Number-line estimation** (Siegler & Opfer) | Gq | ✅ | ✅ | ✅ | **SHIP** — graded by distance within a tolerance; the estimate itself is the response |
 
 Rows 29–37 are the batch drawn from *Brain Age* / *Dr Kawashima's Brain Training* (see the note in
 §3). Their ⚠️s are all the same ⚠️ and all in **U**, never in G or V: a numeric answer with a small
@@ -162,6 +163,7 @@ Thirty-two generators across seven CHC domains:
 | `chimp-test` | numerals scattered on a 5×4 grid, masked at the first tap, tapped in order | numerals to hold (4–8), and nothing else |
 | `logic-grid` | shapes in a row of places, 2–5 clues, which shape is in the marked place; 4 options | clue kinds withdrawn (placements, then eliminations), then a fifth shape |
 | `feature-match` | two panels of symbols in the same layout; same or different | symbols per panel (3–7) |
+| `number-line` | a line with labelled ends; place the number (a `tap` board, graded by distance) | the line: 0–100-ish, 0–1000, off-zero start, fraction or decimal on the unit line, spanning zero; tolerance 6→4% |
 | `cube-net` | six marked squares laid flat; which of five cubes folds from them | the cross net, then any of the eleven; distractors go from opposite-face pairs (4) to mirror-handed corners (4) |
 | `pattern-recall` | a 4×4 grid flashes a set of cells; tap the set back | cells to hold (3–7), and nothing else |
 | `paired-associates` | boxes open on symbols one by one; a filled 7 s interval; which box held this one? | pairings to learn (3–7) |
@@ -281,6 +283,13 @@ Thirty-two generators across seven CHC domains:
 > (`mirror`), and the ladder trades the first kind for the second one distractor at a time. The face
 > marks are all symmetric under a quarter turn, a deliberate narrowing of the DAT item so that the
 > corner's handedness is the whole task rather than one of two.
+> Row 48, `number-line`, is the first response graded by *distance* rather than identity: the mark
+> is right within the level's tolerance of the true place, both in thousandths of the line, and the
+> mark itself is what is stored, so the review says by how much and which way — and the direction is
+> the diagnosis, two new error types `overshoot` and `undershoot`. It rides the `tap`
+> response mode — a board that owns its surface and hands back a string — with one branch in
+> `isCorrect` for the tolerance, rather than a sixth mode. Targets are kept further than the tolerance
+> from the ends and the midpoint, the three places a reader can hit without estimating.
 >
 > Three of the five are `tap` boards that own their own presentation, like `block-span`, and each has a
 > **computed** diagnosis of its own: a press before the signal is `premature` (a new error type, the
@@ -485,7 +494,7 @@ was collected. Each has a note of its own further down; this is the summary.
 | `choice` | an index into `options` | the index is the keyed one | **keyed** — the chosen distractor carries its own error type | 23 |
 | `text` | `chosenText`, exact-matched | the string matches, whitespace-insensitively | **none** — a wrong string has nothing to attribute it to, and an absence is not a `plausible` | `span` |
 | `trail` | a path over the targets | the run finished without a misclick | none; misclicks are counted and the *time* is the measurement | `trail-making` |
-| `tap` | a sequence, in `chosenText` | the whole sequence matches, in order | **computed** from the response | `block-span` |
+| `tap` | a sequence, in `chosenText` | the whole sequence matches, in order — except `number-line`, whose one string is a position graded by distance | **computed** from the response | `block-span` |
 | `fill` | every blank, in `chosenText` | every blank matches, compared one by one | computed, and able to name a wrong *idea* | `triangle-math` |
 
 Two consequences are load-bearing. **A mode without distractors has no Guard 2 to satisfy** — the

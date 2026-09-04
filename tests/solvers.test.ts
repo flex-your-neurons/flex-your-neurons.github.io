@@ -37,6 +37,7 @@ import { handAngles, twelveHour } from '@/lib/clock';
 import { dict } from '@/lib/i18n';
 import { DIFFICULTIES, HANDS, type Difficulty, type Figure, type Hand } from '@/lib/types';
 import { marksByDirection, planFor } from '@/lib/generators/cube-net';
+import { LINE_UNITS, positionOf, toleranceFor } from '@/lib/generators/number-line';
 import { isCrossNet, isDrawableCorner } from '@/lib/cube-geometry';
 import { isUnambiguous, solveSeries } from '@/lib/solvers/series';
 import { predict, solveAttribute, type Rule } from '@/lib/rules';
@@ -2089,6 +2090,39 @@ describe('cube net', () => {
         expect(item.options).toHaveLength(5);
         expect(item.errorTypes.filter((e) => e === 'mirror')).toHaveLength(planFor(d).mirrors);
         if (d === 1) expect(isCrossNet(item.stimulus.cells)).toBe(true);
+      }
+    }
+  });
+});
+
+/**
+ * Number line: the key is the target's place in thousandths, no target sits on a landmark, and the
+ * grading is by distance.
+ */
+describe('number line', () => {
+  it('keys the target by position, keeps it off the landmarks, and grades by distance', () => {
+    for (const d of DIFFICULTIES) {
+      for (let i = 0; i < 60; i++) {
+        const item = generateItem('number-line', `LINE${i}`, d);
+        if (item.stimulus.kind !== 'number-line') throw new Error('expected a number-line stimulus');
+        const s = item.stimulus;
+        const position = Number(item.answerText);
+        expect(position).toBe(positionOf(s.value, s.min, s.max));
+        expect(s.tolerance).toBe(toleranceFor(d));
+        // The label reads back as the value.
+        const [num, den] = s.label.split('/');
+        const labelled = den === undefined ? Number(num) : Number(num) / Number(den);
+        expect(labelled).toBeCloseTo(s.value, 9);
+        // Off the ends and the midpoint by more than the tolerance.
+        const margin = s.tolerance * LINE_UNITS;
+        for (const landmark of [0, LINE_UNITS / 2, LINE_UNITS]) {
+          expect(Math.abs(position - landmark), `${d}/${i} near ${landmark}`).toBeGreaterThan(margin);
+        }
+        // Distance grading, through the same door the quiz uses.
+        expect(isCorrect(item, null, item.answerText)).toBe(true);
+        expect(isCorrect(item, null, String(position + Math.floor(margin)))).toBe(true);
+        expect(isCorrect(item, null, String(position + Math.ceil(margin) + 1))).toBe(false);
+        expect(isCorrect(item, null, String(LINE_UNITS / 2))).toBe(false);
       }
     }
   });

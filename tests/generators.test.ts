@@ -15,7 +15,7 @@ import type { Difficulty, Item, Option } from '@/lib/types';
 const SEEDS = Array.from({ length: 80 }, (_, i) => `SEED${i}`);
 
 /** How many formats ship. See the registry test below before changing this. */
-const EXPECTED_TYPES = 37;
+const EXPECTED_TYPES = 38;
 
 function optionKey(o: Option): string {
   switch (o.kind) {
@@ -179,13 +179,15 @@ describe.each(ITEM_TYPE_IDS)('generator: %s', (id) => {
            * therefore never unlock — the board would wait for a stream that never runs — so the
            * pairing is asserted rather than assumed.
            */
-          if (item.responseMode === 'tap' && item.stimulus.kind !== 'chimp') {
+          if (item.responseMode === 'tap' && item.stimulus.kind !== 'chimp' && item.stimulus.kind !== 'number-line') {
             expect(item.presentation, where).toBeDefined();
           } else if (item.responseMode === 'tap') {
             /*
              * The one exception: the chimp test's board is studied for as long as the reader likes
              * and the first tap is what masks it, so there is no timed playback to wait for. Its board
              * starts the response clock itself at that tap, through the same `onRecallStart` hook.
+             * The number line is the other: a self-paced estimate, with the clock started when the
+             * line appears.
              */
             expect(item.presentation, where).toBeUndefined();
           }

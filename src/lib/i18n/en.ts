@@ -425,6 +425,8 @@ const en = {
       commission: 'pressed on stop',
       omission: 'missed a go',
       'opposite-faces': 'opposite faces',
+      overshoot: 'too far right',
+      undershoot: 'too far left',
       plausible: 'near miss',
     } as Record<ErrorType, string>,
     bodies: {
@@ -452,6 +454,10 @@ const en = {
         'You left a plain signal unpressed. Not a failure of control but a lapse: the run went on and, for one signal, attention did not. On a go/no-go task this is the opposite error to the one it is looking for, and if it recurs it means the pace has been set too cautious — press sooner and let the crossed signals do the stopping.',
       'opposite-faces':
         'Two of the faces shown are opposite each other on the folded cube, so they can never be seen together. This is the first thing to settle on a net: squares separated by exactly one square in a straight line always end up opposite, and each such pair rules out every cube that shows both.',
+      overshoot:
+        'The mark landed past the target. On a long line this is the classic compression: the small numbers feel further along than they are, because the sense of magnitude grows more slowly than the numbers do. Anchor first — find the midpoint, then the quarter — and place the mark from the nearest anchor rather than from the left end.',
+      undershoot:
+        'The mark landed short of the target. Less common than overshooting and usually a sign of over-correcting for it, or of reading a line that does not start at zero as though it did. Fix the two ends in mind first, then judge the share of the way along rather than the size of the number.',
       transposition:
         'Every item, in the wrong order. You held what there was to hold and lost the arrangement of it, which is a different failure from forgetting an item — and a more encouraging one, since the hard part of a span task is usually the holding. Order tends to come back with a deliberate rhythm: reproduce the sequence at the pace it was given rather than as fast as you can.',
       plausible:
@@ -595,7 +601,7 @@ const en = {
     /** Small multiples: one trend per format. */
     wall: {
       heading: 'Every format, over time',
-      lede: 'One trace per format, oldest attempts on the left. Small charts side by side rather than thirty-seven lines on one axis — thirty-seven colours on one plot would be unreadable, and these are meant to be scanned for shape, not read for values.',
+      lede: 'One trace per format, oldest attempts on the left. Small charts side by side rather than thirty-eight lines on one axis — thirty-eight colours on one plot would be unreadable, and these are meant to be scanned for shape, not read for values.',
       never: 'not attempted yet',
     },
     byItemType: 'By item type',
@@ -892,6 +898,13 @@ const en = {
       description:
         'Several numerals sit scattered on a grid. Look as long as you like. Tap the 1, and every numeral is masked; now tap where the 2 was, then the 3, and so on. The task is from Inoue and Matsuzawa’s 2007 study, in which the chimpanzee Ayumu did this with more numerals and faster than the adult humans tested against him — Human Benchmark made it a household name. What is held is not the numbers, which are always one to N, but where each of them was: a whole layout encoded at once with an order printed on it, which is the combination the site’s other spatial spans do not cover. Block span shows places one at a time, pattern recall shows a set with no order. The level changes only how many numerals there are; the grid is the same size throughout, and a layout whose numerals happen to run in reading order is redrawn, because that would be a rule to hold rather than a set of places.',
       seenIn: 'Inoue & Matsuzawa (2007), Human Benchmark Chimp Test, Lumosity Memory Matrix (variant)',
+    },
+    'number-line': {
+      name: 'Number line',
+      blurb: 'A line with its ends labelled. Place this number on it.',
+      description:
+        'A line runs from one number to another, and a third number is shown. Put it where it belongs. Nothing is computed: the task is a sense of magnitude, of where a quantity sits relative to others, and it is scored by how far the mark lands from the true place as a share of the whole line. This is the estimation task the developmental literature uses to track how the sense of number grows, and in adults it still separates the people who see 700 as a place from the people who see it as a word. The levels change the line more than the tolerance: zero to 100 or so, then to 1000, then a line that starts off zero, then a fraction or decimal on a unit line, then a line that spans zero unequally.',
+      seenIn: 'Siegler & Opfer number-line estimation, Panamath (cousin), TEMA and KeyMath number-sense items',
     },
     'go-no-go': {
       name: 'Go / no-go',
@@ -1437,6 +1450,22 @@ const en = {
             ? `Cell ${position} held ${numeral}, not tapped`
             : `Cell ${position} held ${numeral}, tapped ${tapped}th`,
     },
+    numberLine: {
+      prompt: (label: string) => `Where does ${label} go on this line?`,
+      inputLabel: (label: string, min: number, max: number) => `Position of ${label} on a line from ${min} to ${max}`,
+      valueText: (percent: number) => `${percent}% of the way along`,
+      place: 'Place it here',
+      summary: (label: string, percent: number) => `${label} sits ${percent}% of the way along the line.`,
+      resultHit: (offPercent: number) => (offPercent === 0 ? 'On the mark.' : `Within tolerance: ${offPercent}% of the line off.`),
+      resultRight: (offPercent: number) => `Too far right, by ${offPercent}% of the line.`,
+      resultLeft: (offPercent: number) => `Too far left, by ${offPercent}% of the line.`,
+      ruleTolerance: (percent: number) =>
+        `An estimate counts as right when it lands within ${percent}% of the line’s length of the true place. The response kept is the mark itself, so a miss is reported by how far and which way.`,
+      ruleLandmarks:
+        'The ends and the middle are the landmarks: judge which half, then which half of that. No target here sits close enough to an end or the midpoint to be hit without judging.',
+      ruleScore:
+        'A line that does not start at zero, or that spans zero, has to be read by proportion — how far along, not how big — and the numbers shown are only there to fix the scale.',
+    },
     goNoGo: {
       prompt: (count: number) => `${count} signals, one after another. Press on the plain ones. Do not press on the crossed ones.`,
       summary: (stops: number[]) => `Signals ${stops.join(' and ')} were crossed; the other six were plain.`,
@@ -1793,7 +1822,7 @@ const en = {
         },
       ],
       notMeasuredClose:
-        'That applies recursively to this site. High accuracy on these thirty-seven formats is evidence about these thirty-seven formats, and about nothing else.',
+        'That applies recursively to this site. High accuracy on these thirty-eight formats is evidence about these thirty-eight formats, and about nothing else.',
 
       difficultyP3:
         'What that does not amount to is calibration. The bands are *designed* from published cognitive operators — a defensible ordering — but no item here carries a difficulty parameter fitted to real response data, which is what item-response theory means by difficulty. So the adaptive ladder is a staircase that keeps you near your own success rate, not an estimate of your ability.',

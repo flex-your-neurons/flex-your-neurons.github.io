@@ -427,6 +427,7 @@ describe('no format leaks its answer through the option set', () => {
       'block-span',
       'chimp-test',
       'go-no-go',
+      'number-line',
       'odd-one-out',
       'paired-associates',
       'pattern-recall',

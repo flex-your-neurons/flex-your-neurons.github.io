@@ -21,6 +21,7 @@ import { isCongruent } from './generators/interference';
 import { isFormB } from './generators/trail-making';
 import { FALSE_START, targetsFor } from './generators/reaction-time';
 import { decodeRun } from './generators/go-no-go';
+import { withinTolerance } from './generators/number-line';
 import { decodeCells } from './generators/pattern-recall';
 import { dict, DEFAULT_LOCALE, type Locale } from './i18n';
 
@@ -35,12 +36,22 @@ import { dict, DEFAULT_LOCALE, type Locale } from './i18n';
  * so rather than letting the tick imply otherwise.
  */
 export function isCorrect(
-  item: { responseMode: ResponseMode; answerIndex: number; answerText?: string },
+  item: { responseMode: ResponseMode; answerIndex: number; answerText?: string; stimulus?: Stimulus },
   chosenIndex: number | null,
   chosenText?: string,
   trailMisses?: number,
 ): boolean {
   if (item.responseMode === 'trail') return trailMisses === 0;
+  /*
+   * An estimate on a number line is the one response graded by distance rather than identity: the
+   * mark is right when it lands within the level's tolerance of the target, both measured in
+   * thousandths of the line. Exact equality would make the format unpassable, and a coarser encoding
+   * would throw away the size of the miss, which is what the review reports.
+   */
+  if (item.responseMode === 'tap' && item.stimulus?.kind === 'number-line') {
+    if (chosenText === undefined) return false;
+    return withinTolerance(item.answerText ?? '', chosenText, item.stimulus.tolerance);
+  }
   /*
    * A tapped sequence is graded exactly as a typed one: both are the response itself rather than a
    * choice among options, and both come down to "is this the expected string". The all-or-nothing
@@ -161,6 +172,10 @@ export function diagnoseTap(item: { answerText?: string; stimulus: Stimulus }, t
       return diagnosePattern(expected, tapped, item.stimulus.size);
     case 'pairs':
       return diagnosePairs(expected, tapped);
+    case 'number-line':
+      // A miss on a line has a direction, and the direction is the diagnosis.
+      if (withinTolerance(expected, tapped, item.stimulus.tolerance)) return 'correct';
+      return Number(tapped) > Number(expected) ? 'overshoot' : 'undershoot';
     default:
       return diagnoseTaps(expected, tapped);
   }

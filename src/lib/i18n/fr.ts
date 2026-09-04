@@ -318,6 +318,8 @@ const fr: Dict = {
       commission: 'appui sur stop',
       omission: 'signal manqué',
       'opposite-faces': 'faces opposées',
+      overshoot: 'trop à droite',
+      undershoot: 'trop à gauche',
       plausible: 'presque juste',
     },
     bodies: {
@@ -345,6 +347,10 @@ const fr: Dict = {
         'Vous avez laissé passer un signal plein sans appuyer. Pas un défaut de contrôle mais un relâchement : la suite a continué et, pour un signal, l’attention non. Dans une tâche go/no-go c’est l’erreur opposée à celle qu’on cherche, et si elle se répète c’est que le rythme est trop prudent : appuyez plus tôt et laissez les signaux barrés faire l’arrêt.',
       'opposite-faces':
         'Deux des faces montrées sont opposées sur le cube plié, si bien qu’on ne peut jamais les voir ensemble. C’est la première chose à établir sur un patron : deux carrés séparés par exactement un carré sur une ligne droite finissent toujours opposés, et chaque paire de ce genre élimine tout cube qui montre les deux.',
+      overshoot:
+        'La marque a dépassé la cible. Sur une longue droite, c’est la compression classique : les petits nombres semblent plus loin qu’ils ne sont, parce que le sens des grandeurs croît moins vite que les nombres. Ancrez-vous d’abord — trouvez le milieu, puis le quart — et placez la marque depuis l’ancre la plus proche plutôt que depuis l’extrémité gauche.',
+      undershoot:
+        'La marque s’est arrêtée avant la cible. Moins fréquent que le dépassement, et souvent le signe d’une correction excessive, ou d’une droite qui ne part pas de zéro lue comme si elle en partait. Fixez d’abord les deux extrémités, puis jugez la part du parcours plutôt que la grandeur du nombre.',
       transposition:
         'Tous les éléments, mais dans le désordre. Vous avez retenu ce qu’il y avait à retenir et vous en avez perdu l’agencement : c’est un autre échec que d’oublier un élément, et un échec plus encourageant, car dans une tâche d’empan le plus dur est d’ordinaire de retenir. L’ordre revient souvent avec un rythme délibéré : restituez la séquence à l’allure où elle vous a été donnée, plutôt qu’aussi vite que possible.',
       plausible:
@@ -477,7 +483,7 @@ const fr: Dict = {
 
     wall: {
       heading: 'Chaque format, dans le temps',
-      lede: 'Une courbe par format, les tentatives les plus anciennes à gauche. De petits graphiques côte à côte plutôt que trente-sept courbes sur un même axe : trente-sept couleurs sur un seul tracé seraient illisibles, et ceux-ci se parcourent du regard, ils ne se lisent pas au chiffre près.',
+      lede: 'Une courbe par format, les tentatives les plus anciennes à gauche. De petits graphiques côte à côte plutôt que trente-huit courbes sur un même axe : trente-huit couleurs sur un seul tracé seraient illisibles, et ceux-ci se parcourent du regard, ils ne se lisent pas au chiffre près.',
       never: 'pas encore tenté',
     },
     byItemType: 'Par type d’item',
@@ -775,6 +781,13 @@ const fr: Dict = {
       description:
         'Plusieurs chiffres sont éparpillés sur une grille. Regardez aussi longtemps que vous voulez. Touchez le 1, et tous les chiffres sont masqués ; touchez alors l’emplacement du 2, puis du 3, et ainsi de suite. La tâche vient de l’étude d’Inoue et Matsuzawa (2007), où le chimpanzé Ayumu s’en acquittait avec plus de chiffres et plus vite que les adultes humains testés en face de lui — Human Benchmark l’a rendue célèbre. Ce qu’il faut retenir n’est pas les nombres, toujours de un à N, mais où chacun se trouvait : une disposition entière encodée d’un coup avec un ordre imprimé dessus, la combinaison que les autres empans spatiaux du site ne couvrent pas. L’empan de blocs montre les places une à une, le rappel de motif montre un ensemble sans ordre. Le niveau ne change que le nombre de chiffres ; la grille garde la même taille, et une disposition dont les chiffres suivraient le sens de lecture est retirée, parce que ce serait une règle à retenir plutôt qu’un ensemble de places.',
       seenIn: 'Inoue & Matsuzawa (2007), Chimp Test de Human Benchmark, Memory Matrix de Lumosity (variante)',
+    },
+    'number-line': {
+      name: 'Droite numérique',
+      blurb: 'Une droite aux extrémités indiquées. Placez ce nombre dessus.',
+      description:
+        'Une droite va d’un nombre à un autre, et un troisième nombre est affiché. Mettez-le à sa place. Rien n’est calculé : la tâche fait appel au sens des grandeurs, à la place qu’occupe une quantité par rapport aux autres, et elle est notée d’après la distance entre la marque et la vraie place, en part de la droite entière. C’est l’épreuve d’estimation dont la littérature développementale se sert pour suivre la croissance du sens du nombre, et chez l’adulte elle sépare encore ceux qui voient 700 comme un lieu de ceux qui le voient comme un mot. Les niveaux changent la droite plus que la tolérance : de zéro à 100 environ, puis à 1000, puis une droite qui ne part pas de zéro, puis une fraction ou un décimal sur une droite unité, puis une droite qui traverse zéro de façon inégale.',
+      seenIn: 'Estimation sur droite numérique de Siegler & Opfer, Panamath (cousin), items de sens du nombre du TEMA et de KeyMath',
     },
     'go-no-go': {
       name: 'Go ou stop',
@@ -1320,6 +1333,22 @@ const fr: Dict = {
             ? `Case ${position} portait ${numeral}, non touchée`
             : `Case ${position} portait ${numeral}, touchée en ${tapped}e`,
     },
+    numberLine: {
+      prompt: (label: string) => `Où se place ${label} sur cette droite ?`,
+      inputLabel: (label: string, min: number, max: number) => `Position de ${label} sur une droite de ${min} à ${max}`,
+      valueText: (percent: number) => `à ${percent} % du parcours`,
+      place: 'Placer ici',
+      summary: (label: string, percent: number) => `${label} se trouve à ${percent} % du parcours de la droite.`,
+      resultHit: (offPercent: number) => (offPercent === 0 ? 'Pile dessus.' : `Dans la tolérance : ${offPercent} % de la droite d’écart.`),
+      resultRight: (offPercent: number) => `Trop à droite, de ${offPercent} % de la droite.`,
+      resultLeft: (offPercent: number) => `Trop à gauche, de ${offPercent} % de la droite.`,
+      ruleTolerance: (percent: number) =>
+        `Une estimation est juste quand elle tombe à moins de ${percent} % de la longueur de la droite de la vraie place. La réponse conservée est la marque elle-même, si bien qu’un écart est rapporté par sa taille et son sens.`,
+      ruleLandmarks:
+        'Les extrémités et le milieu sont les repères : jugez d’abord la moitié, puis la moitié de celle-ci. Aucune cible ici n’est assez proche d’une extrémité ou du milieu pour être atteinte sans juger.',
+      ruleScore:
+        'Une droite qui ne part pas de zéro, ou qui le traverse, se lit par proportion — quelle part du parcours, non quelle grandeur — et les nombres affichés ne servent qu’à fixer l’échelle.',
+    },
     goNoGo: {
       prompt: (count: number) => `${count} signaux, l’un après l’autre. Appuyez sur les pleins. N’appuyez pas sur les barrés.`,
       summary: (stops: number[]) => `Les signaux ${stops.join(' et ')} étaient barrés ; les six autres étaient pleins.`,
@@ -1661,7 +1690,7 @@ const fr: Dict = {
         },
       ],
       notMeasuredClose:
-        'Cela s’applique récursivement à ce site. Une précision élevée sur ces trente-sept formats est une information sur ces trente-sept formats, et sur rien d’autre.',
+        'Cela s’applique récursivement à ce site. Une précision élevée sur ces trente-huit formats est une information sur ces trente-huit formats, et sur rien d’autre.',
 
       difficultyP3:
         'Ce qui ne revient pas à un étalonnage. Les paliers sont conçus à partir d’opérateurs cognitifs publiés — un ordonnancement défendable — mais aucun item ne porte ici de paramètre de difficulté estimé sur des données de réponse réelles, ce qu’entend la théorie de réponse à l’item par « difficulté ». L’échelle adaptative est donc un escalier qui vous maintient près de votre propre taux de réussite, pas une estimation de votre aptitude.',

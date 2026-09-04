@@ -151,6 +151,17 @@ async function pressReaction(page: Page, trials: { lit: number }[], wrong: boole
 }
 
 /**
+ * Places the mark on a number line. `wrong` lands a fifth of the line away, which is outside every
+ * level's tolerance. Playwright's `fill` sets a range input's value and fires the input event.
+ */
+async function placeOnLine(page: Page, answerText: string, wrong: boolean): Promise<void> {
+  const target = Number(answerText);
+  const value = wrong ? (target > 500 ? target - 200 : target + 200) : target;
+  await page.getByTestId('numline-input').fill(String(value));
+  await page.getByTestId('submit-numline').click();
+}
+
+/**
  * Taps a chimp-test board: the 1 first, which masks the rest, then the others in order. `wrong` swaps
  * the last two taps, which is the transposition the diagnosis names.
  */
@@ -220,6 +231,8 @@ async function tapBoard(page: Page, item: ReturnType<typeof expectedItem>, wrong
       return pressGoNoGo(page, item.stimulus.signals, wrong);
     case 'chimp':
       return tapChimp(page, item.stimulus.cells, wrong);
+    case 'number-line':
+      return placeOnLine(page, item.answerText ?? '', wrong);
     case 'pattern':
       return tapPattern(page, item.stimulus.size, item.stimulus.cells, wrong);
     case 'pairs':

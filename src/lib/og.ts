@@ -887,6 +887,23 @@ function stage(item: Item): string {
     }
 
     /* The grid with its numerals. */
+    /* The line, its ends, and the number to place hanging above its place. */
+    case 'number-line': {
+      const x0 = STAGE.x + 30;
+      const x1 = STAGE.x + STAGE.w - 30;
+      const y = STAGE.y + STAGE.h / 2 + 20;
+      const at = x0 + ((s.value - s.min) / (s.max - s.min)) * (x1 - x0);
+      return [
+        `<line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>`,
+        `<line x1="${x0}" y1="${y - 16}" x2="${x0}" y2="${y + 16}" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>`,
+        `<line x1="${x1}" y1="${y - 16}" x2="${x1}" y2="${y + 16}" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>`,
+        `<text x="${x0}" y="${y + 44}" text-anchor="middle" font-size="26" fill="${MUTED}">${esc(String(s.min))}</text>`,
+        `<text x="${x1}" y="${y + 44}" text-anchor="middle" font-size="26" fill="${MUTED}">${esc(String(s.max))}</text>`,
+        `<line x1="${round(at)}" y1="${y - 12}" x2="${round(at)}" y2="${y + 12}" stroke="${ACCENT}" stroke-width="4" stroke-linecap="round"/>`,
+        `<text x="${round(at)}" y="${y - 60}" text-anchor="middle" font-size="56" font-weight="650" fill="${INK}">${esc(s.label)}</text>`,
+      ].join('');
+    }
+
     case 'chimp': {
       const gap = 10;
       const cell = Math.min(

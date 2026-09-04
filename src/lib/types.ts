@@ -52,7 +52,8 @@ export type ItemTypeId =
   | 'chimp-test'
   | 'logic-grid'
   | 'feature-match'
-  | 'cube-net';
+  | 'cube-net'
+  | 'number-line';
 
 /**
  * CHC broad ability. See docs/IQ-TESTS.md §2.
@@ -154,6 +155,8 @@ export type Stimulus =
   | { kind: 'symbol-search'; targets: Figure[]; search: Figure[] }
   /** Two panels in the same layout; `changed` is the index that differs, or -1 when the panels are identical. */
   | { kind: 'feature-match'; left: Figure[]; right: Figure[]; changed: number }
+  /** A line from `min` to `max`; place `value` on it. `tolerance` is a fraction of the line. */
+  | { kind: 'number-line'; min: number; max: number; label: string; value: number; tolerance: number }
   /** Six marked squares laid flat; the options are cubes. */
   | { kind: 'cube-net'; rows: number; cols: number; cells: { r: number; c: number; mark: CubeMark }[] }
   /**
@@ -390,6 +393,14 @@ export type ErrorType =
    * mistake of one who has but has the corner the wrong way round.
    */
   | 'opposite-faces'
+  /*
+   * An estimate past the target, or short of it. The number line is the one format whose miss has a
+   * direction, and the direction is the diagnosis: a reader who overshoots small numbers on a long
+   * line is showing the compressed (logarithmic) placement the estimation literature describes, and
+   * the remedy is to anchor on the midpoint before placing.
+   */
+  | 'overshoot'
+  | 'undershoot'
   | 'plausible'; // a generic near-miss with no single diagnosis
 
 export interface Explanation {

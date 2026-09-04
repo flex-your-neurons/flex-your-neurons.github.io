@@ -533,6 +533,22 @@ function ThumbBody({ item, locale }: { item: Item; locale: Locale }) {
       );
 
     /* The grid with its numerals in place — before the mask, which is the state that says what the task is. */
+    /* The line with its ends, the target above where it belongs. */
+    case 'number-line': {
+      const at = ((s.value - s.min) / (s.max - s.min)) * 100;
+      return (
+        <div class="thumb-numline">
+          <span class="thumb-numline-value" style={{ left: `${at}%` }}>
+            {s.label}
+          </span>
+          <span class="thumb-numline-rule" />
+          <span class="thumb-numline-tick" style={{ left: `${at}%` }} />
+          <span class="thumb-numline-end thumb-numline-end--min">{s.min}</span>
+          <span class="thumb-numline-end thumb-numline-end--max">{s.max}</span>
+        </div>
+      );
+    }
+
     case 'chimp': {
       const at = new Map(s.cells.map((cell, i) => [cell, i + 1]));
       return (

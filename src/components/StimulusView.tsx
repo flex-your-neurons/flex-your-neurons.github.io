@@ -200,6 +200,15 @@ export default function StimulusView({
         />
       );
 
+    case 'number-line':
+      return (
+        <div data-stimulus="number-line" class="numline-target-card">
+          <span class="numline-target-value" data-testid="numline-value">
+            {stimulus.label}
+          </span>
+        </div>
+      );
+
     case 'cube-net':
       return (
         <div data-stimulus="cube-net" class="cube-net">

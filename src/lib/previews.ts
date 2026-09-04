@@ -113,6 +113,7 @@ export const PREVIEW_PINS: Record<ItemTypeId, Pin> = {
   'reaction-time': { seed: 'PRVREACT', difficulty: 3 },
   'go-no-go': { seed: 'PRVGONOGO', difficulty: 2 },
   'chimp-test': { seed: 'PRVCHIMP', difficulty: 2 },
+  'number-line': { seed: 'PRVLINE1', difficulty: 2 },
   'logic-grid': { seed: 'PRVLOGIC', difficulty: 3 },
   'feature-match': { seed: 'PRVMATCH', difficulty: 3 },
   // Level 2: four cells on sixteen. Enough to read as a pattern, sparse enough to read as a grid.

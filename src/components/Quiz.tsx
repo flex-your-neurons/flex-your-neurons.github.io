@@ -23,6 +23,7 @@ import PyramidBoard from './PyramidBoard';
 import FigureView, { describeFigure } from './FigureView';
 import GridView, { describeGrid } from './GridView';
 import CubeView, { describeCube } from './CubeView';
+import NumberLineBoard from './NumberLineBoard';
 import { generateItem, getItemText, getMeta } from '../lib/generators';
 import { deriveSeed, normaliseSeed, randomSeed } from '../lib/rng';
 import { dict, type Locale } from '../lib/i18n';
@@ -909,6 +910,19 @@ export default function Quiz({
             frozen={revealed}
             onRecallStart={beginResponse}
             onComplete={(record) => submit(null, record)}
+          />
+        ) : item.responseMode === 'tap' && item.stimulus.kind === 'number-line' ? (
+          <NumberLineBoard
+            key={`${item.type}:${item.seed}:${item.difficulty}`}
+            min={item.stimulus.min}
+            max={item.stimulus.max}
+            label={item.stimulus.label}
+            answerText={item.answerText ?? ''}
+            tolerance={item.stimulus.tolerance}
+            locale={locale}
+            frozen={revealed}
+            onRecallStart={beginResponse}
+            onComplete={(position) => submit(null, position)}
           />
         ) : item.responseMode === 'tap' && item.stimulus.kind === 'chimp' ? (
           <ChimpBoard
