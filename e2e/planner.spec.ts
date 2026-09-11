@@ -75,3 +75,21 @@ test.describe('test planner', () => {
     await expect(page.getByTestId('planner-start')).toHaveText(fr.start);
   });
 });
+
+test('a selected budget chip stays legible under the pointer', async ({ page }) => {
+  await page.goto('en/test/');
+  const chip = page.getByTestId('budget-5');
+  await chip.click();
+  await expect(chip).toHaveAttribute('aria-pressed', 'true');
+  await chip.hover();
+  const rest = page.getByTestId('budget-10');
+  const style = (el: HTMLElement) => {
+    const s = getComputedStyle(el);
+    return { bg: s.backgroundColor, fg: s.color };
+  };
+  const pressed = await chip.evaluate(style);
+  const plain = await rest.evaluate(style);
+  // The pressed fill survives the hover, and so does the light-on-accent text.
+  expect(pressed.bg).not.toBe(plain.bg);
+  expect(pressed.fg).not.toBe(plain.fg);
+});

@@ -3254,6 +3254,25 @@ kbd {
   }
 
   /*
+   * A window of laptop height gives the item a little less, so the tray keeps enough for a row of
+   * options and the panel beside them. At 720px tall the 50dvh ceiling left the tray 161px, less
+   * than one row of figural options. Set from the viewport, so it is decided before the item is
+   * drawn and the stimulus never resizes on reveal.
+   *
+   * Only between 768px and 960px tall, because the item has a floor of its own: `rendering.spec.ts`
+   * asserts that the smallest mark in a level-5 matrix is still over 11px, and at 720px that needs
+   * the whole 50dvh — 44dvh drew it at 10px and 36dvh at 9px. From 800px the grid has more to give,
+   * and 40dvh keeps the mark at 12px while handing the tray another 80px — enough, on a 900px
+   * laptop, for both rows of a matrix's eight options beside the panel. Above 960px the tray has
+   * that room anyway. Wide windows only, so a tall phone keeps the 44dvh it was tuned at.
+   */
+  @media (width >= 60rem) and (48rem <= height < 60rem) {
+    [data-drill] .quiz-root {
+      --stage-item: 40dvh;
+    }
+  }
+
+  /*
    * Block rotation divides the height differently, because its options are objects and not marks.
    *
    * Four isometric objects side by side need a row about as tall as it is wide — near 180px where a
@@ -3421,6 +3440,85 @@ kbd {
    */
   [data-drill] .quiz-answer > .feedback {
     order: -1;
+  }
+
+  /*
+   * The panel, made to cost less of the tray. The tray under a matrix is 161px on a 1280x720
+   * window and the panel at its page size was 427px, so what the reader saw after answering was
+   * the mascot and the Next button — the option they picked and the one they should have picked
+   * both sat below the fold of the tray, with the explanation of the difference between them. The
+   * mascot drops to the phone size it already has below 30rem, and every internal margin closes
+   * up: the same words, in about two thirds of the height.
+   */
+  [data-drill] .feedback {
+    padding: 0.75rem 0.9rem;
+  }
+
+  [data-drill] .feedback .mascot-figure {
+    width: 56px;
+  }
+
+  [data-drill] .feedback .mascot-bubble {
+    margin-top: 0.15rem;
+  }
+
+  [data-drill] .feedback .diagnosis,
+  [data-drill] .feedback-rules,
+  [data-drill] .feedback-answer,
+  [data-drill] .feedback-typed {
+    margin-top: 0.5rem;
+  }
+
+  [data-drill] .feedback-next {
+    margin-top: 0.6rem;
+  }
+
+  /*
+   * Where the window is wide, the explanation stands beside the options rather than above them.
+   *
+   * The two are read together — "you picked this, the answer is that, and here is why" — and on a
+   * 1280px window there is room for both across and none for both down. The options keep the
+   * left column and their full width, the panel takes a fixed column on the right, the two scroll
+   * together when either runs long, and the Next button inside it stays pinned as before. Only
+   * when the tray holds an option grid: the tap boards (trail, blocks, chimp) are the stimulus
+   * itself and are not to be squeezed to make room for their own commentary.
+   */
+  @media (width >= 60rem) {
+    [data-drill] .quiz-answer:has(> .feedback):has(> .option-grid) {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 22rem);
+      align-items: start;
+    }
+
+    [data-drill] .quiz-answer:has(> .option-grid) > .feedback {
+      order: 0;
+      grid-column: 2;
+      grid-row: 1 / span 4;
+    }
+
+    [data-drill] .quiz-answer:has(> .feedback) > :not(.feedback) {
+      grid-column: 1;
+    }
+  }
+
+  /*
+   * And the options, once revealed, are a map to be read rather than targets to be hit: the keycaps
+   * no longer do anything (the buttons are disabled), so they go, and the figures pack a little
+   * tighter. On a laptop window that is the difference between the second row of a matrix's eight
+   * options starting inside the tray and starting under it.
+   */
+  @media (width >= 60rem) {
+    [data-drill] .quiz-answer:has(> .feedback) .option-grid--figural {
+      grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr));
+      gap: 0.5rem;
+    }
+
+    [data-drill] .quiz-answer:has(> .feedback) .option--figural {
+      padding: 0.5rem;
+    }
+
+    [data-drill] .quiz-answer:has(> .feedback) .option--figural .option-key {
+      display: none;
+    }
   }
 
 
@@ -5365,10 +5463,22 @@ table.data.table-figures {
   background: var(--bg-sunken);
 }
 
-.chip[aria-pressed='true'] {
+/*
+ * Pressed after hover in the cascade and at higher specificity, because the hover rule used to win:
+ * hovering the selected chip swapped its accent fill for the sunken grey while the text stayed
+ * white, and "5 min" vanished into its own background. A selected chip stays selected under the
+ * pointer, and brightens a step to say it is still a button.
+ */
+.chip[aria-pressed='true'],
+.chip[aria-pressed='true']:hover:not(:disabled) {
   background: var(--accent);
   border-color: var(--accent);
   color: var(--accent-text);
+}
+
+/* The same step the primary button takes. */
+.chip[aria-pressed='true']:hover:not(:disabled) {
+  filter: brightness(1.08);
 }
 
 .chip:disabled {

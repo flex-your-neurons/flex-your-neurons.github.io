@@ -192,3 +192,56 @@ test.describe('a speeded item never asks to be scrolled', () => {
     });
   }
 });
+
+/**
+ * After the answer, the three things the reader compares are on screen together: what they
+ * picked, what was right, and why. On a 1280x720 window the panel alone was 427px in a tray of
+ * 161px, so what showed after answering was the mascot and the Next button, with the picked
+ * option, the correct one and the explanation all below the fold of the tray.
+ */
+test.describe('the reveal', () => {
+  test.skip(({ isMobile }) => !!isMobile, 'the side-by-side reveal is a wide-window layout');
+
+  test('shows the picked option, the correct option and the verdict without scrolling on a laptop', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(practiceUrl('matrix', OPTS));
+    await waitForQuiz(page);
+
+    const item = expectedItem('matrix', OPTS.seed, 0, OPTS.difficulty);
+    const wrong = item.answerIndex === 0 ? 1 : 0;
+    await page.getByTestId(`option-${wrong}`).click();
+    await expect(page.getByTestId('feedback')).toBeVisible();
+
+    const vh = page.viewportSize()!.height;
+    for (const selector of [
+      `[data-testid="option-${wrong}"]`,
+      `[data-testid="option-${item.answerIndex}"]`,
+      '[data-testid="verdict"]',
+      '[data-testid="next"]',
+    ]) {
+      const b = await box(page, selector);
+      expect(b.top, `${selector} is above the viewport`).toBeGreaterThanOrEqual(0);
+      expect(b.bottom, `${selector} is below the fold`).toBeLessThanOrEqual(vh);
+    }
+    expect(await scrollY(page)).toBe(0);
+    // Inside the tray's visible box too, not merely inside the window.
+    const tray = await box(page, '[data-testid="answer-tray"]');
+    const correct = await box(page, `[data-testid="option-${item.answerIndex}"]`);
+    expect(correct.bottom).toBeLessThanOrEqual(tray.bottom + 1);
+  });
+
+  test('the explanation stands beside the options, not above them', async ({ page }) => {
+    await page.goto(practiceUrl('matrix', OPTS));
+    await waitForQuiz(page);
+    const item = expectedItem('matrix', OPTS.seed, 0, OPTS.difficulty);
+    await page.getByTestId(`option-${item.answerIndex}`).click();
+    await expect(page.getByTestId('feedback')).toBeVisible();
+
+    const grid = await page.locator('.option-grid').boundingBox();
+    const panel = await page.getByTestId('feedback').boundingBox();
+    expect(Math.abs(grid!.y - panel!.y)).toBeLessThanOrEqual(1);
+    expect(panel!.x).toBeGreaterThanOrEqual(grid!.x + grid!.width - 1);
+  });
+});
