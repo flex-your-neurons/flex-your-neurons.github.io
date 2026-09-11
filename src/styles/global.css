@@ -224,7 +224,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-text);
-  font-size: 16px;
+  font-size: 1rem;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -5410,4 +5410,80 @@ table.data.table-figures {
   list-style: none;
   margin: 0;
   padding: 0;
+}
+
+/* --- Furigana ------------------------------------------------------------- */
+
+.furigana-toggle {
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font: 600 0.82rem/1.5 var(--font-text);
+  cursor: pointer;
+}
+
+.furigana-toggle:hover {
+  color: var(--text);
+  background: var(--bg-sunken);
+}
+
+.furigana-toggle[aria-pressed='true'] {
+  color: var(--accent-text);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/*
+ * Ruby needs headroom. With readings above the line, the default leading leaves them touching the
+ * line before; a looser body line-height on annotated pages gives every reading its own space.
+ */
+[data-furigana-on] {
+  line-height: 1.9;
+}
+
+[data-furigana-on] rt {
+  font-size: 0.5em;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+[data-furigana-on] [data-furigana] {
+  line-height: inherit;
+}
+
+/* Centred, not spread: a reading wider than its kanji must not push the kanji apart. */
+[data-furigana-on] ruby,
+[data-furigana-on] rt {
+  ruby-align: center;
+}
+
+/* --- Japanese typography -------------------------------------------------- */
+
+/*
+ * CJK glyphs fill a full square with denser strokes and no ascender–descender rhythm, so at the
+ * same nominal size they read smaller and darker than Latin text does. The usual remedy, applied
+ * here: a root size about nine percent larger — every rem on the site scales with it — and looser
+ * leading. Tracking and uppercase are Latin devices and do nothing for kana and kanji, so the
+ * labels that use them for texture are set plain in Japanese; the smallest labels also come up a
+ * step, because a 0.72rem kanji is a smudge where a 0.72rem capital is still a letter.
+ */
+html:lang(ja) {
+  font-size: 109%;
+}
+
+body:lang(ja) {
+  line-height: 1.8;
+}
+
+:lang(ja) :is(.domain-heading, .stat-label, .chart-card-title, .feedback-answer-label, .proof-caption,
+  .symbol-row-title, .coding-probe-label, .tag, .seed-chip-label) {
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+:lang(ja) :is(.type-card-seen, .subtle, .pill, .chip-hint) {
+  font-size: max(0.84rem, 1em);
 }

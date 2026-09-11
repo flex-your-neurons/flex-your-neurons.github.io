@@ -59,13 +59,16 @@ describe('dictionaries', () => {
    * exists for what the type system cannot see: keys that exist but were never actually
    * translated, and arrays that lost or gained an entry.
    */
+  /** Every dictionary but the English one, which is the shape the others are checked against. */
+  const OTHERS = LOCALES.filter((l) => l !== 'en').map((l) => [l, dict(l)] as const);
+
   it('have identical structure in every locale', () => {
-    expect(shapeOf(fr)).toEqual(shapeOf(en));
+    for (const [locale, d] of OTHERS) expect(shapeOf(d), locale).toEqual(shapeOf(en));
   });
 
-  it('have arrays of matching length', () => {
+  it.each(OTHERS)('have arrays of matching length (%s)', (_locale, d) => {
     const enPage = en.pages;
-    const frPage = fr.pages;
+    const frPage = d.pages;
     expect(frPage.home.how).toHaveLength(enPage.home.how.length);
     expect(frPage.test.differs).toHaveLength(enPage.test.differs.length);
     expect(frPage.about.families).toHaveLength(enPage.about.families.length);
@@ -82,9 +85,9 @@ describe('dictionaries', () => {
     });
   });
 
-  it('leave no user-facing string untranslated', () => {
+  it.each(OTHERS)('leave no user-facing string untranslated (%s)', (_locale, d) => {
     const enStrings = new Map(leafStrings(en));
-    const frStrings = new Map(leafStrings(fr));
+    const frStrings = new Map(leafStrings(d));
     expect(frStrings.size).toBe(enStrings.size);
 
     /**
@@ -118,6 +121,9 @@ describe('dictionaries', () => {
       'pages.about.families[1].name', // Stanford–Binet 5
       'pages.about.families[3].name', // Cattell Culture Fair (CFIT)
       'pages.about.families[4].name', // Woodcock–Johnson IV
+      // Japanese keeps the placeholders and the address as they are, like French.
+      'pages.about.families[0].name', // Wechsler (WAIS / WISC)
+      'pages.about.families[2].name', // Raven's Progressive Matrices
     ]);
 
     const untranslated: string[] = [];
@@ -127,21 +133,25 @@ describe('dictionaries', () => {
       if (value.trim().length <= 2) continue;
       if (frStrings.get(key) === value) untranslated.push(`${key} = "${value}"`);
     }
-    expect(untranslated, `still in English:\n${untranslated.join('\n')}`).toEqual([]);
+    expect(untranslated, `${_locale} still in English:\n${untranslated.join('\n')}`).toEqual([]);
   });
 
   it('name every item type in every locale', () => {
     for (const locale of LOCALES) {
       for (const id of ITEM_TYPE_IDS) {
         const text = getItemText(id, locale);
-        expect(text.name.length, `${id} ${locale}`).toBeGreaterThan(2);
-        expect(text.description.length, `${id} ${locale}`).toBeGreaterThan(80);
+        // Japanese says in a third of the characters what Latin scripts say in eighty: 数列 is a name.
+        const dense = locale === 'ja';
+        expect(text.name.length, `${id} ${locale}`).toBeGreaterThan(dense ? 1 : 2);
+        expect(text.description.length, `${id} ${locale}`).toBeGreaterThan(dense ? 30 : 80);
       }
     }
-    // The French names really are different words.
-    for (const id of ITEM_TYPE_IDS) {
-      if (id === 'syllogism') continue; // "Syllogismes" vs "Syllogisms" — close but distinct
-      expect(getItemText(id, 'fr').name).not.toBe(getItemText(id, 'en').name);
+    // The translated names really are different words.
+    for (const [locale] of OTHERS) {
+      for (const id of ITEM_TYPE_IDS) {
+        if (id === 'syllogism' && locale === 'fr') continue; // "Syllogismes" vs "Syllogisms" — close but distinct
+        expect(getItemText(id, locale).name, `${id} ${locale}`).not.toBe(getItemText(id, 'en').name);
+      }
     }
   });
 });
@@ -188,8 +198,11 @@ describe('locale independence', () => {
       for (const difficulty of DIFFICULTIES) {
         for (const seed of SEEDS) {
           const english = generateItem(id, seed, difficulty, 'en');
-          const french = generateItem(id, seed, difficulty, 'fr');
-          expect(structure(french), `${id} ${seed} d${difficulty}`).toEqual(structure(english));
+          for (const locale of LOCALES) {
+            if (locale === 'en') continue;
+            const other = generateItem(id, seed, difficulty, locale);
+            expect(structure(other), `${id} ${seed} d${difficulty} ${locale}`).toEqual(structure(english));
+          }
         }
       }
     }
@@ -210,10 +223,13 @@ describe('locale independence', () => {
   it('actually translates the prompt and the explanation', () => {
     for (const id of ITEM_TYPE_IDS) {
       const english = generateItem(id, 'XLATE', 3, 'en');
-      const french = generateItem(id, 'XLATE', 3, 'fr');
-      expect(french.prompt, `${id} prompt`).not.toBe(english.prompt);
-      expect(french.explanation.summary, `${id} summary`).not.toBe(english.explanation.summary);
-      expect(french.explanation.rules.length).toBe(english.explanation.rules.length);
+      for (const locale of LOCALES) {
+        if (locale === 'en') continue;
+        const other = generateItem(id, 'XLATE', 3, locale);
+        expect(other.prompt, `${id} ${locale} prompt`).not.toBe(english.prompt);
+        expect(other.explanation.summary, `${id} ${locale} summary`).not.toBe(english.explanation.summary);
+        expect(other.explanation.rules.length, `${id} ${locale}`).toBe(english.explanation.rules.length);
+      }
     }
   });
 
@@ -260,6 +276,7 @@ describe('locale helpers', () => {
   it('recognises supported locales only', () => {
     expect(isLocale('en')).toBe(true);
     expect(isLocale('fr')).toBe(true);
+    expect(isLocale('ja')).toBe(true);
     expect(isLocale('de')).toBe(false);
     expect(isLocale(undefined)).toBe(false);
   });
@@ -306,6 +323,7 @@ describe('locale helpers', () => {
     const options = localeOptions();
     expect(options.map((o) => o.locale)).toEqual([...LOCALES]);
     expect(options.find((o) => o.locale === 'fr')?.nativeName).toBe('Français');
+    expect(options.find((o) => o.locale === 'ja')?.nativeName).toBe('日本語');
   });
 });
 

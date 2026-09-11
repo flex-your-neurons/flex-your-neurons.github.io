@@ -54,6 +54,7 @@ const en = {
     mainNav: 'Main',
     skipToContent: 'Skip to content',
     languageLabel: 'Language',
+    furigana: 'Show furigana',
     switchTo: (name: string) => `Switch to ${name}`,
   },
 
@@ -2130,6 +2131,7 @@ const en = {
     redirect: {
       title: 'Choosing your language…',
       body: 'If you are not redirected automatically, choose a language:',
+      description: 'Training on reasoning-test item formats.',
     },
   },
 };

@@ -1,6 +1,7 @@
 ---
 import { Font } from 'astro:assets';
 import '../styles/global.css';
+import FuriganaToggle from '../components/FuriganaToggle.astro';
 import { dict, localeOptions, pathForLocale, type Locale } from '../lib/i18n';
 
 interface Props {
@@ -25,6 +26,8 @@ const root = base.replace(/\/$/, '');
 const href = (path: string) => `${root}/${locale}/${path}`;
 
 const current = Astro.url.pathname.replace(/\/$/, '');
+/** Open Graph wants a territory, which BCP 47 `htmlLang` does not carry. */
+const OG_LOCALE: Record<Locale, string> = { en: 'en_GB', fr: 'fr_FR', ja: 'ja_JP' };
 const isCurrent = (path: string) => current === href(path).replace(/\/$/, '');
 
 const NAV = [
@@ -59,7 +62,7 @@ const languages = localeOptions();
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta property="og:locale" content={locale === 'fr' ? 'fr_FR' : 'en_GB'} />
+    <meta property="og:locale" content={OG_LOCALE[locale]} />
     {
       /* Absolute, because crawlers do not resolve relative og:image URLs. `Astro.site` is
          the configured production origin, so this stays correct behind the base path. */
@@ -123,6 +126,7 @@ const languages = localeOptions();
             }
           </nav>
 
+          {locale === 'ja' && <FuriganaToggle label={t.nav.furigana} />}
           <div
             role="group"
             aria-label={t.nav.languageLabel}

@@ -127,7 +127,8 @@ describe('every diagnosis can be named', () => {
       const t = dict(locale).diagnosis;
       for (const errorType of emitted) {
         expect(t.tags[errorType], `${locale} tag ${errorType}`).toBeTruthy();
-        expect(t.bodies[errorType]?.length, `${locale} body ${errorType}`).toBeGreaterThan(40);
+        // Japanese says in half the characters what Latin scripts say in forty.
+        expect(t.bodies[errorType]?.length, `${locale} body ${errorType}`).toBeGreaterThan(locale === 'ja' ? 20 : 40);
       }
     }
   });

@@ -1,10 +1,10 @@
 # Flex Your Neurons — training on reasoning-test item formats
 
-*Muscle Tes Neurones* in French. The name is translated per locale, title-cased in both; the URL
-slug stays English.
+*Muscle Tes Neurones* in French, *ニューロンを鍛えよう* in Japanese. The name is translated per locale;
+the URL slug stays English.
 
-A static site for practising the item formats used in IQ and aptitude tests, **in English and
-French**. Every item is **generated from a seed**, **proved to have exactly one defensible
+A static site for practising the item formats used in IQ and aptitude tests, **in English,
+French and Japanese**. Every item is **generated from a seed**, **proved to have exactly one defensible
 answer**, and **explained afterwards**. It runs entirely in the browser, stores everything in
 localStorage, and deploys to GitHub Pages.
 
@@ -16,7 +16,7 @@ It deliberately reports **no IQ score**. See [Why there is no score](#why-there-
 
 ```bash
 npm install
-npm run dev            # http://localhost:4321/ — redirects to /en/ or /fr/
+npm run dev            # http://localhost:4321/ — redirects to /en/, /fr/ or /ja/
 
 npm test               # unit tests (generators, solvers, rng, geometry, the leakage harness)
 npm run build          # static output in dist/
@@ -37,7 +37,7 @@ Node 22.12+ is required (Astro 7).
 | `src/lib/generators/` | One generator per item format |
 | `src/lib/solvers/` | Independent solvers used to prove items unambiguous |
 | `src/lib/rules.ts` | The RAVEN rule algebra (Constant, Progression, Arithmetic, Distribute-Three) |
-| `src/lib/i18n/` | Locale plumbing and the English/French dictionaries |
+| `src/lib/i18n/` | Locale plumbing and the English, French and Japanese dictionaries |
 | `src/lib/charts.ts` | Data shaping for the progress charts, kept separate so it is testable without a browser |
 | `tests/` | Property-style unit tests, swept over hundreds of seeds |
 | `e2e/` | Playwright tests against the built static site |
@@ -231,7 +231,7 @@ Also worth knowing, and stated in the app itself:
 
 ## Languages
 
-The site is available in **English (`/en/…`)** and **French (`/fr/…`)**. The root URL picks a
+The site is available in **English (`/en/…`)**, **French (`/fr/…`)** and **Japanese (`/ja/…`)**. The root URL picks a
 language from a previously stored choice, then `navigator.languages`, then English; a
 `<noscript>` meta-refresh and visible links cover the case where that script never runs. Every
 page carries a language switcher that keeps you on the same page.
@@ -251,6 +251,18 @@ Adding a language means adding one file next to `src/lib/i18n/fr.ts` and listing
 a compile error**, and a unit test additionally fails on any string that was copied across
 untranslated. No i18n library is used; the reasoning is in
 [`docs/LIBRARIES.md`](docs/LIBRARIES.md).
+
+### Furigana
+
+Japanese pages carry a **ふりがな** switch in the header. On, every kanji on the page gets its reading
+in `<ruby>`, including inside the running quiz; the preference is remembered. The readings come
+from `src/lib/furigana-ja.json`, a table built from the Japanese dictionary by
+`npm run assets:furigana` (kuromoji, at build time only — nothing heavy ships). One surface form
+gets one reading, so a kanji with context-dependent readings is occasionally annotated with the
+commoner one. Rebuild the table whenever `ja.ts` changes.
+
+Japanese is also set about nine percent larger with looser leading (`html:lang(ja)` in
+`global.css`): CJK glyphs read smaller than Latin ones at the same nominal size.
 
 ## Progress tracking
 

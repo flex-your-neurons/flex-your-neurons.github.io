@@ -1,0 +1,36 @@
+---
+/**
+ * The furigana switch, rendered on Japanese pages only.
+ *
+ * A button rather than a setting on the progress page because the reader it exists for is a child
+ * who has just opened the site, and the switch has to be where they are looking. The state is
+ * `aria-pressed`, the label is the word itself, and the preference is remembered for next time.
+ */
+interface Props {
+  label: string;
+}
+const { label } = Astro.props;
+---
+
+<button type="button" class="furigana-toggle" data-testid="furigana-toggle" aria-pressed="false" data-no-furigana>
+  {label}
+</button>
+
+<script>
+  import { disable, enable, readPreference, writePreference } from '../lib/furigana';
+
+  const button = document.querySelector<HTMLButtonElement>('.furigana-toggle');
+  if (button) {
+    const set = (on: boolean) => {
+      button.setAttribute('aria-pressed', String(on));
+      if (on) enable();
+      else disable();
+    };
+    set(readPreference());
+    button.addEventListener('click', () => {
+      const on = button.getAttribute('aria-pressed') !== 'true';
+      writePreference(on);
+      set(on);
+    });
+  }
+</script>

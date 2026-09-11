@@ -39,6 +39,7 @@ const fr: Dict = {
     mainNav: 'Principale',
     skipToContent: 'Aller au contenu',
     languageLabel: 'Langue',
+    furigana: 'Afficher les furigana',
     switchTo: (name: string) => `Passer en ${name}`,
   },
 
@@ -1993,6 +1994,7 @@ const fr: Dict = {
     redirect: {
       title: 'Choix de votre langue…',
       body: 'Si la redirection ne se fait pas automatiquement, choisissez une langue :',
+      description: 'Entraînement aux formats des tests de raisonnement.',
     },
   },
 };

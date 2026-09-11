@@ -11,15 +11,16 @@
  */
 import en from './en';
 import fr from './fr';
+import ja from './ja';
 
 export type Dict = typeof en;
 
-export const LOCALES = ['en', 'fr'] as const;
+export const LOCALES = ['en', 'fr', 'ja'] as const;
 export type Locale = (typeof LOCALES)[number];
 
 export const DEFAULT_LOCALE: Locale = 'en';
 
-const DICTS: Record<Locale, Dict> = { en, fr };
+const DICTS: Record<Locale, Dict> = { en, fr, ja };
 
 export function isLocale(value: string | undefined): value is Locale {
   return value !== undefined && (LOCALES as readonly string[]).includes(value);
@@ -72,4 +73,4 @@ export function negotiateLocale(preferred: readonly string[]): Locale {
   return DEFAULT_LOCALE;
 }
 
-export { en, fr };
+export { en, fr, ja };

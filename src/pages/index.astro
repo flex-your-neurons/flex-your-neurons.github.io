@@ -13,10 +13,12 @@ import '../styles/global.css';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const languages = localeOptions();
 const en = dict('en').pages.redirect;
-const fr = dict('fr').pages.redirect;
-// Both names, since this page belongs to neither language — and it is the site's entry now that
+// Every name, since this page belongs to no one language — and it is the site's entry now that
 // there is no base path in front of it, so the tab it opens should say what the site is called.
-const title = `${dict('en').nav.brand} · ${dict('fr').nav.brand}`;
+const title = LOCALES.map((l) => dict(l).nav.brand).join(' · ');
+const description = LOCALES.map((l) => dict(l).pages.redirect.description).join(' ');
+/** The other languages' one-line invitations, each marked with its own `lang`. */
+const others = LOCALES.filter((l) => l !== 'en').map((l) => ({ locale: l, body: dict(l).pages.redirect.body }));
 ---
 
 <!doctype html>
@@ -25,7 +27,7 @@ const title = `${dict('en').nav.brand} · ${dict('fr').nav.brand}`;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
-    <meta name="description" content="Training on reasoning-test item formats. Entraînement aux formats des tests de raisonnement." />
+    <meta name="description" content={description} />
     <meta name="color-scheme" content="light dark" />
     <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
     {LOCALES.map((l) => <link rel="alternate" hreflang={l} href={`${base}/${l}/`} />)}
@@ -62,7 +64,7 @@ const title = `${dict('en').nav.brand} · ${dict('fr').nav.brand}`;
     <main class="shell chooser">
       <h1 class="chooser-title" data-testid="redirect-title">{en.title}</h1>
       <p class="muted flush">{en.body}</p>
-      <p class="muted flush" lang="fr">{fr.body}</p>
+      {others.map((o) => <p class="muted flush" lang={o.locale}>{o.body}</p>)}
       <div class="cluster">
         {
           languages.map((l) => (
