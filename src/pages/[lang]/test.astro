@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import Quiz from '../../components/Quiz';
+import TestPlanner from '../../components/TestPlanner';
 import { ITEM_TYPE_IDS } from '../../lib/generators';
 import { dict, LOCALES, type Locale } from '../../lib/i18n';
 
@@ -14,20 +14,19 @@ const href = (path: string) => `${base}/${locale}/${path}`;
 const p = dict(locale).pages.test;
 
 /**
- * One item per format, derived rather than chosen.
+ * The page is a planner first and a runner second — see `TestPlanner`.
  *
- * This was a hard-coded 20, which was fine while there were eighteen formats and became a defect
- * the moment there were more than twenty: items are dealt by `types[index % types.length]`, so a
- * run shorter than the registry covers a *prefix* of it and silently never reaches the rest. Four
- * formats went unreachable in the full test — always the same four — with nothing on screen to say
- * so. Deriving the length from the registry is what makes "full" true by construction.
+ * With no query string it offers a time budget and a focus and builds a run to fit; with one it runs
+ * it. The full test is one item per format, and the count is derived from the registry rather than
+ * written down: a hard-coded length once left four formats silently unreachable, and deriving it is
+ * what makes "full" true by construction.
  */
 const items = ITEM_TYPE_IDS.length;
 ---
 
 <Base locale={locale} title={p.title} description={p.description(items)} lede={p.lede(items)}>
   <div class="card quiz-stage">
-    <Quiz client:only="preact" mode="test" types={ITEM_TYPE_IDS} locale={locale} length={items} />
+    <TestPlanner client:only="preact" locale={locale} />
   </div>
 
   <p class="muted">

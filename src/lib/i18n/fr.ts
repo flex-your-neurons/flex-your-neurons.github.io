@@ -33,7 +33,7 @@ const fr: Dict = {
     home: 'Accueil',
     practice: 'Entraînement',
     sprint: 'Contre-la-montre',
-    test: 'Test complet',
+    test: 'Test',
     progress: 'Progression',
     about: 'À propos',
     mainNav: 'Principale',
@@ -1601,7 +1601,7 @@ const fr: Dict = {
       description:
         'Entraînez-vous aux formats d’items utilisés dans les tests de QI et d’aptitude — raisonnement matriciel, suites numériques, syllogismes, rotation mentale, et plus encore. Chaque item est généré à la volée, vérifié comme n’admettant qu’une seule réponse, puis expliqué. Tout fonctionne dans votre navigateur.',
       lede: 'Trente-deux formats d’items issus de la littérature sur les tests d’intelligence, générés à neuf à chaque fois et expliqués après chaque réponse. Sans compte, sans serveur, et sans score à mettre sur un CV.',
-      ctaTest: 'Passer un test complet',
+      ctaTest: 'Passer un test',
       ctaPractice: 'S’entraîner sur un format',
       howHeading: 'Comment les items sont fabriqués',
       how: [
@@ -1671,18 +1671,47 @@ const fr: Dict = {
     },
 
     test: {
-      title: 'Test complet',
+      title: 'Test',
       description: (items: number) =>
-        `Une série mixte sur les ${items} formats, un item chacun, sans retour avant la fin.`,
+        `Un test taillé sur le temps dont vous disposez — de cinq minutes à la batterie complète des ${items} formats — sur un domaine, sur tous, ou sur les formats que vous avez le moins travaillés. Aucun retour avant la fin.`,
       lede: (items: number) =>
-        `${items} items — un par format, dans un ordre fixe et sans aucun retour avant la fin. Plus proche du ressenti d’une vraie batterie que les séries d’entraînement.`,
+        `Choisissez le temps dont vous disposez et ce que vous voulez couvrir : la série se construit pour tenir dedans, de quelques items jusqu’aux ${items} formats. Aucun retour avant la fin, comme dans une vraie batterie, et chaque réponse compte pour votre profil.`,
       shortLink: 'Peu de temps ? Le test court fait sept items — un par domaine, tirés de la graine.',
+      planner: {
+        adviceHeading: 'Une suggestion pour aujourd’hui',
+        advice: {
+          first:
+            'Vous n’avez encore aucun historique. Dix minutes en faisant le tour de tous les domaines donnent à la page de progression un premier profil à afficher.',
+          fill: (domains: string) =>
+            `Votre profil reste mince en ${domains}. Dix minutes sur les formats les moins travaillés sont le plus court chemin pour le compléter.`,
+          weakest: (domain: string, accuracy: string) =>
+            `${domain} est votre domaine mesuré le plus faible, à ${accuracy}. C’est là que dix minutes rapportent le plus.`,
+          stale: (domain: string, since: string) =>
+            `Tous les domaines sont mesurés et aucun ne se détache. ${domain} est celui que vous avez laissé de côté le plus longtemps — rien depuis le ${since}.`,
+        },
+        useAdvice: 'Appliquer',
+        adviceInUse: 'Sélectionné ci-dessous',
+        budgetLegend: 'De combien de temps disposez-vous ?',
+        minutes: (n: number) => `${n} min`,
+        full: 'Test complet',
+        fullHint: (items: number, minutes: number) => `Les ${items} formats, un item chacun — environ ${minutes} min`,
+        focusLegend: 'Quoi couvrir',
+        mixed: 'Tous les domaines',
+        mixedHint: 'Les sept domaines à tour de rôle, avec un format différent à chaque tour.',
+        gaps: 'Combler les manques',
+        gapsHint: 'Les formats que vous avez le moins travaillés, pour compléter la page de progression.',
+        domainHint: (formats: number) => `${formats} formats`,
+        preview: (items: number, minutes: number) => `${items} items · environ ${minutes} min`,
+        previewOne: (minutes: number) => `1 item · environ ${minutes} min`,
+        perDomain: (domain: string, count: number) => `${domain} · ${count}`,
+        start: 'Commencer le test',
+      },
       differsHeading: 'En quoi cela diffère d’une vraie batterie',
       differs: (items: number) => [
         'Une vraie batterie est administrée en tête-à-tête par un examinateur formé, avec des consignes, un chronométrage et des règles d’arrêt fixés. Ici, c’est vous, seul, dans un onglet.',
         'Une vraie batterie convertit votre score brut par comparaison à un échantillon d’étalonnage apparié en âge. Il n’y a pas d’échantillon ici : donc pas de centile et pas de QI — seulement vos propres chiffres.',
         'Une vraie batterie comporte de la compréhension verbale, qui ne peut pas être générée par procédure avec des réponses vérifiables. Rien ici ne la mesure.',
-        `Un item par format, c’est une seule observation par format : assez pour savoir si vous avez rencontré un format, pas pour dire ce que vous y valez. Les chiffres par domaine regroupent plusieurs formats chacun et sont la seule partie qui mérite d’être lue — et ${items} items restent de toute façon bien trop peu pour estimer quoi que ce soit de stable. Ce n’est pas pour rien que les batteries publiées comptent dix à quinze subtests.`,
+        `Une courte séance, c’est une poignée d’observations : assez pour savoir si vous avez rencontré un format, pas pour dire ce que vous y valez. Les chiffres par domaine regroupent plusieurs formats chacun et sont la seule partie qui mérite d’être lue — et même les ${items} items du test complet restent bien trop peu pour estimer quoi que ce soit de stable. Ce n’est pas pour rien que les batteries publiées comptent dix à quinze subtests.`,
       ],
     },
 

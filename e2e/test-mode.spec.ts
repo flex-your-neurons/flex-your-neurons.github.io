@@ -82,15 +82,19 @@ test.describe('full test mode', () => {
    * Reading the count off the first item's progress label costs one page load instead of a
    * twenty-four-item walk, and it fails the moment the length stops matching the registry.
    */
-  test('offers every format when nobody says how long it should be', async ({ page }) => {
+  test('offers every format when the planner is asked for the full test', async ({ page }) => {
     await page.goto('en/test/');
-    await waitForQuiz(page);
+    await expect(page.getByTestId('test-planner')).toBeVisible();
+    await page.getByTestId('budget-full').click();
+    await expect(page.getByTestId('planner-preview')).toHaveAttribute('data-items', String(ITEM_TYPE_IDS.length));
+    // And the page says the same number out loud, so the copy cannot drift from the run again.
+    await expect(page.getByTestId('page-lede')).toContainText(String(ITEM_TYPE_IDS.length));
 
+    await page.getByTestId('planner-start').click();
+    await waitForQuiz(page);
     await expect(page.getByTestId('progress-label')).toHaveText(
       dict('en').quiz.progress(1, ITEM_TYPE_IDS.length),
     );
-    // And the page says the same number out loud, so the copy cannot drift from the run again.
-    await expect(page.getByTestId('page-lede')).toContainText(String(ITEM_TYPE_IDS.length));
   });
 
   test('rotates through every item type', async ({ page }) => {

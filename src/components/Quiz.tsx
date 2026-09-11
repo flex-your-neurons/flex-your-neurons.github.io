@@ -25,7 +25,7 @@ import GridView, { describeGrid } from './GridView';
 import CubeView, { describeCube } from './CubeView';
 import NumberLineBoard from './NumberLineBoard';
 import PolycubeView, { describePolycube, polycubeBox } from './PolycubeView';
-import { generateItem, getItemText, getMeta, onePerDomain } from '../lib/generators';
+import { generateItem, getItemText, getMeta, isItemTypeId, onePerDomain } from '../lib/generators';
 import { deriveSeed, normaliseSeed, randomSeed } from '../lib/rng';
 import { dict, type Locale } from '../lib/i18n';
 import { localeHref } from '../lib/links';
@@ -111,7 +111,8 @@ const OPTION_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8'];
 
 /**
  * URL overrides: `?seed=ABC12345` replays an exact run, `?d=1..5` pins the difficulty,
- * `?n=10` sets the length, `?t=30` sets a sprint's window in seconds. This is what makes a seed
+ * `?n=10` sets the length, `?t=30` sets a sprint's window in seconds, and `?types=matrix,span`
+ * replaces the pool with exactly that list, in that order — the planned test. This is what makes a seed
  * shareable — two people opening the
  * same link get byte-identical items, in whichever language each of them reads — and it
  * is also how the end-to-end tests pin down an item whose answer they compute themselves.
@@ -121,6 +122,7 @@ function readUrlOverrides(): {
   difficulty?: Difficulty;
   length?: number;
   seconds?: number;
+  types?: ItemTypeId[];
 } {
   if (typeof location === 'undefined') return {};
   const params = new URLSearchParams(location.search);
@@ -142,12 +144,20 @@ function readUrlOverrides(): {
   const t = Number(params.get('t'));
   const seconds = Number.isInteger(t) && t >= 5 && t <= 600 ? t : undefined;
 
-  return { seed, difficulty, length, seconds };
+  /*
+   * `?types=` is the planner's hand-off: an ordered list the run deals as given. Unknown ids are
+   * dropped rather than failing the run, so a link from before a format was renamed still opens
+   * on what remains of it; an empty result leaves the page's own pool in charge.
+   */
+  const listed = (params.get('types') ?? '').split(',').filter((id) => isItemTypeId(id));
+  const types = listed.length > 0 ? (listed as ItemTypeId[]) : undefined;
+
+  return { seed, difficulty, length, seconds, types };
 }
 
 export default function Quiz({
   mode,
-  types: pool,
+  types: poolProp,
   draw,
   locale,
   length,
@@ -158,6 +168,7 @@ export default function Quiz({
   const t = dict(locale);
   const isSprint = mode === 'sprint';
   const [overrides] = useState(readUrlOverrides);
+  const pool = overrides.types ?? poolProp;
   const windowMs = (overrides.seconds ?? seconds ?? DEFAULT_SPRINT_SECONDS) * 1000;
   const settings = useStore($settings) ?? DEFAULT_SETTINGS;
   const summary = useStore($summary);

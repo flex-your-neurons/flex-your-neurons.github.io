@@ -25,7 +25,7 @@ test.describe('site navigation', () => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Practice');
 
     await page.getByTestId('nav-test').click();
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Full test');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Test');
 
     await page.getByTestId('nav-progress').click();
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Progress');

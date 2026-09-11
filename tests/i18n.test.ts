@@ -95,6 +95,9 @@ describe('dictionaries', () => {
     const ALLOWED_IDENTICAL = new Set([
       // The product name.
       'nav.brand',
+      // "Test" is the French word too, on the nav and on the page.
+      'nav.test',
+      'pages.test.title',
       // French–English cognates that are spelled identically.
       'quiz.correct', // "Correct" is the French word too
       'quiz.shapeNames.triangle',

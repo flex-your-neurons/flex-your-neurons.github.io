@@ -5310,3 +5310,104 @@ table.data.table-figures {
   width: 100%;
   padding: 0 0.5rem;
 }
+
+/* --- Test planner --------------------------------------------------------- */
+
+.planner {
+  --stack-gap: 1.6rem;
+}
+
+.planner-advice {
+  display: grid;
+  gap: 0.6rem;
+  justify-items: start;
+}
+
+.planner-advice .section-heading {
+  margin: 0;
+}
+
+.planner-advice .note-body {
+  margin: 0;
+}
+
+.planner-group .section-heading {
+  margin: 0 0 0.7rem;
+}
+
+.chips {
+  --cluster-gap: 0.5rem;
+}
+
+/*
+ * A chip is a button that states a choice, and `aria-pressed` is the state — styled off the
+ * attribute rather than a class so that what a screen reader hears and what the eye sees cannot
+ * come apart.
+ */
+.chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-raised);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.94rem;
+  font-weight: 550;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.chip:hover:not(:disabled) {
+  border-color: var(--accent-border);
+  background: var(--bg-sunken);
+}
+
+.chip[aria-pressed='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.chip:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.chip-hint {
+  font-family: var(--font-code);
+  font-size: 0.78rem;
+  font-weight: 500;
+  opacity: 0.75;
+}
+
+.planner-hint {
+  margin: 0.6rem 0 0;
+  font-size: 0.92rem;
+}
+
+.planner-preview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  padding: 1.25rem 1.4rem;
+}
+
+.planner-preview-head {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.planner-preview-count {
+  font-size: 1.1rem;
+}
+
+.planner-domains {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}

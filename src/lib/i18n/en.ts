@@ -48,7 +48,7 @@ const en = {
     home: 'Home',
     practice: 'Practice',
     sprint: 'Sprint',
-    test: 'Full test',
+    test: 'Test',
     progress: 'Progress',
     about: 'About',
     mainNav: 'Main',
@@ -1725,7 +1725,7 @@ const en = {
       description:
         'Practise the item formats used in IQ and aptitude tests — matrix reasoning, number series, syllogisms, mental rotation and more. Every item is generated fresh, verified to have one answer, and explained afterwards. Runs entirely in your browser.',
       lede: 'Thirty-two item formats from the intelligence-testing literature, generated fresh every time and explained after every answer. No account, no server, no score you should put on a CV.',
-      ctaTest: 'Take a full test',
+      ctaTest: 'Take a test',
       ctaPractice: 'Practise one format',
       howHeading: 'How the items are made',
       how: [
@@ -1802,18 +1802,47 @@ const en = {
      * derived cannot go stale, and a length that is derived cannot leave a format out.
      */
     test: {
-      title: 'Full test',
+      title: 'Test',
       description: (items: number) =>
-        `A mixed run across all ${items} reasoning-test formats, one item each, with no feedback until the end.`,
+        `A test sized to the time you have — five minutes up to the full ${items}-format battery — on one domain, on all of them, or on the formats you have answered least. No feedback until the end.`,
       lede: (items: number) =>
-        `${items} items — one from every format, in a fixed rotation, with no feedback until you finish. Closer to how a real battery feels than the practice drills are.`,
+        `Choose how long you have and what to cover, and the run is built to fit — from a few items up to all ${items} formats. No feedback until you finish, as in a real battery, and every answer counts towards your profile.`,
       shortLink: 'Short on time? The short test is seven items — one per domain, drawn from the seed.',
+      planner: {
+        adviceHeading: 'A suggestion for today',
+        advice: {
+          first:
+            'You have no history yet. Ten minutes round every domain gives the progress page a first profile to show.',
+          fill: (domains: string) =>
+            `Your profile is still thin in ${domains}. Ten minutes on the formats you have answered least fills those in fastest.`,
+          weakest: (domain: string, accuracy: string) =>
+            `${domain} is your weakest measured domain, at ${accuracy}. Ten minutes there is where a sitting does most.`,
+          stale: (domain: string, since: string) =>
+            `Every domain is measured and none stands out. ${domain} is the one you have left longest — not since ${since}.`,
+        },
+        useAdvice: 'Use this',
+        adviceInUse: 'Selected below',
+        budgetLegend: 'How long do you have?',
+        minutes: (n: number) => `${n} min`,
+        full: 'Full test',
+        fullHint: (items: number, minutes: number) => `All ${items} formats, one item each — about ${minutes} min`,
+        focusLegend: 'What to cover',
+        mixed: 'Every domain',
+        mixedHint: 'The seven domains in turn, a different format each round.',
+        gaps: 'Fill the gaps',
+        gapsHint: 'The formats you have answered least, so the progress page fills in.',
+        domainHint: (formats: number) => `${formats} formats`,
+        preview: (items: number, minutes: number) => `${items} items · about ${minutes} min`,
+        previewOne: (minutes: number) => `1 item · about ${minutes} min`,
+        perDomain: (domain: string, count: number) => `${domain} · ${count}`,
+        start: 'Start the test',
+      },
       differsHeading: 'How this differs from a real battery',
       differs: (items: number) => [
         'A real battery is administered one-to-one by a trained examiner with fixed instructions, timing and stop rules. This is you, alone, in a browser tab.',
         'A real battery converts your raw score against an age-matched standardisation sample. There is no sample here, so there is no percentile and no IQ — only your own numbers.',
         'A real battery includes verbal comprehension, which cannot be procedurally generated with verifiable answers. Nothing here measures it.',
-        `One item per format is a single observation per format: enough to say whether you have met a format, not enough to say how good you are at it. The domain figures pool several formats each and are the only part of this worth reading — and ${items} items is still far too few for a stable estimate of anything. Published batteries use ten to fifteen subtests for a reason.`,
+        `A short sitting is a handful of observations: enough to say whether you have met a format, not enough to say how good you are at it. The domain figures pool several formats each and are the only part of this worth reading — and even the full ${items} items are far too few for a stable estimate of anything. Published batteries use ten to fifteen subtests for a reason.`,
       ],
     },
 
