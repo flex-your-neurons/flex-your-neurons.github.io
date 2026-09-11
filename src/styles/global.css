@@ -1389,6 +1389,12 @@ kbd {
   font-size: 0.94rem;
 }
 
+/* --- Format catalogue (practice index) ------------------------------------ */
+
+.practice-section {
+  margin-bottom: 3rem;
+}
+
 .domain-groups {
   display: grid;
   gap: 2rem;
@@ -1474,7 +1480,7 @@ kbd {
   margin-top: 0.25rem;
 }
 
-/* --- Practice index ------------------------------------------------------- */
+/* --- Sprint index (flat card list with a domain pill) --------------------- */
 
 .practice-card {
   padding: 1.25rem;

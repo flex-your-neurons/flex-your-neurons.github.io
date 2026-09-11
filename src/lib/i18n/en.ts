@@ -1727,10 +1727,6 @@ const en = {
       lede: 'Thirty-two item formats from the intelligence-testing literature, generated fresh every time and explained after every answer. No account, no server, no score you should put on a CV.',
       ctaTest: 'Take a full test',
       ctaPractice: 'Practise one format',
-      whatHeading: 'What you can train',
-      whatLede:
-        'Grouped by the Cattell–Horn–Carroll broad abilities the formats load on. Fluid reasoning (Gf) is the closest single proxy for general ability, and also the most procedurally generatable — which is why abstract-reasoning items dominate every free test you have met.',
-      seenIn: (tests: string) => `Seen in: ${tests}`,
       howHeading: 'How the items are made',
       how: [
         {
@@ -1762,6 +1758,10 @@ const en = {
       description:
         'Pick a single reasoning-test item format and drill it, with difficulty that adapts to how you are doing and an explanation after every answer.',
       lede: 'Drill one format at a time. Difficulty adapts as you go — three right in a row moves you up, two wrong moves you back down — so you stay near the level where practice actually does something.',
+      whatHeading: 'What you can train',
+      whatLede:
+        'Grouped by the Cattell–Horn–Carroll broad abilities the formats load on. Fluid reasoning (Gf) is the closest single proxy for general ability, and also the most procedurally generatable — which is why abstract-reasoning items dominate every free test you have met.',
+      seenIn: (tests: string) => `Seen in: ${tests}`,
     },
 
     practiceType: {

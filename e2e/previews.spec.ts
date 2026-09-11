@@ -5,23 +5,13 @@ import { previewItem } from '../src/lib/previews';
 import { dict } from '../src/lib/i18n';
 
 test.describe('you can see the format before choosing it', () => {
-  test('every home-page card carries a real generated miniature', async ({ page }) => {
-    await page.goto('en/');
+  test('every practice-index card carries a real generated miniature', async ({ page }) => {
+    await page.goto('en/practice/');
     for (const meta of ALL_META) {
-      const thumb = page.getByTestId(`type-card-${meta.id}`).locator('[data-thumb]');
+      const thumb = page.getByTestId(`practice-card-${meta.id}`).locator('[data-thumb]');
       await expect(thumb, meta.id).toHaveCount(1);
       await expect(thumb, meta.id).toHaveAttribute('data-thumb', meta.id);
       await expect(thumb, meta.id).toBeVisible();
-    }
-  });
-
-  test('the practice index carries them too', async ({ page }) => {
-    await page.goto('en/practice/');
-    for (const meta of ALL_META) {
-      await expect(
-        page.getByTestId(`practice-card-${meta.id}`).locator(`[data-thumb="${meta.id}"]`),
-        meta.id,
-      ).toHaveCount(1);
     }
   });
 
@@ -31,12 +21,12 @@ test.describe('you can see the format before choosing it', () => {
    * not deliver — so the shapes drawn are checked against the ones the pinned seed produces.
    */
   test('a miniature draws the shapes its pinned item actually contains', async ({ page }) => {
-    await page.goto('en/');
+    await page.goto('en/practice/');
 
     const item = previewItem('matrix', 'en');
     if (item.stimulus.kind !== 'matrix') throw new Error('unexpected preview stimulus');
 
-    const thumb = page.getByTestId('type-card-matrix').locator('[data-thumb="matrix"]');
+    const thumb = page.getByTestId('practice-card-matrix').locator('[data-thumb="matrix"]');
     // Eight drawn cells and one blank, exactly as the live item has.
     await expect(thumb.locator('svg[data-figure]')).toHaveCount(8);
     await expect(thumb.locator('[data-blank="true"]')).toHaveCount(1);
@@ -52,7 +42,7 @@ test.describe('you can see the format before choosing it', () => {
 
   /** Miniatures are figures, so the inviolable rule applies: no hue inside one. */
   test('no miniature paints a hue', async ({ page }) => {
-    await page.goto('en/');
+    await page.goto('en/practice/');
     const fills = await page
       .locator('[data-thumb] svg [fill], [data-thumb] svg [stroke]')
       .evaluateAll((els) =>
@@ -78,17 +68,17 @@ test.describe('you can see the format before choosing it', () => {
   });
 
   test('the French cards show the same figures with French words', async ({ page }) => {
-    await page.goto('fr/');
+    await page.goto('fr/practice/');
     const shapes = (locator: string) =>
       page.locator(locator).evaluateAll((els) => els.map((e) => e.getAttribute('data-shape')));
 
     const fr = await shapes('[data-thumb="matrix"] [data-shape]');
-    await page.goto('en/');
+    await page.goto('en/practice/');
     const en = await shapes('[data-thumb="matrix"] [data-shape]');
     expect(fr).toEqual(en);
 
     // Only the syllogism miniature contains words, and those words are translated.
-    await page.goto('fr/');
+    await page.goto('fr/practice/');
     const frText = await page.locator('[data-thumb="syllogism"]').innerText();
     expect(frText).toMatch(/^(Tous|Aucun|Certains)/m);
   });

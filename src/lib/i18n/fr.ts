@@ -1603,10 +1603,6 @@ const fr: Dict = {
       lede: 'Trente-deux formats d’items issus de la littérature sur les tests d’intelligence, générés à neuf à chaque fois et expliqués après chaque réponse. Sans compte, sans serveur, et sans score à mettre sur un CV.',
       ctaTest: 'Passer un test complet',
       ctaPractice: 'S’entraîner sur un format',
-      whatHeading: 'Ce que vous pouvez travailler',
-      whatLede:
-        'Regroupés par aptitudes larges du modèle de Cattell–Horn–Carroll. Le raisonnement fluide (Gf) est le meilleur indicateur isolé de l’aptitude générale, et aussi le plus facile à générer par procédure — d’où la domination des items de raisonnement abstrait dans tous les tests gratuits que vous avez croisés.',
-      seenIn: (tests: string) => `Présent dans : ${tests}`,
       howHeading: 'Comment les items sont fabriqués',
       how: [
         {
@@ -1640,6 +1636,10 @@ const fr: Dict = {
       description:
         'Choisissez un seul format d’item et travaillez-le, avec une difficulté qui s’adapte à vos résultats et une explication après chaque réponse.',
       lede: 'Travaillez un format à la fois. La difficulté s’adapte au fil de la série — trois bonnes réponses d’affilée vous font monter, deux erreurs vous font redescendre — pour vous maintenir au niveau où l’entraînement sert vraiment à quelque chose.',
+      whatHeading: 'Ce que vous pouvez travailler',
+      whatLede:
+        'Regroupés par aptitudes larges du modèle de Cattell–Horn–Carroll. Le raisonnement fluide (Gf) est le meilleur indicateur isolé de l’aptitude générale, et aussi le plus facile à générer par procédure — d’où la domination des items de raisonnement abstrait dans tous les tests gratuits que vous avez croisés.',
+      seenIn: (tests: string) => `Présent dans : ${tests}`,
     },
 
     sprintIndex: {

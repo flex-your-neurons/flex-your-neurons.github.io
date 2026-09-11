@@ -6,6 +6,7 @@ import { allItemTypes } from '../../../lib/generators';
 import { typeHue } from '../../../lib/identity';
 import { previewItem } from '../../../lib/previews';
 import { dict, LOCALES, type Locale } from '../../../lib/i18n';
+import type { ChcDomain } from '../../../lib/types';
 
 export function getStaticPaths() {
   return LOCALES.map((lang) => ({ params: { lang } }));
@@ -17,33 +18,65 @@ const p = t.pages.practiceIndex;
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const href = (path: string) => `${base}/${locale}/${path}`;
+
 const types = allItemTypes(locale);
+/*
+ * Derived from the registry, never listed by hand. This page groups the format cards by domain, so
+ * a hand-written list does not merely mislabel — it *drops every card* in an unlisted domain. That
+ * is exactly what happened when the arithmetic format shipped with a new domain: Gq was absent
+ * from the grouped list, and the card vanished from it while every other page showed it.
+ */
+const domains: ChcDomain[] = [...new Set(types.map((m) => m.domain))];
+const byDomain = domains.map((d) => ({
+  domain: d,
+  label: t.domains[d],
+  types: types.filter((m) => m.domain === d),
+}));
 ---
 
 <Base locale={locale} title={p.title} description={p.description} lede={p.lede}>
   {
-    /* Ahead of the grid: this page is a wall of eleven cards, and the mascot's line is the one
-       thing on it that says where to start. */
+    /* Ahead of the grid: this page is a wall of forty-odd cards, and the mascot's line is the
+       one thing on it that says where to start. */
   }
   <Mascot locale={locale} moment="practice" className="page-mascot" />
 
-  <div class="card-grid" style="--card-min: 20rem">
-    {
-      types.map((meta) => (
-        <a
-          class="card card--interactive type-card practice-card"
-          href={href(`practice/${meta.id}/`)}
-          data-testid={`practice-card-${meta.id}`}
-          style={`--type-hue: ${typeHue(meta.id)}`}
-        >
-          <ItemThumb item={previewItem(meta.id, locale)} locale={locale} />
-          <div class="cluster practice-card-head" style="--cluster-gap: 0.6rem">
-            <strong class="practice-card-name">{meta.name}</strong>
-            <span class="pill practice-card-domain">{t.domains[meta.domain]}</span>
+  <section class="practice-section">
+    <h2 class="section-heading">{p.whatHeading}</h2>
+    <p class="muted section-lede">{p.whatLede}</p>
+
+    <div class="domain-groups">
+      {
+        byDomain.map((group) => (
+          <div data-testid={`practice-domain-${group.domain}`}>
+            <h3 class="domain-heading">
+              {group.label} <span class="domain-code">({group.domain})</span>
+            </h3>
+            {/* `--type-hue` paints each card's chrome only; it never reaches the figures
+                inside the miniature. See src/lib/identity.ts. */}
+            <div class="card-grid" style="--card-gap: 0.85rem">
+              {group.types.map((meta) => (
+                <a
+                  class="card card--interactive type-card"
+                  href={href(`practice/${meta.id}/`)}
+                  data-testid={`practice-card-${meta.id}`}
+                  style={`--type-hue: ${typeHue(meta.id)}`}
+                >
+                  {/*
+                   * A real item from this format, at a pinned seed, drawn by the same
+                   * generator the drill uses. It replaces an emoji that told you nothing
+                   * about what you were choosing.
+                   */}
+                  <ItemThumb item={previewItem(meta.id, locale)} locale={locale} />
+                  <strong class="type-card-name">{meta.name}</strong>
+                  <span class="muted type-card-blurb">{meta.blurb}</span>
+                  <span class="subtle type-card-seen">{p.seenIn(meta.seenIn)}</span>
+                </a>
+              ))}
+            </div>
           </div>
-          <p class="muted practice-card-blurb">{meta.blurb}</p>
-        </a>
-      ))
-    }
-  </div>
+        ))
+      }
+    </div>
+  </section>
 </Base>

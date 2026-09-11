@@ -9,10 +9,12 @@ test.describe('site navigation', () => {
     await expect(page.getByTestId('cta-practice')).toBeVisible();
   });
 
-  test('every item type has a card on the home page', async ({ page }) => {
+  test('the home page no longer lists the formats — the practice index does', async ({ page }) => {
     await page.goto('en/');
+    await expect(page.locator('[data-testid^="practice-card-"]')).toHaveCount(0);
+    await page.goto('en/practice/');
     for (const meta of ALL_META) {
-      await expect(page.getByTestId(`type-card-${meta.id}`), meta.id).toBeVisible();
+      await expect(page.getByTestId(`practice-card-${meta.id}`), meta.id).toBeVisible();
     }
   });
 

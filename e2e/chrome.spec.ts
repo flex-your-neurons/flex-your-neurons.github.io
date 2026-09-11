@@ -69,11 +69,11 @@ test.describe('per-format identity', () => {
    * so every card would set its own hue and every card would still paint indigo.
    */
   test('each card paints its own accent', async ({ page }) => {
-    await page.goto('en/');
+    await page.goto('en/practice/');
 
     const painted = new Set<string>();
     for (const meta of ALL_META) {
-      const card = page.getByTestId(`type-card-${meta.id}`);
+      const card = page.getByTestId(`practice-card-${meta.id}`);
       await expect(card, meta.id).toHaveAttribute(
         'style',
         new RegExp(`--type-hue:\\s*${typeHue(meta.id)}`),
@@ -81,7 +81,7 @@ test.describe('per-format identity', () => {
 
       // The accent is painted by a pseudo-element, so read its resolved background.
       const rule = await page.evaluate((id) => {
-        const el = document.querySelector(`[data-testid="type-card-${id}"] .type-card-name`)!;
+        const el = document.querySelector(`[data-testid="practice-card-${id}"] .type-card-name`)!;
         return getComputedStyle(el, '::after').backgroundColor;
       }, meta.id);
       expect(rule, `${meta.id} paints no accent`).toBeTruthy();
@@ -115,9 +115,9 @@ test.describe('site chrome', () => {
 
   /** Focus must be unmistakable, and it is not a place for gradients. */
   test('focus is a solid outline everywhere', async ({ page }) => {
-    await page.goto('en/');
-    await page.getByTestId('type-card-matrix').focus();
-    const outline = await page.getByTestId('type-card-matrix').evaluate((el) => {
+    await page.goto('en/practice/');
+    await page.getByTestId('practice-card-matrix').focus();
+    const outline = await page.getByTestId('practice-card-matrix').evaluate((el) => {
       const style = getComputedStyle(el);
       return { style: style.outlineStyle, width: style.outlineWidth };
     });
@@ -130,8 +130,8 @@ test.describe('site chrome', () => {
    * is a measurable battery cost for an effect nobody is looking at.
    */
   test('the card ring is paused and invisible at rest', async ({ page }) => {
-    await page.goto('en/');
-    const state = await page.getByTestId('type-card-matrix').evaluate((el) => {
+    await page.goto('en/practice/');
+    const state = await page.getByTestId('practice-card-matrix').evaluate((el) => {
       const ring = getComputedStyle(el, '::after');
       return { play: ring.animationPlayState, opacity: ring.opacity };
     });
@@ -140,8 +140,8 @@ test.describe('site chrome', () => {
   });
 
   test('the ring runs on hover and on keyboard focus alike', async ({ page }) => {
-    await page.goto('en/');
-    const card = page.getByTestId('type-card-matrix');
+    await page.goto('en/practice/');
+    const card = page.getByTestId('practice-card-matrix');
 
     await card.hover();
     await expect
@@ -149,11 +149,11 @@ test.describe('site chrome', () => {
       .toBe('running');
 
     // Keyboard users get the same affordance, not a lesser one.
-    await page.getByTestId('type-card-series-number').focus();
+    await page.getByTestId('practice-card-series-number').focus();
     await expect
       .poll(() =>
         page
-          .getByTestId('type-card-series-number')
+          .getByTestId('practice-card-series-number')
           .evaluate((el) => getComputedStyle(el, '::after').animationPlayState),
       )
       .toBe('running');
@@ -178,15 +178,16 @@ test.describe('site chrome', () => {
   test('reduced motion removes the decoration rather than speeding it up', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto('en/');
+    await page.goto('en/practice/');
 
     // The ring is gone, not instant.
     const display = await page
-      .getByTestId('type-card-matrix')
+      .getByTestId('practice-card-matrix')
       .evaluate((el) => getComputedStyle(el, '::after').display);
     expect(display).toBe('none');
 
     // The hero is present but does not assemble itself.
+    await page.goto('en/');
     await expect(page.locator('.hero-matrix .hero-cell').first()).toBeVisible();
     const heroAnimation = await page
       .locator('.hero-cell')

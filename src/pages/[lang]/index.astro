@@ -1,13 +1,9 @@
 ---
 import Base from '../../layouts/Base.astro';
 import FigureView from '../../components/FigureView';
-import ItemThumb from '../../components/ItemThumb';
 import Mascot from '../../components/Mascot';
-import { allItemTypes, generateItem } from '../../lib/generators';
-import { typeHue } from '../../lib/identity';
-import { previewItem } from '../../lib/previews';
+import { generateItem } from '../../lib/generators';
 import { dict, LOCALES, type Locale } from '../../lib/i18n';
-import type { ChcDomain } from '../../lib/types';
 
 export function getStaticPaths() {
   return LOCALES.map((lang) => ({ params: { lang } }));
@@ -19,20 +15,6 @@ const p = t.pages.home;
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const href = (path: string) => `${base}/${locale}/${path}`;
-
-const types = allItemTypes(locale);
-/*
- * Derived from the registry, never listed by hand. This page groups the format cards by domain, so
- * a hand-written list does not merely mislabel — it *drops every card* in an unlisted domain. That
- * is exactly what happened when the arithmetic format shipped with a new domain: Gq was absent
- * here, and the card vanished from the home page while every other page showed it.
- */
-const domains: ChcDomain[] = [...new Set(types.map((m) => m.domain))];
-const byDomain = domains.map((d) => ({
-  domain: d,
-  label: t.domains[d],
-  types: types.filter((m) => m.domain === d),
-}));
 
 /*
  * The hero is a genuine, solvable matrix at a pinned seed — the same generator, the same
@@ -78,45 +60,6 @@ const heroCells = hero.stimulus.kind === 'matrix' ? hero.stimulus.cells : [];
      */
   }
   <Mascot locale={locale} moment="home" className="home-mascot" />
-
-  <section class="home-section">
-    <h2 class="section-heading">{p.whatHeading}</h2>
-    <p class="muted section-lede">{p.whatLede}</p>
-
-    <div class="domain-groups">
-      {
-        byDomain.map((group) => (
-          <div>
-            <h3 class="domain-heading">
-              {group.label} <span class="domain-code">({group.domain})</span>
-            </h3>
-            {/* `--type-hue` paints each card's chrome only; it never reaches the figures
-                inside the miniature. See src/lib/identity.ts. */}
-            <div class="card-grid" style="--card-gap: 0.85rem">
-              {group.types.map((meta) => (
-                <a
-                  class="card card--interactive type-card"
-                  href={href(`practice/${meta.id}/`)}
-                  data-testid={`type-card-${meta.id}`}
-                  style={`--type-hue: ${typeHue(meta.id)}`}
-                >
-                  {/*
-                   * A real item from this format, at a pinned seed, drawn by the same
-                   * generator the drill uses. It replaces an emoji that told you nothing
-                   * about what you were choosing.
-                   */}
-                  <ItemThumb item={previewItem(meta.id, locale)} locale={locale} />
-                  <strong class="type-card-name">{meta.name}</strong>
-                  <span class="muted type-card-blurb">{meta.blurb}</span>
-                  <span class="subtle type-card-seen">{p.seenIn(meta.seenIn)}</span>
-                </a>
-              ))}
-            </div>
-          </div>
-        ))
-      }
-    </div>
-  </section>
 
   <section class="card home-how">
     <h2 class="section-heading section-heading--sm">{p.howHeading}</h2>
